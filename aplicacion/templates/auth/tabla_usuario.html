@@ -1,0 +1,38 @@
+{%extends 'base.html'%}
+{%block titulo%}PRODUCTO{%endblock%}
+{%block contenido%}
+<h1>Lista de usuarios</h1>
+<nav>
+    <form action="" method="post">
+            <div
+        class="table-responsive"
+    >
+        <table
+            class="table table-primary"
+        >
+            <thead>
+                <tr>
+                    <th scope="col">correo electronico</th>
+                    <th scope="col">Rol</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="">
+                    {%for user in view_user%}
+                    <td>{{user['username']}}</td>
+                    <td>{{user['user_privileg']}}</td>
+                    <td>
+                        <button name="button" value="modify">Modificar</button>
+                        <button name="button" value="delete">Eliminar</button>
+                    </td>
+                </tr>
+                <tr class="">
+                    {%endfor%}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </form>
+</nav>
+{%endblock%}

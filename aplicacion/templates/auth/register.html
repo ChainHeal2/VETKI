@@ -1,0 +1,15 @@
+{%extends 'base.html'%}
+{%block titulo%}registro{%endblock%}
+{%block main%}
+<h1>Registrar Nuevo Usuario</h1>
+<form action="" method="post">
+    {%for mensaje in get_flashed_messages()%}
+    <div>{{mensaje}}</div>
+    {%endfor%}
+    <label for="username">usuario</label>
+    <input type="text" name="username" required>
+    <label for="password">contraseña</label>
+    <input type="password" name="password" required>
+    <button type="submit" onclick="">registrarse</button>
+</form>
+{%endblock%}
