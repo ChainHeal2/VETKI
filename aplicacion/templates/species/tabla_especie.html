@@ -1,0 +1,68 @@
+{%extends 'base.html'%}
+{%block title%}Especies{%endblock%}
+{%block main%}
+<h1>Tabla de especies</h1>
+
+<div
+    class="table-responsive"
+>
+    <table
+        class="table table-striped table-hover table-borderless table-primary align-middle"
+    >
+        <thead class="table-light">
+            <caption>
+                Lista de especies registradas
+            </caption>
+            <tr>
+                <th>Especie</th>
+                <th>opciones</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            <tr
+                class="table-primary"></tr>
+               {%for dato in tabla%}
+                <tr>
+                    <td name="{{dato['name_species']}}" scope="row">{{dato['name_species']}}</td>
+                        <div>
+                            <form action="" method="post">
+                            <td scope="row"><a
+                            name="mod_specie"
+                            id=""
+                            class="btn btn-primary"
+                            href=""
+                            role="button"
+                            >Modificar</a>
+                            </form>
+                            <form action="" method="post">
+                            <a name="del_specie"
+                            id=""
+                            class="btn btn-danger"
+                            href="{{ url_for('species.delete_specie', species_id=dato['species_id'])}}"
+                            role="button"
+                            >Eliminar</a>
+                            </form>
+                        </div>
+                    </td>
+                    
+                </tr>
+                    
+                {%endfor%}
+            </tr>
+        </tbody>
+        <tfoot>
+            
+        </tfoot>
+    </table>
+</div>
+<form action="" method="post">
+    <label for="">Nombre de especie</label>
+    <input type="text" name="species_user">
+    <button
+        type="submit"
+        class="btn btn-primary"
+    >Ingresar</button>
+    
+
+</form>
+{%endblock%}

@@ -29,7 +29,7 @@ def create_app():
     from .templates.auth import auth
     app.register_blueprint(auth.bp)
 
-    from .templates.task import task
-    app.register_blueprint(task.bp)
+    from .templates.species import species
+    app.register_blueprint(species.bp)
 
     return app

@@ -21,68 +21,58 @@
     <body>{%block body%}
         <header>{%block header%}
             {%if session.get('username') %}
-                <nav
-                    class="navbar navbar-expand-sm navbar-light bg-light"
+                <ul
+                    class="nav nav-tabs"
                 >
-                    <div class="container">
-                        <a class="navbar-brand" href="{{url_for('task.view_task')}}">VETKI</a>
-                        <button
-                            class="navbar-toggler d-lg-none"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#collapsibleNavId"
-                            aria-controls="collapsibleNavId"
+                    <li class="nav-item">
+                        <a href="{{url_for('auth.index')}}" class="nav-link active" aria-current="page"
+                            >VETKI</a
+                        >
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a
+                            class="nav-link dropdown-toggle"
+                            data-bs-toggle="dropdown"
+                            href="#"
+                            role="button"
+                            aria-haspopup="true"
                             aria-expanded="false"
-                            aria-label="Toggle navigation"
+                            >Especies</a
                         >
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="collapse navbar-collapse" id="collapsibleNavId">
-                            <ul class="navbar-nav me-auto mt-2 mt-lg-0">
-                                <li class="nav-item">
-                                    <a class="nav-link active" href="{{url_for('auth.logout')}}" aria-current="page"
-                                        >Cerrar session
-                                        <span class="visually-hidden">(current)</span></a
-                                    >
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link active" href="{{url_for('task.create_task')}}" aria-current="page"
-                                        >Nueva Tarea
-                                        <span class="visually-hidden">(current)</span></a
-                                    >
-                                </li>
-                            </ul>
-                            <form class="d-flex my-2 my-lg-0">
-                                <input
-                                    class="form-control me-sm-2"
-                                    type="text"
-                                    placeholder="Search"
-                                />
-                                <button
-                                    class="btn btn-outline-success my-2 my-sm-0"
-                                    type="submit"
-                                >
-                                    Search
-                                </button>
-                            </form>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{url_for('species.especies')}}">Ver especies</a>
+                            
                         </div>
-                    </div>
-                </nav>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">Another link</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{url_for('auth.logout')}}" class="nav-link">Cerrar sesion</a>
+                    </li>
+                </ul>
                 {%else%}
-                <nav class="navbar navbar-expand navbar-light bg-light">
-                    <div class="nav navbar-nav">
-                        <a class="nav-item nav-link active" href="{{url_for('auth.login')}}" aria-current="page"
-                            >VETKI<span class="visually-hidden">(current)</span></a
+                <ul
+                    class="nav nav-tabs"
+                >
+                    <li class="nav-item">
+                        <a href="{{url_for('auth.index')}}" class="nav-link active" aria-current="page"
+                            >VETKI</a
                         >
-                        <a class="nav-item nav-link" href="{{url_for('auth.register')}}">Registrarse</a>
-                    </div>
-                </nav>
-                
+                    <li class="nav-item">
+                        <a href="{{url_for('auth.login')}}" class="nav-link">Iniciar sesion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{url_for('auth.register')}}" class="nav-link">Registrarse</a>
+                    </li>
+                </ul>
+                             
             {%endif%}
         {%endblock%}
         </header>
         <main>
             {%block main%}
+            <h1>Pagina de presentacion</h1>
             {%endblock%}
         </main>
         <footer>

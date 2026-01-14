@@ -19,7 +19,7 @@ def register():
         password = request.form['password']
         db ,c = get_db()
         error = None
-        c.execute('select id_user from user where username = %s',(username,))
+        c.execute('select user_id from user where username = %s',(username,))
         if not username:
             error ='Username es requerido'
         if not password:
@@ -27,8 +27,8 @@ def register():
         elif c.fetchone() is not None:
             error = 'El usuario ya se encuentra registrado'
         if error is None:
-            c.execute('insert into user (username,password) values (%s,%s)',
-            (username,generate_password_hash(password)))
+            c.execute('insert into user (username,password,email_user,level_user) values (%s,%s,%s,%s)',
+            (username,generate_password_hash(password),"correo",1))
             db.commit()
             return redirect(url_for('auth.login'))
         flash(error)
@@ -42,7 +42,7 @@ def login():
         password = request.form['password']
         print(password)
         db ,c = get_db()
-        c.execute('select id_user,username,password from user where username = %s',(username,))
+        c.execute('select user_id,username,password from user where username = %s',(username,))
         user = c.fetchone()
         if user is None:
             error = 'Usuario o contraseña incorrecta '
@@ -50,7 +50,7 @@ def login():
             error = 'Usuario o contraseña incorrecta password '
         if error is None:
             session.clear()
-            session['user_id'] = user['id_user']
+            session['user_id'] = user['user_id']
             session['username'] = user['username']
             print('sesion activa',session)
             return redirect(url_for('auth.index'))
@@ -79,6 +79,7 @@ def ver_user():
             pass
         
     return render_template('auth/tabla_usuario.html', view_user = sql_view)
+
 @bp.before_app_request
 def load_logged_in_user():
     """antes de cada peticion del usuario"""
@@ -87,7 +88,7 @@ def load_logged_in_user():
         g.user= None
     else:
         db,c = get_db()
-        c.execute('select * from user where id_user = %s',(user_id,))
+        c.execute('select * from user where user_id = %s',(user_id,))
         g.user= c.fetchone()
 def loguin_required(view):
     """protege las rutas"""
