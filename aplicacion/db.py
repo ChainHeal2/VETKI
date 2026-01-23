@@ -1,5 +1,6 @@
 """Creamos la conexion de la base de datos"""
-import mysql.connector
+import psycopg2
+from psycopg2.extras import RealDictCursor
 import click
 from flask import current_app,g
 from flask.cli import with_appcontext
@@ -11,16 +12,20 @@ def get_db():
     una vez que g hace su peticion y la bd responde y g se destruye.
     """
     if 'db' not in g:
-        #si no existe un atributo 'db' en g se la creamos
-        g.db = mysql.connector.connect(
-            #esto referencia a __init__.py de donde viene nuestra peticion
+        # Si no existe, creamos la conexión y el cursor una sola vez por petición
+        conn = psycopg2.connect(
             host = current_app.config['DATABASE_HOST'],
             user = current_app.config['DATABASE_USER'],
             password = current_app.config['DATABASE_PASSWORD'],
             database = current_app.config['DATABASE']
         )
-        g.c=g.db.cursor(dictionary=True)
-    return g.db,g.c
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        # Agrega esta línea para que Postgres encuentre tus tablas automáticamente
+        cur.execute("SET search_path TO vetki, public")
+        g.db = conn
+        g.c = cur
+    return g.db, g.c
+
 def close_db(e=None):
     """Cierra la conexion con la base de datos"""
     db = g.pop('db',None)

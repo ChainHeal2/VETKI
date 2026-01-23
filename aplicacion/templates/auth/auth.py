@@ -19,7 +19,7 @@ def register():
         password = request.form['password']
         db ,c = get_db()
         error = None
-        c.execute('select user_id from user where username = %s',(username,))
+        c.execute('select user_id from user_personal where username = %s',(username,))
         if not username:
             error ='Username es requerido'
         if not password:
@@ -27,7 +27,7 @@ def register():
         elif c.fetchone() is not None:
             error = 'El usuario ya se encuentra registrado'
         if error is None:
-            c.execute('insert into user (username,password,email_user,level_user) values (%s,%s,%s,%s)',
+            c.execute('insert into user_personal (username,password,email_user,level_user) values (%s,%s,%s,%s)',
             (username,generate_password_hash(password),"correo",1))
             db.commit()
             return redirect(url_for('auth.login'))
@@ -42,7 +42,7 @@ def login():
         password = request.form['password']
         print(password)
         db ,c = get_db()
-        c.execute('select user_id,username,password from user where username = %s',(username,))
+        c.execute('select user_id,username,password from user_personal where username = %s',(username,))
         user = c.fetchone()
         if user is None:
             error = 'Usuario o contraseña incorrecta '
@@ -88,7 +88,7 @@ def load_logged_in_user():
         g.user= None
     else:
         db,c = get_db()
-        c.execute('select * from user where user_id = %s',(user_id,))
+        c.execute('select * from user_personal where user_id = %s',(user_id,))
         g.user= c.fetchone()
 def loguin_required(view):
     """protege las rutas"""

@@ -2,17 +2,15 @@ import functools
 from flask import (Blueprint,flash,g,render_template,url_for,session,redirect,request)
 from werkzeug.security import check_password_hash,generate_password_hash
 from aplicacion.db import get_db
-from aplicacion.functions.function import limpiar_datos
 
-bp = Blueprint('species',__name__)
+bp = Blueprint('personal',__name__)
 @bp.route('/especies',methods = ['GET','POST'])
 def especies():
     """Pagina tabla de especies"""
     if request.method == 'GET':
         db,c = get_db()
-        c.execute('select species_id,name_species from species;')
+        c.execute('select * from species;')
         tabla_especie = c.fetchall()
-        print(limpiar_datos(tabla_especie))
         c.close()
         return render_template('species/tabla_especie.html',tabla = tabla_especie)
     elif request.method == 'POST':
