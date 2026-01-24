@@ -90,7 +90,7 @@ def load_logged_in_user():
         db,c = get_db()
         c.execute('select * from user_personal where user_id = %s',(user_id,))
         g.user= c.fetchone()
-def loguin_required(view):
+def login_required(view):
     """protege las rutas"""
     @functools.wraps(view)
     def wrapped_view(**kwargs):
