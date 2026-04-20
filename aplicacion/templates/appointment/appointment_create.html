@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Nuevo Appointment {% endblock %}
+
+{% block main %}
+<div class="animate-slide">
+
+    <div class="mb-5 border-bottom pb-4" style="border-color: var(--gemini-border) !important;">
+        <h1 class="display-6 fw-normal mb-1">Agendar Cita</h1>
+        <p class="mb-0" style="color: var(--gemini-text-sub);">Complete el expediente clínico para la base de datos.</p>
+    </div>
+
+    <form method="POST" class="row g-4 px-lg-2">
+        {{ appointment_form.hidden_tag() }} 
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ appointment_form.appointment_date(class="form-control", id="pet_datebirth", type="date") }}
+                <label for="appointmnet_date">Fecha de agenda</label>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ appointment_form.appointment_pet(class="form-select", id="appointment_pet") }}
+                <label for="appointment_pet">Seleccione Mascota</label>
+            </div>
+        </div>
+
+        <div class="col-12 mt-5">
+            <div class="d-flex justify-content-end align-items-center gap-3">
+                <a href="{{url_for('pet.pet_read')}}" class="text-decoration-none small fw-medium text-secondary me-3">Descartar</a>
+                {{ appointment_form.submit(class="btn-gemini btn-pink", style="width: auto; padding: 0.8rem 3rem;", value="Registrar Paciente") }}
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Lista de Usuarios{% endblock %}
+
+{% block main %}
+<div class="animate-slide">
+    <div class="d-flex justify-content-between align-items-end mb-5 border-bottom pb-4" style="border-color: var(--gemini-border) !important;">
+        <div>
+            <h1 class="display-6 fw-normal mb-1">Equipo Médico</h1>
+            <p class="mb-0" style="color: var(--gemini-text-sub);">Administradores y operarios del sistema.</p>
+        </div>
+        <a href="{{ url_for('user.user_create') }}" class="btn-gemini btn-pink" style="width: auto; padding: 0.8rem 2.5rem;">
+            + Nuevo
+        </a>
+    </div>
+
+    <div class="row g-4">
+        {% for u in usuarios %}
+        <div class="col-md-6 col-lg-4">
+            <div class="action-card" style="padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border-radius: 20px; border: 1px solid var(--gemini-border);">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--gemini-border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👤</div>
+                    <div>
+                        <h4 class="h5 mb-0 text-white">{{ u.user_names }}</h4>
+                        <span style="color: var(--gemini-text-sub); font-size: 0.8rem;">RUT: {{ u.user_rut or 'N/A' }}</span>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 w-100 justify-content-end">
+                    <a href="{{ url_for('user.user_update', user_id=u.user_id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3" style="font-size: 0.8rem;">Manejar</a>
+                    <a href="{{ url_for('user.user_delete', user_id=u.user_id) }}" onclick="return confirm('¿Eliminar usuario?');" class="btn btn-sm btn-outline-danger rounded-pill px-3" style="font-size: 0.8rem; border-color: rgba(255,0,0,0.3); color: #ff6b6b">Eliminar</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center text-muted py-5">
+            No hay usuarios registrados.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

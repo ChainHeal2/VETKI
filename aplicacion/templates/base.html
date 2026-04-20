@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+
+<head>
+    {% block head %}
+    <title>{% block title %}VETKI | Dashboard{% endblock %}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Paleta Gemini Desktop Original */
+            --gemini-bg: #131314;
+            /* Fondo profundo */
+            --gemini-card: #1e1f20;
+            /* Fondo de contenedores */
+            --gemini-pink: #f472b6;
+            /* Acento Rosa Profesional */
+            --gemini-border: #444746;
+            /* Bordes sutiles de Google */
+            --gemini-text-main: #e3e3e3;
+            --gemini-text-sub: #c4c7c5;
+        }
+
+        body {
+            background-color: var(--gemini-bg);
+            color: var(--gemini-text-main);
+            font-family: 'Google Sans', 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Superior Estilo Gemini */
+        .gemini-nav {
+            background-color: rgba(19, 19, 20, 0.8) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gemini-border);
+            padding: 1rem 2rem;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--gemini-pink) !important;
+            letter-spacing: -0.5px;
+        }
+
+        /* Contenedor Principal Amplio (No Móvil) */
+        .gemini-content-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 3rem 1rem;
+        }
+
+        .gemini-main-card {
+            width: 100%;
+            max-width: 1100px;
+            /* Ancho de escritorio */
+            background-color: var(--gemini-card);
+            border-radius: 32px;
+            /* Bordes extra redondeados de Gemini */
+            padding: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Botones Tipo Píldora de Escritorio */
+        .btn-gemini {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 2.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 100px;
+            border: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            gap: 10px;
+        }
+
+        .btn-pink {
+            background-color: var(--gemini-pink);
+            color: #000;
+        }
+
+        .btn-pink:hover {
+            background-color: #f9a8d4;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gemini-border);
+            color: var(--gemini-text-sub);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+            border-color: #8e918f;
+        }
+
+        /* Inputs Refinados para Formularios */
+        .form-control {
+            background-color: transparent;
+            border: 1px solid var(--gemini-border);
+            border-radius: 16px;
+            padding: 0.8rem 1.2rem;
+            color: #fff;
+        }
+
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-color: var(--gemini-pink);
+            box-shadow: none;
+            color: #fff;
+        }
+
+        .nav-link {
+            color: var(--gemini-text-sub) !important;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--gemini-pink) !important;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2.5rem;
+            color: #8e918f;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--gemini-border);
+        }
+
+        /* Animación suave de entrada */
+        .animate-slide {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    {% endblock %}
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar navbar-expand-lg gemini-nav sticky-top">
+            <div class="container-fluid">
+                <a class="navbar-brand ms-lg-4" href="{{url_for('pet.index')}}">VETKI 🐾</a>
+
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navVetki">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navVetki">
+                    <ul class="navbar-nav ms-auto me-lg-4 align-items-center">
+                        {% if session.get('username') %}
+                        <li class="nav-item me-3 d-none d-lg-block">
+                            <span class="badge rounded-pill"
+                                style="background: rgba(255,255,255,0.05); color: var(--gemini-text-main); font-weight: 400; padding: 0.55rem 1.2rem; border: 1px solid var(--gemini-border);">
+                                <span style="color: var(--gemini-pink); margin-right: 5px;">Dra.</span> {{
+                                session.get('username') }}
+                            </span>
+                        </li>
+                        <li class="nav-item"><a class="nav-link active" href="{{url_for('pet.index')}}">Inicio</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+                                data-bs-toggle="dropdown">Pacientes</a>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2"
+                                style="background: #28292a; border-radius: 12px;">
+                                <li><a class="dropdown-item rounded-3" href="{{url_for('pet.pet_create')}}">Añadir
+                                        Paciente</a></li>
+                                <li><a class="dropdown-item rounded-3" href="{{url_for('pet.pet_read')}}">Ver
+                                        Historial</a></li>
+                            </ul>
+                        </li>
+                        <!-- Botón Cerrar Sesión -->
+                        <li class="nav-item ms-3">
+                            <a class="btn btn-outline"
+                                style="font-size: 0.85rem; border-color: rgba(255, 107, 107, 0.4); color: #ff6b6b; padding: 0.4rem 1.2rem;"
+                                href="{{ url_for('auth.user_logout') }}">
+                                Cerrar Sesión
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+    <main class="gemini-content-wrapper">
+        <div class="gemini-main-card animate-slide">
+            {% block main %}
+            <style>
+                .triage-card {
+                    background: linear-gradient(145deg, rgba(211, 47, 47, 0.15), rgba(0, 0, 0, 0.2));
+                    border: 1px solid rgba(211, 47, 47, 0.3);
+                    border-radius: 20px;
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                    text-decoration: none;
+                    display: block;
+                }
+
+                .triage-card:hover {
+                    background: linear-gradient(145deg, rgba(211, 47, 47, 0.25), rgba(0, 0, 0, 0.2));
+                    border-color: rgba(211, 47, 47, 0.6);
+                    transform: translateY(-3px);
+                }
+
+                .action-card {
+                    background: rgba(255, 255, 255, 0.03);
+                    border: 1px solid var(--gemini-border);
+                    border-radius: 16px;
+                    transition: all 0.3s ease;
+                    height: 100%;
+                    text-decoration: none;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: flex-start;
+                    padding: 1.5rem;
+                }
+
+                .action-card:hover {
+                    background: rgba(255, 255, 255, 0.06);
+                    border-color: var(--gemini-pink);
+                    transform: translateY(-2px);
+                }
+
+                .action-icon {
+                    font-size: 2rem;
+                    margin-bottom: 1rem;
+                }
+            </style>
+            <div class="text-start">
+                {% if session.get('user_id') %}
+                <h1 class="display-5 fw-normal mb-1">Mando Clínico Central</h1>
+                <p class="lead mb-5" style="color: var(--gemini-text-sub);">
+                    Sistema de respuesta rápida y gestión diaria.
+                </p>
+
+                <div class="row g-4">
+                    <!-- ZONA DE EMERGENCIA -->
+                    <div class="col-12">
+                        <a href="{{url_for('pet.pet_create')}}"
+                            class="triage-card p-4 p-md-5 text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
+                            <div
+                                class="mb-3 mb-md-0 d-flex align-items-center justify-content-center justify-content-md-start gap-4">
+                                <div
+                                    style="background: rgba(211,47,47,0.2); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <span style="font-size: 1.8rem;">🚨</span>
+                                </div>
+                                <div class="text-md-start">
+                                    <h2 class="h3 mb-0 text-white fw-bold">CÓDIGO ROJO / URGENCIAS</h2>
+                                    <span style="color: rgba(255,255,255,0.7); font-size: 0.95rem;">Ingreso de paciente
+                                        crítico inmediato</span>
+                                </div>
+                            </div>
+                            <div class="btn rounded-pill px-4 py-2 text-white fw-medium mt-3 mt-md-0"
+                                style="background-color: #D32F2F; border: none; letter-spacing: 1px;">INGRESAR PACIENTE
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 mt-5">
+                        <h5 class="fw-normal mb-2"
+                            style="color: var(--gemini-text-sub); border-bottom: 1px solid var(--gemini-border); padding-bottom: 1rem;">
+                            Operaciones Diarias</h5>
+                    </div>
+
+                    <!-- ZONA REGULAR -->
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{url_for('pet.pet_create')}}" class="action-card">
+                            <span class="action-icon">📋</span>
+                            <h4 class="h5 text-white mb-2">Nuevo Expediente</h4>
+                            <span style="color: var(--gemini-text-sub); font-size: 0.85rem; line-height: 1.4;">Registrar
+                                pacientes regulares en la base de datos.</span>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{url_for('pet.pet_read')}}" class="action-card">
+                            <span class="action-icon">🗂️</span>
+                            <h4 class="h5 text-white mb-2">Base de Pacientes</h4>
+                            <span style="color: var(--gemini-text-sub); font-size: 0.85rem; line-height: 1.4;">Consultar
+                                historiales y actualizar datos.</span>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{url_for('appointment.appointment_read')}}" class="action-card">
+                            <span class="action-icon">📅</span>
+                            <h4 class="h5 text-white mb-2">Agenda</h4>
+                            <span style="color: var(--gemini-text-sub); font-size: 0.85rem; line-height: 1.4;">Revisar
+                                turnos y próximos ingresos programados.</span>
+                        </a>
+                    </div>
+
+                    <!-- GESTIÓN DE SISTEMA -->
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{url_for('user.user_create')}}" class="action-card">
+                            <span class="action-icon">👤</span>
+                            <h4 class="h5 text-white mb-2">Nuevo Usuario</h4>
+                            <span style="color: var(--gemini-text-sub); font-size: 0.85rem; line-height: 1.4;">Registrar
+                                veterinarios y personal administrativo.</span>
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <!-- PORTAL PÚBLICO INFORMATIVO -->
+                <div class="text-center py-5">
+                    <div style="font-size: 4.5rem; margin-bottom: 1rem;">🐾</div>
+                    <h1 class="display-3 fw-bold mb-3" style="color: var(--gemini-text-main); letter-spacing: -1px;">
+                        VETKI MEDICAL <span style="color: var(--gemini-pink);">AI</span></h1>
+                    <p class="lead mb-4 mx-auto"
+                        style="color: var(--gemini-text-sub); max-width: 650px; font-size: 1.2rem;">
+                        Un proyecto pionero en **Gestión Veterinaria Integral** diseñado para centralizar y optimizar
+                        todos los procesos de tu clínica.
+                    </p>
+
+                    <div class="row text-start mx-auto mb-5 justify-content-center" style="max-width: 800px;">
+                        <div class="col-md-6 mb-3">
+                            <div class="p-3"
+                                style="background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--gemini-border);">
+                                <h5 class="text-white" style="font-size: 1rem;">🗂️ Fichas Médicas Digitales</h5>
+                                <p style="color: var(--gemini-text-sub); font-size: 0.85rem; padding: 0; margin: 0;">
+                                    Expedientes unificados e historiales centralizados por cada paciente para agilizar
+                                    la respuesta médica.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="p-3"
+                                style="background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--gemini-border);">
+                                <h5 class="text-white" style="font-size: 1rem;">📅 Agendamiento Inteligente</h5>
+                                <p style="color: var(--gemini-text-sub); font-size: 0.85rem; padding: 0; margin: 0;">
+                                    Integración en tiempo real con API de Google Calendar y cruce de datos automático.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mt-2">
+                        <a href="{{ url_for('auth.user_login') }}" class="btn-gemini btn-pink shadow-lg"
+                            style="padding: 1rem 3rem; font-size: 1.1rem;">
+                            Ingresar al Sistema
+                        </a>
+                        <a href="{{ url_for('auth.user_register') }}" class="btn btn-outline rounded-pill"
+                            style="padding: 1rem 3rem; font-size: 1.1rem;">
+                            Solicitar Afiliación
+                        </a>
+                    </div>
+
+                    <div class="mt-5 pt-4">
+                        <div class="row text-center g-4 mx-auto justify-content-center"
+                            style="max-width: 800px; opacity: 0.8;">
+                            <div class="col-md-4">
+                                <div class="h4 text-white">100%</div>
+                                <div style="color: var(--gemini-text-sub); font-size: 0.85rem;">Seguridad Auth de
+                                    PostgreSQL</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endblock %}
+        </div>
+        <div class="animate-slide">
+            <div class="vetki-toast-container position-fixed top-0 end-0 p-4">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for categoria, mensaje in messages %}
+                {% set accent = 'var(--gemini-pink)' if categoria == 'success' else '#ff6b6b' %}
+                <div class="vetki-toast show">
+                    <div class="d-flex align-items-center p-3">
+                        <div class="me-3 d-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px; background: rgba(255,255,255,0.05); border-radius: 12px; color: {{ accent }}; flex-shrink: 0;">
+                            {% if categoria == 'success' %} ✨ {% else %} ⚠️ {% endif %}
+                        </div>
+                        <div class="me-auto text-white">
+                            <div class="small fw-bold text-uppercase" style="font-size: 0.65rem; color: {{ accent }};">
+                                Aviso</div>
+                            <div class="small">{{ mensaje }}</div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white opacity-50"
+                            onclick="this.closest('.vetki-toast').remove()"></button>
+                    </div>
+                    <div class="progress-fill" style="background: {{ accent }};"></div>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+    </main>
+
+    <footer>
+        {% block footer %}
+        <div class="container">
+            <p>&copy; 2026 VETKI MEDICAL AI &middot; Diseño Profesional Dark &middot; Hecho para Médicos Veterinarios
+            </p>
+        </div>
+        {% endblock %}
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toasts = document.querySelectorAll('.vetki-toast');
+            toasts.forEach(toast => {
+                setTimeout(() => {
+                    toast.style.transition = "all 0.5s ease";
+                    toast.style.opacity = "0";
+                    toast.style.transform = "translateX(20px)";
+                    setTimeout(() => toast.remove(), 100);
+                }, 4550);
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Editar Paciente{% endblock %}
+
+{% block main %}
+<div class="animate-slide">
+
+    <div class="mb-5 border-bottom pb-4" style="border-color: var(--gemini-border) !important;">
+        <h1 class="display-6 fw-normal mb-1">Modificar Expediente</h1>
+        <p class="mb-0" style="color: var(--gemini-text-sub);">Actualizando la información clínica del paciente.</p>
+    </div>
+
+    <form method="POST" class="row g-4 px-lg-2">
+        {{ pet_update.hidden_tag() }} 
+
+        <div class="col-md-7">
+            <div class="form-floating">
+                {{ pet_update.pet_names(class="form-control", id="pet_names", placeholder="Nombre") }}
+                <label for="pet_names">Nombre del Paciente</label>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="form-floating">
+                {{ pet_update.species_id(class="form-select", id="species_id") }}
+                <label for="species_id">Especie</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ pet_update.pet_race(class="form-control", id="pet_race", placeholder="Raza") }}
+                <label for="pet_race">Raza / Cruce</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ pet_update.pet_color(class="form-control", id="pet_color", placeholder="Color") }}
+                <label for="pet_color">Color</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                <select name="pet_gender" class="form-select" id="pet_gender">
+                    <option value="Macho" {% if pet_update.pet_gender.data == 'Macho' %}selected{% endif %}>Macho</option>
+                    <option value="Hembra" {% if pet_update.pet_gender.data == 'Hembra' %}selected{% endif %}>Hembra</option>
+                </select>
+                <label for="pet_gender">Género Biológico</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ pet_update.pet_datebirth(class="form-control", id="pet_datebirth", type="date") }}
+                <label for="pet_datebirth">Fecha de Nacimiento</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ pet_update.pet_microchip(class="form-control", id="pet_microchip", placeholder="Microchip") }}
+                <label for="pet_microchip">N° Microchip</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                <select name="pet_rstatus" class="form-select" id="pet_rstatus">
+                    <option value="Activo" {% if pet_update.pet_rstatus.data == 'Activo' %}selected{% endif %}>Activo</option>
+                    <option value="Castrado" {% if pet_update.pet_rstatus.data == 'Castrado' %}selected{% endif %}>Castrado</option>
+                    <option value="Esterilizada" {% if pet_update.pet_rstatus.data == 'Esterilizada' %}selected{% endif %}>Esterilizada</option>
+                </select>
+                <label for="pet_rstatus">Estado Reproductivo</label>
+            </div>
+        </div>
+
+        <div class="col-12 mt-5">
+            <div class="d-flex justify-content-end align-items-center gap-3">
+                <a href="{{url_for('pet.pet_read')}}" class="btn-gemini btn-outline me-2" style="text-decoration: none;">Cancelar</a>
+                {{ pet_update.submit(class="btn-gemini btn-pink", style="width: auto; padding: 0.8rem 3rem;", value="Guardar Cambios") }}
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
