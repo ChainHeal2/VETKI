@@ -12,24 +12,14 @@
 
     <!-- action="" para hacer POST a la ruta actual -->
     <form method="POST" class="row g-4 px-lg-2">
-        {{ user_update.hidden_tag() }} 
+        {{ user_update.hidden_tag() }}
 
         <div class="col-md-6">
             <div class="form-floating">
                 {{ user_update.user_names(class="form-control", id="user_names", placeholder="Nombres") }}
                 <label for="user_names">Nombres</label>
                 {% if user_update.user_names.errors %}
-                    <span class="text-danger small mt-1 d-block">{{ user_update.user_names.errors[0] }}</span>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="form-floating">
-                {{ user_update.user_surnames(class="form-control", id="user_surnames", placeholder="Apellidos") }}
-                <label for="user_surnames">Apellidos</label>
-                {% if user_update.user_surnames.errors %}
-                    <span class="text-danger small mt-1 d-block">{{ user_update.user_surnames.errors[0] }}</span>
+                <span class="text-danger small mt-1 d-block">{{ user_update.user_names.errors[0] }}</span>
                 {% endif %}
             </div>
         </div>
@@ -39,7 +29,7 @@
                 {{ user_update.user_rut(class="form-control", id="user_rut", placeholder="RUT") }}
                 <label for="user_rut">RUT (Opcional)</label>
                 {% if user_update.user_rut.errors %}
-                    <span class="text-danger small mt-1 d-block">{{ user_update.user_rut.errors[0] }}</span>
+                <span class="text-danger small mt-1 d-block">{{ user_update.user_rut.errors[0] }}</span>
                 {% endif %}
             </div>
         </div>
@@ -49,7 +39,7 @@
                 {{ user_update.user_email(class="form-control", id="user_email", placeholder="Correo Electrónico") }}
                 <label for="user_email">Correo Electrónico de Acceso</label>
                 {% if user_update.user_email.errors %}
-                    <span class="text-danger small mt-1 d-block">{{ user_update.user_email.errors[0] }}</span>
+                <span class="text-danger small mt-1 d-block">{{ user_update.user_email.errors[0] }}</span>
                 {% endif %}
             </div>
         </div>
@@ -57,18 +47,21 @@
         <!-- Opcional si se requiere actualizar contraseña desde acá -->
         <div class="col-md-6">
             <div class="form-floating">
-                {{ user_update.user_password(class="form-control", id="user_password", placeholder="Nueva Contraseña") }}
+                {{ user_update.user_password(class="form-control", id="user_password", placeholder="Nueva Contraseña")
+                }}
                 <label for="user_password">Nueva Contraseña (Opcional)</label>
                 {% if user_update.user_password.errors %}
-                    <span class="text-danger small mt-1 d-block">{{ user_update.user_password.errors[0] }}</span>
+                <span class="text-danger small mt-1 d-block">{{ user_update.user_password.errors[0] }}</span>
                 {% endif %}
             </div>
         </div>
 
         <div class="col-12 mt-5">
             <div class="d-flex justify-content-end align-items-center gap-3">
-                <a href="{{ url_for('pet.index') }}" class="btn-gemini btn-outline me-2" style="text-decoration: none;">Cancelar Modificación</a>
-                {{ user_update.submit(class="btn-gemini btn-pink", style="width: auto; padding: 0.8rem 3rem;", value="Guardar Cambios") }}
+                <a href="{{ url_for('pet.index') }}" class="btn-gemini btn-outline me-2"
+                    style="text-decoration: none;">Cancelar Modificación</a>
+                {{ user_update.submit(class="btn-gemini btn-pink", style="width: auto; padding: 0.8rem 3rem;",
+                value="Guardar Cambios") }}
             </div>
         </div>
     </form>

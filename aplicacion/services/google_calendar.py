@@ -11,10 +11,9 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.events']
 class CalendarService:
     def __init__(self):
         self.creds = None
-        # Resolver la ruta hacia la carpeta secreta en "VETKI/venv/api"
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        api_dir = os.path.abspath(os.path.join(current_dir, '..', '..', 'venv', 'api'))
-        self.token_path = os.path.join(api_dir, 'token.json')
+        api_dir = os.path.abspath(os.path.join(current_dir, '..', '..','secrets'))
+        self.token_path = os.path.join(api_dir,'token.json')
         
         # Auto-detectar la llave secreta que descargaste
         client_secrets = glob.glob(os.path.join(api_dir, 'client_secret_*.json'))
@@ -87,8 +86,8 @@ class CalendarService:
 
         try:
             event_result = service.events().insert(calendarId='primary', body=event).execute()
-            print(f"Evento GCalendar Creado: {event_result.get('htmlLink')}")
-            return event_result.get('htmlLink')
+            print(f"Evento GCalendar Creado: {event_result.get('id')}")
+            return event_result.get('id')
         except Exception as e:
             print(f"CRITICAL ERROR Google Calendar: {e}")
             return None

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Nuevo Expediente Clínico {% endblock %}
+
+{% block main %}
+<div class="animate-slide">
+
+    <div class="mb-5 border-bottom pb-4" style="border-color: var(--gemini-border) !important;">
+        <h1 class="display-6 fw-normal mb-1">Nuevo Expediente Clínico</h1>
+        <p class="mb-0" style="color: var(--gemini-text-sub);">Complete el expediente clínico para la base de datos.</p>
+    </div>
+
+    <form method="POST" class="row g-4 px-lg-2">
+        {{ medical_record_form.hidden_tag() }} 
+        {{mascota}}
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ medical_record_form.date(class="form-control", id="medical_record_date" , readonly="readonly") }}
+                <label for="medical_record_date">Fecha del expediente</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ medical_record_form.reason(class="form-control", id="medical_record_reason") }}
+                <label for="medical_record_reason">Motivo de consulta</label>
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ medical_record_form.weigth(class="form-control", id="medical_record_weight", type="number", step="0.01") }}
+                <label for="medical_record_weight">Peso (kg)</label>
+            </div>
+        </div>
+
+            <div class="col-md-6">
+                <div class="form-floating">
+                    {{ medical_record_form.diagnosis(class="form-control", id="medical_record_diagnosis") }}
+                    <label for="medical_record_diagnosis">Diagnóstico</label>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating">
+                    {{ medical_record_form.tratment(class="form-control", id="medical_record_treatment") }}
+                    <label for="medical_record_treatment">Tratamiento</label>
+                </div>
+            </div>
+
+        <div class="col-12 mt-5">
+            <div class="d-flex justify-content-end align-items-center gap-3">
+                <a href="{{url_for('pet.pet_read')}}" class="text-decoration-none small fw-medium text-secondary me-3">Descartar</a>
+                {{ medical_record_form.submit(class="btn-gemini btn-pink", style="width: auto; padding: 0.8rem 3rem;", value="Registrar Paciente") }}
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

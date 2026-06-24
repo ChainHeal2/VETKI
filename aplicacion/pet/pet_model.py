@@ -11,12 +11,15 @@ class PetModel:
         """
         self.id = data.get('pet_id')
         self.names = data.get('pet_names')
-        self.species_id = data.get('pet_species_id')
+        self.species_name = data.get('pet_species_name')
         self.race = data.get('pet_race')
         self.datebirth = data.get('pet_datebirth')
         self.microchip = data.get('pet_microchip')
         self.gender = data.get('pet_gender')
-        self.status = data.get('pet_reproductive_status')
+        self.reproductive_status = data.get('pet_reproductive_status')
+        self.tutor_name = data.get('pet_tutor_name')
+        self.tutor_address = data.get('pet_tutor_address')
+        self.tutor_phone = data.get('pet_tutor_phone')
 
     @property
     def age(self):

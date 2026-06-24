@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Lista de Expedientes Clínicos {% endblock %}
+
+{% block main %}
+<a href="{{ url_for('pet.pet_read') }}" class="btn-gemini btn-pink"
+    style="width: auto; padding: 0.8rem 2.5rem;">
+    + Nuevo Expediente Clínico
+</a>
+{% for expediente in tabla %}
+    <div class="card">
+        <div class="card-body">
+            {{expediente.id}}
+            {{expediente.weight}}
+            {{expediente.date}}
+            {{expediente.reason}}
+            {{expediente.diagnosis}}
+            {{expediente.treatment}}
+            {{expediente.user_id}}
+            {{expediente.appointment_id}}
+            |
+            {{expediente.pet_id}}
+            {{expediente.names}}
+            {{expediente.species_name}}
+            {{expediente.race}}
+            {{expediente.datebirth}}
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}

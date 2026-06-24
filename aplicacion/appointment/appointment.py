@@ -2,6 +2,7 @@
 CRUD APPOINTMENT
 """
 from aplicacion.forms.appointment.appointment_create import AppointmentForm
+# pyrefly: ignore [missing-import]
 from flask import (Blueprint,flash,render_template,url_for,redirect,request)
 from aplicacion.forms.appointment.appointment_update import AppointmentUpdate
 from aplicacion.appointment.appointment_model import AppointmentModel
@@ -37,6 +38,7 @@ def appointment_create():
             calendario = CalendarService()
             link_evento = calendario.create_event(appointment_name , appointment_form.appointment_date.data)
             if link_evento:
+                print(link_evento)
                 flash("¡Cita agendada y sincronizada en Google Calendar!", "success")
             else:
                 flash("Cita guardada, pero Google Calendar rechazó la solicitud.", "warning")
@@ -44,7 +46,7 @@ def appointment_create():
             print(f"Error Calendario: {e}")
             flash("Cita guardada, pero hubo un error de configuración en Google Calendar.", "warning")
             
-        return redirect(url_for('pet.index'))
+        return redirect(url_for('index.index'))
 
     return render_template('appointment/appointment_create.html', appointment_form=appointment_form)
 @bp.route("/appointment_read", methods = ['GET','POST'])

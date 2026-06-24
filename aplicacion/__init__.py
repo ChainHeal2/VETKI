@@ -26,6 +26,9 @@ def create_app():
     from . import db
     db.init_app(app)
 
+    from aplicacion.index import index
+    app.register_blueprint(index.bp)
+
     from aplicacion.pet import pet
     app.register_blueprint(pet.bp)
 
@@ -37,6 +40,9 @@ def create_app():
     
     from aplicacion.auth import auth
     app.register_blueprint(auth.bp)
+
+    from aplicacion.medical import medical
+    app.register_blueprint(medical.bp)
 
     from aplicacion.google_login.google_login import google_bp
     app.register_blueprint(google_bp, url_prefix="/login")

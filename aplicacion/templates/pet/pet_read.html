@@ -4,8 +4,6 @@
 
 {% block main %}
 <style>
-
-
     /* Estilos de la Lista de Pacientes */
     .pet-card {
         background-color: rgba(255, 255, 255, 0.02);
@@ -31,12 +29,14 @@
 </style>
 
 <div class="animate-slide">
-    <div class="d-flex justify-content-between align-items-end mb-5 border-bottom pb-4" style="border-color: var(--gemini-border) !important;">
+    <div class="d-flex justify-content-between align-items-end mb-5 border-bottom pb-4"
+        style="border-color: var(--gemini-border) !important;">
         <div>
             <h1 class="display-6 fw-normal mb-1">Archivo de Pacientes</h1>
             <p class="mb-0" style="color: var(--gemini-text-sub);">Base de datos clínica de VETKI.</p>
         </div>
-        <a href="{{ url_for('pet.pet_create') }}" class="btn-gemini btn-pink" style="width: auto; padding: 0.8rem 2.5rem;">
+        <a href="{{ url_for('pet.pet_create') }}" class="btn-gemini btn-pink"
+            style="width: auto; padding: 0.8rem 2.5rem;">
             + Registrar Mascota
         </a>
     </div>
@@ -45,73 +45,98 @@
         {% for mascota in mascotas %}
         <div class="col">
             <div class="pet-card h-100 p-4 d-flex flex-column">
-                
-                <!-- Encabezado de la Caja -->
-                <div class="d-flex align-items-center mb-4">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
-                         style="width: 50px; height: 50px; background: rgba(244, 114, 182, 0.1); color: var(--gemini-pink); font-size: 1.3rem; flex-shrink: 0;">
+
+                <div class="d-flex align-items-start mb-4">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                        style="width: 50px; height: 50px; background: rgba(244, 114, 182, 0.1); color: var(--gemini-pink); font-size: 1.3rem; flex-shrink: 0;">
                         🐾
                     </div>
-                    <div>
-                        <h4 class="h5 mb-0 fw-semibold">{{ mascota.names }}</h4>
-                        <span class="small" style="color: var(--gemini-text-sub);">ID: #{{ mascota.id }}</span>
+                    <div class="flex-grow-1">
+                        <h4 class="h5 mb-1 fw-semibold text-white" style="letter-spacing: -0.3px;">{{ mascota.names }}
+                        </h4>
+
+                        <div class="d-flex flex-column gap-1 mt-2"
+                            style="font-size: 0.82rem; color: var(--gemini-text-sub);">
+                            <span>
+                                <i class="bi bi-person me-1" style="color: rgba(255,255,255,0.4);"></i>
+                                <span style="color: rgba(255,255,255,0.5);">Tutor:</span>
+                                <span class="text-white-50">{{ mascota.tutor_name.title() or 'Sin registrar' }}</span>
+                            </span>
+                            <span>
+                                <i class="bi bi-telephone me-1" style="color: rgba(255,255,255,0.4);"></i>
+                                <span style="color: rgba(255,255,255,0.5);">Teléfono:</span>
+                                <span class="text-white-50">{{ mascota.tutor_phone or 'Sin teléfono' }}</span>
+                            </span>
+                        </div>
                     </div>
+                    <span class="badge ms-auto py-1 px-2 fw-normal"
+                        style="background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.05); font-size: 0.75rem; border-radius: 8px;">
+                        #{{ mascota.id }}
+                    </span>
                 </div>
 
-                <!-- Etiquetas Básicas -->
                 <div class="mb-4">
-                    <span class="badge rounded-pill me-2 mb-2 py-2 px-3 fw-normal" 
-                          style="background: rgba(255,255,255,0.03); color: var(--gemini-text-sub); border: 1px solid var(--gemini-border);">
-                        {{ mascota.race }}
+                    <span class="badge rounded-pill me-2 mb-2 py-2 px-3 fw-normal"
+                        style="background: rgba(255,255,255,0.03); color: var(--gemini-text-sub); border: 1px solid var(--gemini-border);">
+                        {{ mascota.race or 'Sin raza.' }}
                     </span>
-                    <span class="badge rounded-pill mb-2 py-2 px-3 fw-normal" 
-                          style="background: rgba(244, 114, 182, 0.05); color: var(--gemini-pink); border: 1px solid rgba(244, 114, 182, 0.2);">
+                    <span class="badge rounded-pill mb-2 py-2 px-3 fw-normal"
+                        style="background: rgba(244, 114, 182, 0.05); color: var(--gemini-pink); border: 1px solid rgba(244, 114, 182, 0.2);">
                         <i class="bi bi-calendar-event me-1"></i> {{ mascota.age }}
                     </span>
                 </div>
 
-                <!-- Datos Expandibles (Más Datos) -->
                 <div class="mt-auto">
-                    <button class="btn btn-outline w-100 d-flex justify-content-between align-items-center mb-3" 
-                            type="button" data-bs-toggle="collapse" data-bs-target="#collapseData{{ mascota.id }}" aria-expanded="false"
-                            style="border-radius: 12px; font-size: 0.85rem; padding: 0.7rem 1.2rem;">
+                    <button class="btn btn-outline w-100 d-flex justify-content-between align-items-center mb-3"
+                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseData{{ mascota.id }}"
+                        aria-expanded="false" style="border-radius: 12px; font-size: 0.85rem; padding: 0.7rem 1.2rem;">
                         <span>Ver Expediente Completo</span>
                         <span style="font-size: 0.6rem;">▼</span>
                     </button>
-                    
+
                     <div class="collapse" id="collapseData{{ mascota.id }}">
-                        <div class="card card-body mb-3 border-0" style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 1.5rem;">
-                            <ul class="list-unstyled mb-0 small d-flex flex-column gap-2" style="color: var(--gemini-text-sub);">
-                                <li><strong style="color: #fff;">Microchip:</strong> {{ mascota.microchip or 'No registrado' }}</li>
+                        <div class="card card-body mb-3 border-0"
+                            style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 1.5rem;">
+                            <ul class="list-unstyled mb-0 small d-flex flex-column gap-2"
+                                style="color: var(--gemini-text-sub);">
+                                <li><strong style="color: #fff;">Microchip:</strong> {{ mascota.microchip or 'No
+                                    registrado' }}</li>
                                 <li><strong style="color: #fff;">Género:</strong> {{ mascota.gender or 'N/D' }}</li>
-                                <li><strong style="color: #fff;">Nacimiento:</strong> {{ mascota.datebirth or 'N/D' }}</li>
-                                <li><strong style="color: #fff;">Estado Reproductivo:</strong> {{ mascota.status or 'N/D' }}</li>
+                                <li><strong style="color: #fff;">Nacimiento:</strong> {{ mascota.datebirth or 'N/D' }}
+                                </li>
+                                <li><strong style="color: #fff;">Estado Reproductivo:</strong> {{ mascota.status or
+                                    'N/D' }}</li>
+                                <li> <a href="{{ url_for('medical.medical_create', pet_id=mascota.id) }}"
+                            class="btn-action w-50 text-center"
+                            style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);">
+                            Atender
+                        </a></li>
                             </ul>
+                            
                         </div>
                     </div>
 
-                    <!-- Botones de Acción -->
                     <div class="d-flex gap-2">
-                        <a href="{{ url_for('pet.pet_update_form', pet_id=mascota.id) }}" 
-                           class="btn-action w-50 text-center" 
-                           style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);">
+                        <a href="{{ url_for('pet.pet_update_form', pet_id=mascota.id) }}"
+                            class="btn-action w-50 text-center"
+                            style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);">
                             Modificar
                         </a>
-                        <a href="{{ url_for('pet.pet_delete', pet_id=mascota.id) }}" 
-                           class="btn-action w-50 text-center" 
-                           style="background: rgba(220, 53, 69, 0.1); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.2);">
+                        <a href="{{ url_for('pet.pet_delete', pet_id=mascota.id) }}" class="btn-action w-50 text-center"
+                            style="background: rgba(220, 53, 69, 0.1); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.2);">
                             Eliminar
                         </a>
                     </div>
                 </div>
-                
+
             </div>
         </div>
         {% else %}
         <div class="col-12 text-center py-5">
             <div class="opacity-25 mb-3" style="font-size: 4rem;">📁</div>
             <h5 style="color: var(--gemini-text-sub);">No hay pacientes registrados aún.</h5>
-            <a href="{{ url_for('pet.pet_create') }}" class="btn-gemini btn-pink mt-3" style="text-decoration: none;">Crear primer expediente</a>
+            <a href="{{ url_for('pet.pet_create') }}" class="btn-gemini btn-pink mt-3"
+                style="text-decoration: none;">Crear primer expediente</a>
         </div>
         {% endfor %}
     </div>

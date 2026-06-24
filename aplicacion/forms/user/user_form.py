@@ -29,10 +29,6 @@ class UserForm(FlaskForm):
                             validators=[DataRequired(message="El nombre es obligatorio."), Length(min=3,max=100)],
                             filters=[limpiar_string])
     
-    user_surnames = StringField('Apellidos',
-                                validators=[Optional(), Length(min=3,max=100)],
-                                filters=[limpiar_string])
-    
     user_password = PasswordField('Contraseña',
                                  validators=[DataRequired(message="Debe ingresar una contraseña."), Length(min=6,max=50)])
     

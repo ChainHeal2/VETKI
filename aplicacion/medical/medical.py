@@ -1,58 +1,63 @@
 """
-CRUD-MASCOTA
+CRUD-EXPEDIENTES CLINICOS
 """
 from flask import (Blueprint,flash,render_template,url_for,redirect,request, session)
 from aplicacion.auth.auth import login_required
-from aplicacion.pet.pet_model import PetModel
 from aplicacion.db import get_db
-from aplicacion.forms.pet.pet_create import PetForm
-from aplicacion.forms.pet.pet_update import PetUpdate
+from aplicacion.forms.medical_records.medical_form import MedicalRecordForm
+from aplicacion.medical.medical_model import MedicalRecordModel
+from aplicacion.pet.pet_model import PetModel
 
-bp = Blueprint('pet',__name__,url_prefix='/pet')
+bp = Blueprint('medical',__name__,url_prefix='/medical')
 
-@bp.route("/pet_create", methods = ['GET','POST'])
+@bp.route("/medical_create/<int:pet_id>", methods = ['GET','POST'])
 @login_required
-def pet_create():
-    """Crea un nueva pet"""
-    pet_form = PetForm()
+def medical_create(pet_id):
+    """Crea un nuevo expediente clinico"""
+    medical_record_form = MedicalRecordForm(prefix='medical_record')
+    # el prefix es para diferenciar los campos del formulario en caso de tener varios formularios en la misma plantilla y nos ahorra escribir nombres largos en el HTML
+    # los datos con prefix se veran de esta forma en el HTML: medical_record-fieldname
     db,cursor = get_db()
-
-    if pet_form.validate_on_submit():
-        pet_user_id = session.get('user_id')
-        pet_species_name = pet_form.pet_species_name.data
-        pet_names = pet_form.pet_names.data
-        pet_race = pet_form.pet_race.data
-        pet_datebirth = pet_form.pet_datebirth.data
-        pet_microchip = pet_form.pet_microchip.data
-        pet_gender = pet_form.pet_gender.data
-        pet_color = pet_form.pet_color.data
-        pet_rstatus = pet_form.pet_rstatus.data
-        pet_tutor_name = pet_form.pet_tutor_name.data
-        pet_tutor_address = pet_form.pet_tutor_address.data
-        pet_tutor_phone = pet_form.pet_tutor_phone.data
-        data = (pet_user_id, pet_species_name,pet_names,pet_race,pet_datebirth,pet_microchip,pet_gender,pet_color,pet_rstatus,pet_tutor_name,pet_tutor_address,pet_tutor_phone)
+    cursor.execute('select * from pet_data where pet_id =%s',(pet_id,))
+    pet_data = cursor.fetchone()
+    print(pet_data['pet_id'])
+    if medical_record_form.validate_on_submit():
+        print("Formulario válido")
+        reason = medical_record_form.reason.data
+        weigth = medical_record_form.weigth.data
+        date = medical_record_form.date.data
+        pet_id = pet_data['pet_id']
+        user_id = session.get('user_id')
+        appointment_id = None
+        diagnosis = medical_record_form.diagnosis.data
+        tratment = medical_record_form.tratment.data
+        data = (reason,weigth,
+                date,diagnosis,tratment,
+                pet_id,user_id,appointment_id)
+        print(data)
         sql = """
-            insert into vetki.pet_data(pet_user_id, pet_species_name,pet_names,pet_race,pet_datebirth,
-            pet_microchip,pet_gender,pet_color,pet_reproductive_status,pet_tutor_name,pet_tutor_address,pet_tutor_phone)
-            values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+                INSERT INTO medical_records (medical_record_reason,medical_record_weight,medical_record_date,medical_record_diagnosis,medical_record_treatment,medical_record_pet_id,medical_record_user_id,medical_record_appointment_id)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                """
         cursor.execute(sql,data)
         db.commit()
-        flash("Mascota ingresada con exito y asignada a su expediente!","success")
-        return redirect(url_for('pet.pet_read'))
-    return render_template('pet/pet_create.html',pet_form = pet_form)
+        return redirect(url_for('medical.medical_read'))
+    print('Formulario no válido')
+    return render_template('medical_records/medical_create.html',medical_record_form = medical_record_form,mascota = pet_data)
 
-@bp.route("/pet_read", methods = ['GET','POST'])
+@bp.route("/medical_read", methods = ['GET','POST'])
 @login_required
-def pet_read():
+def medical_read():
     """Lista de pet"""
     db,c = get_db()
-    c.execute('select * from pet_data where pet_user_id = %s', (session.get('user_id'),))
+    c.execute('select * from medical_history where medical_record_user_id = %s', (session.get('user_id'),))
     datos = c.fetchall()
-    objetos_mascotas = [PetModel(f) for f in datos]
-    return render_template('pet/pet_read.html',tabla = datos,mascotas = objetos_mascotas)
-@bp.route("/pet_update_form/<int:pet_id>", methods = ['GET','POST'])
-def pet_update_form(pet_id):
-    """Modifica pets
+    medical_model_list = [MedicalRecordModel(ficha) for ficha in datos]
+    return render_template('medical_records/medical_read.html',tabla = medical_model_list)
+    
+@bp.route("/medical_update_form/<int:medical_record_id>", methods = ['GET','POST'])
+def medical_update_form(medical_record_id):
+    """Modifica medical
         Dividido en 3 bloques
         - Preparacion
         - MOSTRAR DATOS
