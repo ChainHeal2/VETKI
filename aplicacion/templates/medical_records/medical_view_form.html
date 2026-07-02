@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Ficha clinica de {{ tabla.names }} {% endblock %}
+
+{% block main %}
+<div class="medical-records-list">
+    <div class="card mb-2" style="background-color: #1e222b; border: 1px solid #2d323f; border-radius: 6px; padding: 15px; color: #fff;">
+        <div class="row align-items-center">
+            {{tabla.medical_id}}
+            <div class="col-md-3">
+                <span style="color: #ff69b4; font-weight: bold; font-size: 1.1em;">
+                    🐾 {{ tabla.names }}
+                </span>
+                <br>
+                <small style="color: #a0a5b5;">{{ tabla.pet_species }}</small>
+            </div>
+            
+                <div class="col-md-4">
+                    <strong style="color: #e3e6ed;">Motivo:</strong> {{ tabla.reason }}
+                <br>
+                <small style="color: #7a8296;">📅 {{ tabla.date }}</small>
+            </div>
+            
+            <div class="col-md-3">
+                <strong style="color: #e3e6ed;">Peso:</strong> 
+                {% if tabla.weight %}{{ tabla.weight }} Kg{% else %}--{% endif %}
+            </div>
+            
+            <div class="col-md-2 text-end">
+                <a href="{{ url_for('medical.medical_view_form', medical_id=tabla.medical_id) }}" class="btn btn-sm btn-outline-light" style="border-radius: 20px; font-size: 0.85em;">
+                    Ver Ficha
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

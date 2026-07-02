@@ -54,63 +54,19 @@ def medical_read():
     datos = c.fetchall()
     medical_model_list = [MedicalRecordModel(ficha) for ficha in datos]
     return render_template('medical_records/medical_read.html',tabla = medical_model_list)
-    
-@bp.route("/medical_update_form/<int:medical_record_id>", methods = ['GET','POST'])
-def medical_update_form(medical_record_id):
+@bp.route("/medical_view_form/<int:medical_id>", methods = ['GET','POST'])
+def medical_view_form(medical_id):
     """Modifica medical
         Dividido en 3 bloques
         - Preparacion
         - MOSTRAR DATOS
         - POST
     """
-    pet_update = PetUpdate()
-    db,cursor = get_db()
-
-    cursor.execute('select * from pet_data where pet_id =%s',(pet_id,))
-    pet_data = cursor.fetchone()
-
-    cursor.execute('select pet_id,pet_species_name from pet_data where pet_id =%s',(pet_id,))
-    pet_species_name = cursor.fetchone()
-    
-    if request.method == 'GET':
-        pet_update.pet_names.data = pet_data['pet_names']
-        pet_update.pet_species_name.data=pet_data['pet_species_name']
-        pet_update.pet_race.data=pet_data['pet_race']
-        pet_update.pet_datebirth.data=pet_data['pet_datebirth']
-        pet_update.pet_microchip.data=pet_data['pet_microchip']
-        pet_update.pet_gender.data=pet_data['pet_gender']
-        pet_update.pet_color.data=pet_data['pet_color']
-        pet_update.pet_rstatus.data=pet_data['pet_reproductive_status']
-        pet_update.pet_tutor_name.data=pet_data['pet_tutor_name'].title()
-        pet_update.pet_tutor_address.data=pet_data['pet_tutor_address']
-        pet_update.pet_tutor_phone.data=pet_data['pet_tutor_phone']
-
-    if pet_update.validate_on_submit():
-        pet_user_id = session.get('user_id')
-        pet_species_name = pet_update.pet_species_name.data
-        pet_race = pet_update.pet_race.data
-        pet_names = pet_update.pet_names.data
-        pet_datebirth = pet_update.pet_datebirth.data
-        pet_microchip = pet_update.pet_microchip.data
-        pet_gender = pet_update.pet_gender.data
-        pet_color = pet_update.pet_color.data
-        pet_rstatus = pet_update.pet_rstatus.data
-        pet_tutor_name = pet_update.pet_tutor_name.data
-        pet_tutor_address = pet_update.pet_tutor_address.data
-        pet_tutor_phone = pet_update.pet_tutor_phone.data
-        data = (pet_user_id,pet_species_name,pet_names,pet_race,pet_datebirth,
-                pet_microchip,pet_gender,pet_color,pet_rstatus,pet_tutor_name,pet_tutor_address,pet_tutor_phone,pet_id)
-        sql = """
-                UPDATE pet_data
-                SET pet_user_id = %s, pet_species_name=%s, pet_names = %s, pet_race = %s, pet_datebirth = %s,
-                pet_microchip = %s, pet_gender = %s, pet_color = %s, pet_reproductive_status = %s, pet_tutor_name = %s, pet_tutor_address = %s, pet_tutor_phone = %s
-                WHERE pet_id = %s
-                """
-        cursor.execute(sql,data)
-        db.commit()
-
-        return redirect(url_for('pet.pet_read'))
-    return render_template("pet/pet_update.html",pet_update = pet_update , pet_data = pet_data, pet_species_name=pet_species_name)
+    db,c = get_db()
+    c.execute('select * from medical_records where medical_record_id = %s', (medical_id,))
+    datos = c.fetchall()
+    medical_model_list = [MedicalRecordModel(ficha) for ficha in datos]
+    return render_template("medical_records/medical_view_form.html",tabla = medical_model_list)
 
 @bp.route("/pet_delete/<int:pet_id>",methods = ['GET','POST'])
 def pet_delete(pet_id):
