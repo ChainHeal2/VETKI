@@ -54,19 +54,27 @@ def medical_read():
     datos = c.fetchall()
     medical_model_list = [MedicalRecordModel(ficha) for ficha in datos]
     return render_template('medical_records/medical_read.html',tabla = medical_model_list)
-@bp.route("/medical_view_form/<int:medical_id>", methods = ['GET','POST'])
-def medical_view_form(medical_id):
-    """Modifica medical
+@bp.route("/pet_history/<int:pet_id>", methods = ['GET','POST'])
+def pet_history(pet_id):
+    """Ver la ficha clinica de cada paciente
         Dividido en 3 bloques
         - Preparacion
         - MOSTRAR DATOS
         - POST
     """
     db,c = get_db()
-    c.execute('select * from medical_records where medical_record_id = %s', (medical_id,))
+    sql = """
+        SELECT r.*, p.pet_names, p.pet_species_name 
+        FROM medical_records r
+        JOIN pet_data p ON r.medical_record_pet_id = p.pet_id
+        WHERE r.medical_record_pet_id = %s
+        ORDER BY r.medical_record_date DESC
+    """
+    c.execute(sql,(pet_id,))
     datos = c.fetchall()
+    print('datos',datos)
     medical_model_list = [MedicalRecordModel(ficha) for ficha in datos]
-    return render_template("medical_records/medical_view_form.html",tabla = medical_model_list)
+    return render_template("medical_records/pet_history.html",tabla = medical_model_list)
 
 @bp.route("/pet_delete/<int:pet_id>",methods = ['GET','POST'])
 def pet_delete(pet_id):

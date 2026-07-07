@@ -8,6 +8,7 @@ class MedicalRecordModel:
         'data' es el diccionario que viene de la base de datos 
         gracias al RealDictCursor que configuraste en db.py
         """
+        
         self.medical_id = data.get('medical_record_id')
         self.reason = data.get('medical_record_reason')
         self.weight = data.get('medical_record_weight')
