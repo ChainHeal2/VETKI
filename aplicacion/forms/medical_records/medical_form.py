@@ -11,9 +11,8 @@ Aca nos encargamos de la integridad de los datos
 from datetime import datetime
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField
-from wtforms.validators import DataRequired, Length, Regexp,Optional
-from aplicacion.functions.functions_wtf import limpiar_string
+from wtforms import StringField, SelectField, SubmitField,IntegerField,FloatField,DateField,TextAreaField
+from wtforms.validators import DataRequired, Length, NumberRange, Regexp,Optional
 
 class MedicalRecordForm(FlaskForm):
     """
@@ -22,19 +21,28 @@ class MedicalRecordForm(FlaskForm):
     solo_letras = Regexp(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\'\-]*$',
                          message="El nombre solo debe contener letras.")
     solo_numeros_enteros = Regexp(r'^[0-9]*$', message="El microchip solo debe contener números.")
+    date = DateField('Fecha de la consulta',default=datetime.today)
     reason = SelectField('Especies',choices=[('preventiva','Preventiva')
                                                             ,('control','Control'),
                                                             ('urgencia','Urgencia')])
-    
-    weigth = StringField('Peso del animal',validators=[Optional(), Length(min=0,max=100),solo_numeros_enteros],
-                            filters=[limpiar_string])
-    
-    date = StringField('Fecha de la consulta',default=datetime.today)
-    diagnosis = StringField('Diagnostico de la mascota',
+    weigth = FloatField('Peso del animal',validators=[Optional(),NumberRange(min=0.05,max=100.0)],filters=[])
+    temperature = FloatField('Temperatura del animal',validators=[Optional()])
+    heart = FloatField('Frecuencia cardiaca del animal',validators=[Optional(),NumberRange(min=0,max=100)],filters=[])
+    respiratory = FloatField('Frecuencia respiratoria del animal',validators=[Optional(), NumberRange(min=0,max=100)],
+                            filters=[])
+    water = IntegerField('Cantidad de agua del animal',validators=[Optional(), NumberRange(min=0,max=100)],
+                            filters=[])
+    capillary = FloatField('Tiempo de llenado capilar del animal',validators=[Optional(), NumberRange(min=0,max=100)],
+                            filters=[])
+    arterial = FloatField('Presion arterial del animal',validators=[Optional(), NumberRange(min=0,max=100)],
+                            filters=[])
+    history = TextAreaField('Historia clinica de la mascota',
                             validators=[Optional(), Length(min=0,max=255)],
-                            filters=[limpiar_string])
-    tratment = StringField('tratamiento de la mascota',
+                            filters=[])
+    diagnosis = TextAreaField('Diagnostico de la mascota',
                             validators=[Optional(), Length(min=0,max=255)],
-                            filters=[limpiar_string])
-    
+                            filters=[])
+    tratment = TextAreaField('tratamiento de la mascota',
+                            validators=[Optional(), Length(min=0,max=255)],
+                            filters=[])
     submit = SubmitField('Registrar Expediente Clinico')

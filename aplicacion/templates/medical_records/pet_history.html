@@ -26,7 +26,6 @@
                     <strong style="color: #e3e6ed;">Peso:</strong> 
                     {% if expediente.weight %}{{ expediente.weight }} Kg{% else %}--{% endif %}
                 </div>
-                
                 <div class="col-md-2 text-end">
                     <a href="{{ url_for('medical.pet_history', pet_id=expediente.pet_id) }}" class="btn btn-sm btn-outline-light" style="border-radius: 20px; font-size: 0.85em;">
                         Ver Ficha

@@ -11,7 +11,7 @@ from aplicacion.pet.pet_model import PetModel
 bp = Blueprint('medical',__name__,url_prefix='/medical')
 
 @bp.route("/medical_create/<int:pet_id>", methods = ['GET','POST'])
-@login_required
+@login_required #revisar posible bug
 def medical_create(pet_id):
     """Crea un nuevo expediente clinico"""
     medical_record_form = MedicalRecordForm(prefix='medical_record')
@@ -23,21 +23,36 @@ def medical_create(pet_id):
     print(pet_data['pet_id'])
     if medical_record_form.validate_on_submit():
         print("Formulario válido")
+        date = medical_record_form.date.data
         reason = medical_record_form.reason.data
         weigth = medical_record_form.weigth.data
-        date = medical_record_form.date.data
+        temperature = medical_record_form.temperature.data
+        heart = medical_record_form.heart.data
+        respiratory = medical_record_form.respiratory.data
+        water = medical_record_form.water.data
+        capillary = medical_record_form.capillary.data
+        arterial = medical_record_form.arterial.data
+        history = medical_record_form.history.data
+        diagnosis = medical_record_form.diagnosis.data
+        tratment = medical_record_form.tratment.data
         pet_id = pet_data['pet_id']
         user_id = session.get('user_id')
         appointment_id = None
-        diagnosis = medical_record_form.diagnosis.data
-        tratment = medical_record_form.tratment.data
-        data = (reason,weigth,
-                date,diagnosis,tratment,
+        
+        data = (reason,weigth,temperature,
+                heart,respiratory,water,
+                capillary,arterial,date,
+                history,diagnosis,tratment,
                 pet_id,user_id,appointment_id)
+        
         print(data)
         sql = """
-                INSERT INTO medical_records (medical_record_reason,medical_record_weight,medical_record_date,medical_record_diagnosis,medical_record_treatment,medical_record_pet_id,medical_record_user_id,medical_record_appointment_id)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                INSERT INTO medical_records (medical_record_reason,medical_record_weight,medical_record_temperature,
+                medical_record_heart,medical_record_respiratory,medical_record_water,
+                medical_record_capillary,medical_record_arterial,medical_record_date,
+                medical_record_medical_history,medical_record_diagnosis,medical_record_treatment,
+                medical_record_pet_id,medical_record_user_id,medical_record_appointment_id)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 """
         cursor.execute(sql,data)
         db.commit()
@@ -50,17 +65,15 @@ def medical_create(pet_id):
 def medical_read():
     """Lista de pet"""
     db,c = get_db()
-    c.execute('select * from medical_history where medical_record_user_id = %s', (session.get('user_id'),))
+    c.execute('select * from vw_pet_tutor where pet_user_id = %s', (session.get('user_id'),))
     datos = c.fetchall()
-    medical_model_list = [MedicalRecordModel(ficha) for ficha in datos]
+    print('que trae la BD:',datos)
+    medical_model_list = [PetModel(ficha) for ficha in datos]
     return render_template('medical_records/medical_read.html',tabla = medical_model_list)
 @bp.route("/pet_history/<int:pet_id>", methods = ['GET','POST'])
 def pet_history(pet_id):
-    """Ver la ficha clinica de cada paciente
-        Dividido en 3 bloques
-        - Preparacion
-        - MOSTRAR DATOS
-        - POST
+    """Historial medico de una mascota
+    consultamos los mas recientes primero
     """
     db,c = get_db()
     sql = """
@@ -72,7 +85,6 @@ def pet_history(pet_id):
     """
     c.execute(sql,(pet_id,))
     datos = c.fetchall()
-    print('datos',datos)
     medical_model_list = [MedicalRecordModel(ficha) for ficha in datos]
     return render_template("medical_records/pet_history.html",tabla = medical_model_list)
 

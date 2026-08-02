@@ -15,11 +15,11 @@ bp = Blueprint('appointment',__name__)
 def appointment_create():
     """DOC"""
     appointment_form = AppointmentForm()
-    db,cursor = get_db()
+    db,c = get_db()
+    c.execute('select pet_id, pet_names,pet_tutor_name from vetki.pet_data order by pet_names asc')
+    mascotas = c.fetchall()
+    c.execute("SELECT pet_id, pet_names FROM vetki.pet_data ORDER BY pet_names ASC")
 
-    cursor.execute("SELECT pet_id, pet_names FROM vetki.pet_data ORDER BY pet_names ASC")
-    mascotas_db = cursor.fetchall()
-    appointment_form.appointment_pet.choices = [(m['pet_id'], m['pet_names']) for m in mascotas_db]
     if appointment_form.validate_on_submit():
         sql = """
             INSERT INTO vetki.appointments (pet_id, appointment_date)
@@ -29,7 +29,7 @@ def appointment_create():
             appointment_form.appointment_pet.data, 
             appointment_form.appointment_date.data, 
         )
-        cursor.execute(sql, valores)
+        c.execute(sql, valores)
         db.commit()
         # --- ENVÍO A GOOGLE CALENDAR ---
         appointment_data = appointment_form.appointment_pet.data
@@ -48,7 +48,7 @@ def appointment_create():
             
         return redirect(url_for('index.index'))
 
-    return render_template('appointment/appointment_create.html', appointment_form=appointment_form)
+    return render_template('appointment/appointment_create.html', appointment_form=appointment_form, mascotas=mascotas)
 @bp.route("/appointment_read", methods = ['GET','POST'])
 def appointment_read():
     """Lista de pet"""

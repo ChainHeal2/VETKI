@@ -8,7 +8,6 @@ class MedicalRecordModel:
         'data' es el diccionario que viene de la base de datos 
         gracias al RealDictCursor que configuraste en db.py
         """
-        
         self.medical_id = data.get('medical_record_id')
         self.reason = data.get('medical_record_reason')
         self.weight = data.get('medical_record_weight')
@@ -40,5 +39,5 @@ class MedicalRecordModel:
             years -= 1
             
         if years < 1:
-            return "Cachorro (menos de 1 año)"
-        return f"{years} años"
+            return "menos de 1 año"
+        return f"{years}"

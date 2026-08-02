@@ -1,38 +1,72 @@
 {% extends 'base.html' %}
 
-{% block title %}VETKI | Nuevo Appointment {% endblock %}
+{% block title %}VETKI | Agendar Cita - Paso 1{% endblock %}
 
 {% block main %}
 <div class="animate-slide">
-
+    
+    <!-- Encabezado del Flujo -->
     <div class="mb-5 border-bottom pb-4" style="border-color: var(--gemini-border) !important;">
         <h1 class="display-6 fw-normal mb-1">Agendar Cita</h1>
-        <p class="mb-0" style="color: var(--gemini-text-sub);">Complete el expediente clínico para la base de datos.</p>
+        <p class="mb-0" style="color: var(--gemini-text-sub);">
+            <span class="badge" style="background-color: #ff69b4; color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 500;">Paso 1 de 2</span> Selecciona al paciente para la consulta.
+        </p>
     </div>
 
-    <form method="POST" class="row g-4 px-lg-2">
-        {{ appointment_form.hidden_tag() }} 
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} text-white border-0 mb-4" style="background-color: #222731;">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-        <div class="col-md-4">
-            <div class="form-floating">
-                {{ appointment_form.appointment_date(class="form-control", id="pet_datebirth", type="date") }}
-                <label for="appointmnet_date">Fecha de agenda</label>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="form-floating">
-                {{ appointment_form.appointment_pet(class="form-select", id="appointment_pet") }}
-                <label for="appointment_pet">Seleccione Mascota</label>
-            </div>
-        </div>
+    <!-- Grid de Tarjetas de Mascotas -->
+    <div class="row">
+        {% for mascota in mascotas %}
+        <div class="col-12 mb-3">
+            <div class="card" style="background-color: #1e222b; border: 1px solid #2d323f; border-radius: 8px; padding: 18px; color: #fff;">
+                <div class="row align-items-center g-3">
+                    
+                    <!-- Nombre e Icono -->
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <span class="fs-3 me-3">🐾</span>
+                            <div>
+                                <!-- Aquí usamos los nombres exactos de tus columnas de la consulta SQL -->
+                                <h5 class="mb-0 fw-bold" style="color: #ff69b4;">{{ mascota.pet_names }}</h5>
+                                <small style="color: #a0a5b5;">Paciente Registrado</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información del Tutor -->
+                    <div class="col-md-5">
+                        <small style="color: #7a8296; display: block;">Tutor responsable</small>
+                        <strong style="color: #e3e6ed;">
+                            {% if mascota.pet_tutor_name %}{{ mascota.pet_tutor_name }}{% else %}--{% endif %}
+                        </strong>
+                    </div>
+                    
+                    <!-- Botón de Selección -->
+                    <div class="col-md-3 text-end">
+                        <!-- Redirige a la segunda función pasando el pet_id -->
+                        <a href="{{ url_for('medical.appointments_schedule', pet_id=mascota.id) }}" class="btn btn-sm" style="background-color: #ff69b4; color: #fff; border-radius: 20px; padding: 6px 25px; font-weight: 500;">
+                            Seleccionar 🗓️
+                        </a>
+                    </div>
 
-        <div class="col-12 mt-5">
-            <div class="d-flex justify-content-end align-items-center gap-3">
-                <a href="{{url_for('pet.pet_read')}}" class="text-decoration-none small fw-medium text-secondary me-3">Descartar</a>
-                {{ appointment_form.submit(class="btn-gemini btn-pink", style="width: auto; padding: 0.8rem 3rem;", value="Registrar Paciente") }}
+                </div>
             </div>
         </div>
-    </form>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <span class="fs-1">📂</span>
+            <p class="mt-3" style="color: #a0a5b5;">No se encontraron mascotas en la base de datos.</p>
+        </div>
+        {% endfor %}
+    </div>
+
 </div>
-
 {% endblock %}

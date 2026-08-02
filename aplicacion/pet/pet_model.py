@@ -35,5 +35,5 @@ class PetModel:
             years -= 1
             
         if years < 1:
-            return "Cachorro (menos de 1 año)"
+            return "menos de 1 año"
         return f"{years} años"

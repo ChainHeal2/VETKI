@@ -4,6 +4,7 @@
 
 {% block main %}
 <div class="medical-records-list">
+    
     {% for expediente in tabla %}
 
     <div class="card mb-2" style="background-color: #1e222b; border: 1px solid #2d323f; border-radius: 6px; padding: 15px; color: #fff;">
@@ -25,11 +26,11 @@
             
             <div class="col-md-3">
                 <strong style="color: #e3e6ed;">Tutor:</strong> 
-                {% if expediente.tutor %}{{ expediente.tutor }}{% else %}--{% endif %}
+                {% if expediente.tutor_name %}{{ expediente.tutor_name }}{% else %}--{% endif %}
             </div>
             
             <div class="col-md-2 text-end">
-                <a href="{{ url_for('medical.pet_history', pet_id=expediente.pet_id) }}" class="btn btn-sm btn-outline-light" style="border-radius: 20px; font-size: 0.85em;">
+                <a href="{{ url_for('medical.pet_history', pet_id=expediente.id) }}" class="btn btn-sm btn-outline-light" style="border-radius: 20px; font-size: 0.85em;">
                     Ver Ficha
                 </a>
             </div>

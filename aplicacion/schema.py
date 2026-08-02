@@ -4,7 +4,7 @@ esquema = [
 'SET search_path TO vetki;',
 """
 
--- 4. USUARIOS DEL SISTEMA (Dueños del entorno lógico)
+-- 1. USUARIOS DEL SISTEMA (Dueños del entorno lógico)
 CREATE TABLE vetki.user_data (
     user_id SERIAL PRIMARY KEY,
     user_google_id VARCHAR(255) UNIQUE,
@@ -14,7 +14,7 @@ CREATE TABLE vetki.user_data (
     user_password VARCHAR(255) NULL
 );
 
--- 5. ENTIDADES PRINCIPALES (MASCOTAS Y TUTORES)
+-- 2. ENTIDADES PRINCIPALES (MASCOTAS Y TUTORES)
 CREATE TABLE pet_data (
     pet_id SERIAL PRIMARY KEY,
     pet_user_id INTEGER,
@@ -32,7 +32,7 @@ CREATE TABLE pet_data (
     CONSTRAINT fk_pet_user FOREIGN KEY (pet_user_id) 
         REFERENCES vetki.user_data(user_id) ON DELETE CASCADE
 );
--- 6. AGENDA MÉDICA
+-- 3. AGENDA MÉDICA
 CREATE TABLE vetki.appointments (
     appointment_id SERIAL PRIMARY KEY,
     appointment_google_id VARCHAR(255) UNIQUE,
@@ -41,19 +41,40 @@ CREATE TABLE vetki.appointments (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. FICHA MÉDICA
+-- 4. FICHA MÉDICA
 CREATE TABLE vetki.medical_records (
     medical_record_id SERIAL PRIMARY KEY,
     medical_record_reason VARCHAR(20) NOT NULL,
-    medical_record_weight INTEGER NULL,
+    medical_record_weight DOUBLE PRECISION NULL,
+    medical_record_temperature DOUBLE PRECISION NULL,
+    medical_record_heart DOUBLE PRECISION NULL,
+    medical_record_respiratory DOUBLE PRECISION NULL,
+    medical_record_water INTEGER NULL,
+    medical_record_capillary DOUBLE PRECISION NULL,
+    medical_record_arterial DOUBLE PRECISION NULL,
     medical_record_date DATE NOT NULL,
-    medical_record_diagnosis VARCHAR(255) NULL,
-    medical_record_treatment VARCHAR(255) NULL,
+    medical_record_medical_history TEXT NULL,
+    medical_record_diagnosis TEXT NULL,
+    medical_record_treatment TEXT NULL,
     medical_record_pet_id INTEGER REFERENCES vetki.pet_data(pet_id) ON DELETE CASCADE,
     medical_record_user_id INTEGER REFERENCES vetki.user_data(user_id) ON DELETE CASCADE,
     medical_record_appointment_id INTEGER NULL REFERENCES vetki.appointments(appointment_id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+--5. VISTAS PARA CONSULTAS
+CREATE OR REPLACE VIEW vetki.vw_medical_history AS
+SELECT r.medical_record_id, r.medical_record_reason, r.medical_record_weight, r.medical_record_temperature,
+       r.medical_record_heart, r.medical_record_respiratory, r.medical_record_water, r.medical_record_capillary, r.medical_record_arterial,
+       r.medical_record_date, r.medical_record_medical_history, r.medical_record_diagnosis, r.medical_record_treatment,
+       r.medical_record_pet_id, r.medical_record_user_id, r.medical_record_appointment_id,
+       p.pet_names, p.pet_species_name
+FROM vetki.medical_records r
+JOIN vetki.pet_data p ON r.medical_record_pet_id = p.pet_id;
+
+CREATE OR REPLACE VIEW vw_mascota_tutor AS
+SELECT p.pet_id,p.pet_user_id,p.pet_names, p.pet_species_name,pet_race, p.pet_datebirth, p.pet_microchip, p.pet_gender, p.pet_color, p.pet_reproductive_status,
+         p.pet_tutor_name, p.pet_tutor_address, p.pet_tutor_phone from vetki.pet_data p
+JOIN vetki.user_data u ON p.pet_user_id = u.user_id;
 
 """]
