@@ -1,42 +1,37 @@
 """
 CRUD APPOINTMENT
 """
-from aplicacion.forms.appointment.appointment_create import AppointmentForm
+from aplicacion.forms.appointment.appointment_form import AppointmentForm
 # pyrefly: ignore [missing-import]
-from flask import (Blueprint,flash,render_template,url_for,redirect,request)
-from aplicacion.forms.appointment.appointment_update import AppointmentUpdate
+from flask import (Blueprint,flash,render_template, session,url_for,redirect,request)
 from aplicacion.appointment.appointment_model import AppointmentModel
+from aplicacion.pet.pet_model import PetModel
 from aplicacion.db import get_db
 from aplicacion.services.google_calendar import CalendarService
 
 bp = Blueprint('appointment',__name__)
 
-@bp.route('/appointment_create', methods=['GET', 'POST'])
-def appointment_create():
-    """DOC"""
+@bp.route('/appointment_create/<int:pet_id>', methods=['GET', 'POST'])
+def appointment_create(pet_id):
+    """Crea un Agendamiento en la BD y envia a Google Calendar"""
     appointment_form = AppointmentForm()
     db,c = get_db()
     c.execute('select pet_id, pet_names,pet_tutor_name from vetki.pet_data order by pet_names asc')
     mascotas = c.fetchall()
-    c.execute("SELECT pet_id, pet_names FROM vetki.pet_data ORDER BY pet_names ASC")
-
+    c.execute('select * from pet_data where pet_id = %s', (pet_id,))
+    mascota = PetModel(c.fetchone())
     if appointment_form.validate_on_submit():
         sql = """
-            INSERT INTO vetki.appointments (pet_id, appointment_date)
-            VALUES (%s, %s)
+            INSERT INTO vetki.appointments ( appointment_google_id,pet_id, appointment_date)
+            VALUES (%s, %s, %s)
         """
-        valores = (
-            appointment_form.appointment_pet.data, 
-            appointment_form.appointment_date.data, 
-        )
+        valores = (int(session['google_id']), pet_id, appointment_form.date.data)
         c.execute(sql, valores)
         db.commit()
         # --- ENVÍO A GOOGLE CALENDAR ---
-        appointment_data = appointment_form.appointment_pet.data
-        appointment_name = dict(appointment_form.appointment_pet.choices).get(appointment_data, 'Paciente Desconocido')
         try:
             calendario = CalendarService()
-            link_evento = calendario.create_event(appointment_name , appointment_form.appointment_date.data)
+            link_evento = calendario.create_event(mascota.names , appointment_form.date.data)
             if link_evento:
                 print(link_evento)
                 flash("¡Cita agendada y sincronizada en Google Calendar!", "success")
@@ -44,11 +39,10 @@ def appointment_create():
                 flash("Cita guardada, pero Google Calendar rechazó la solicitud.", "warning")
         except Exception as e:
             print(f"Error Calendario: {e}")
-            flash("Cita guardada, pero hubo un error de configuración en Google Calendar.", "warning")
-            
+            flash("Cita guardada, pero hubo un error de configuración en Google Calendar.", "warning") 
         return redirect(url_for('index.index'))
-
     return render_template('appointment/appointment_create.html', appointment_form=appointment_form, mascotas=mascotas)
+
 @bp.route("/appointment_read", methods = ['GET','POST'])
 def appointment_read():
     """Lista de pet"""
@@ -72,23 +66,19 @@ def appointment_update(appointment_id):
         - MOSTRAR DATOS
         - POST
     """
-    form_update = AppointmentUpdate()
+    form_update = AppointmentForm()
     db, cursor = get_db()
     # 1. Traer datos de la cita
     cursor.execute('SELECT * FROM vetki.appointments WHERE appointment_id = %s', (appointment_id,))
     appointment_data = cursor.fetchone()
+    print(f'Appointment Data: {appointment_data}')
     if not appointment_data:
         flash("La cita solicitada no existe.", "error")
         return redirect(url_for('appointment.appointment_read'))
-    # 2. Llenar el select de mascotas
-    cursor.execute('SELECT pet_id, pet_names FROM vetki.pet_data ORDER BY pet_names ASC')
-    pet_data = cursor.fetchall()
-    form_update.appointment_pet.choices = [(valor['pet_id'], valor['pet_names']) for valor in pet_data]
     # POST - Validación
     if form_update.validate_on_submit():
-        appointment_pet = form_update.appointment_pet.data
-        appointment_date = form_update.appointment_date.data
-        data = (appointment_pet, appointment_date, appointment_id)
+        appointment_date = form_update.date.data
+        data = (appointment_date, appointment_id)
         sql = """
             UPDATE vetki.appointments
             SET pet_id = %s, appointment_date = %s
@@ -107,9 +97,9 @@ def appointment_update(appointment_id):
         flash("Error en el formulario. Por favor verifica los datos.", "warning")
     # GET - Llenar formulario
     if request.method == 'GET':
-        form_update.appointment_pet.data = appointment_data['pet_id']
-        form_update.appointment_date.data = appointment_data['appointment_date']
-    return render_template("appointment/appointment_update.html", appointment_update=form_update, pet_data=pet_data)
+        form_update.date.data = appointment_data['appointment_date']
+    return render_template("appointment/appointment_update.html", appointment_update=form_update)
+
 @bp.route("/appointment_delete/<int:appointment_id>",methods = ['GET','POST'])
 def appointment_delete(appointment_id):
     """Elimina PET"""

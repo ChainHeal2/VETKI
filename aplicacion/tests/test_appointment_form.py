@@ -3,8 +3,7 @@ from datetime import date, timedelta
 from flask import Flask
 from werkzeug.datastructures import MultiDict
 # Se usará appointment_create porque estandarizamos ese nombre en Base de Datos de Nombres
-from aplicacion.forms.appointment.appointment_create import AppointmentForm
-from aplicacion.forms.appointment.appointment_update import AppointmentUpdate
+from aplicacion.forms.appointment.appointment_form import AppointmentForm
 
 @pytest.fixture
 def app_context():

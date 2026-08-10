@@ -46,5 +46,4 @@ def google_authorize():
         VALUES (%s, %s, %s)
     """, (session['google_id'], session['user_name'], session['user_email']))
     db.commit()
-    print("antes de entrar al index")
     return redirect(url_for('index.index'))

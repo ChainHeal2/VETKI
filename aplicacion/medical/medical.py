@@ -20,9 +20,7 @@ def medical_create(pet_id):
     db,cursor = get_db()
     cursor.execute('select * from pet_data where pet_id =%s',(pet_id,))
     pet_data = cursor.fetchone()
-    print(pet_data['pet_id'])
     if medical_record_form.validate_on_submit():
-        print("Formulario válido")
         date = medical_record_form.date.data
         reason = medical_record_form.reason.data
         weigth = medical_record_form.weigth.data
@@ -44,8 +42,6 @@ def medical_create(pet_id):
                 capillary,arterial,date,
                 history,diagnosis,tratment,
                 pet_id,user_id,appointment_id)
-        
-        print(data)
         sql = """
                 INSERT INTO medical_records (medical_record_reason,medical_record_weight,medical_record_temperature,
                 medical_record_heart,medical_record_respiratory,medical_record_water,

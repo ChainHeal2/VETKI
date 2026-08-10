@@ -35,7 +35,7 @@ CREATE TABLE pet_data (
 -- 3. AGENDA MÉDICA
 CREATE TABLE vetki.appointments (
     appointment_id SERIAL PRIMARY KEY,
-    appointment_google_id VARCHAR(255) UNIQUE,
+    appointment_google_id VARCHAR(255) NULL,
     pet_id INTEGER REFERENCES vetki.pet_data(pet_id) ON DELETE CASCADE,
     appointment_date DATE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -72,7 +72,7 @@ SELECT r.medical_record_id, r.medical_record_reason, r.medical_record_weight, r.
 FROM vetki.medical_records r
 JOIN vetki.pet_data p ON r.medical_record_pet_id = p.pet_id;
 
-CREATE OR REPLACE VIEW vw_mascota_tutor AS
+CREATE OR REPLACE VIEW vw_pet_tutor AS
 SELECT p.pet_id,p.pet_user_id,p.pet_names, p.pet_species_name,pet_race, p.pet_datebirth, p.pet_microchip, p.pet_gender, p.pet_color, p.pet_reproductive_status,
          p.pet_tutor_name, p.pet_tutor_address, p.pet_tutor_phone from vetki.pet_data p
 JOIN vetki.user_data u ON p.pet_user_id = u.user_id;

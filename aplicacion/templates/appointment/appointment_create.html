@@ -22,42 +22,52 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Grid de Tarjetas de Mascotas -->
-    <div class="row">
+    <!-- Grid de Tarjetas de Mascotas (Reorganizado en Cuadrícula) -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
         {% for mascota in mascotas %}
-        <div class="col-12 mb-3">
-            <div class="card" style="background-color: #1e222b; border: 1px solid #2d323f; border-radius: 8px; padding: 18px; color: #fff;">
-                <div class="row align-items-center g-3">
-                    
-                    <!-- Nombre e Icono -->
-                    <div class="col-md-4">
-                        <div class="d-flex align-items-center">
-                            <span class="fs-3 me-3">🐾</span>
-                            <div>
-                                <!-- Aquí usamos los nombres exactos de tus columnas de la consulta SQL -->
-                                <h5 class="mb-0 fw-bold" style="color: #ff69b4;">{{ mascota.pet_names }}</h5>
-                                <small style="color: #a0a5b5;">Paciente Registrado</small>
-                            </div>
+        <div class="col">
+            <div class="card h-100" style="background-color: #1e222b; border: 1px solid #2d323f; border-radius: 12px; color: #fff;">
+                
+                <form action="{{ url_for('appointment.appointment_create', pet_id=mascota.pet_id) }}" method="POST" class="h-100 d-flex flex-column p-3">
+                    {{ appointment_form.csrf_token }}
+                    <input type="hidden" name="pet_id" value="{{ mascota.pet_id }}">
+
+                    <!-- Cabecera de la Tarjeta: Icono + Nombre del Paciente -->
+                    <div class="d-flex align-items-center mb-3 pb-2 border-bottom" style="border-color: #2d323f !important;">
+                        <span class="fs-2 me-3">🐾</span>
+                        <div>
+                            <h5 class="mb-0 fw-bold" style="color: #ff69b4;">{{ mascota.pet_names }}</h5>
+                            <small style="color: #a0a5b5;">Paciente Registrado</small>
                         </div>
                     </div>
-                    
+
                     <!-- Información del Tutor -->
-                    <div class="col-md-5">
-                        <small style="color: #7a8296; display: block;">Tutor responsable</small>
+                    <div class="mb-3">
+                        <small style="color: #7a8296; display: block;" class="mb-1">Tutor responsable:</small>
                         <strong style="color: #e3e6ed;">
                             {% if mascota.pet_tutor_name %}{{ mascota.pet_tutor_name }}{% else %}--{% endif %}
                         </strong>
                     </div>
-                    
-                    <!-- Botón de Selección -->
-                    <div class="col-md-3 text-end">
-                        <!-- Redirige a la segunda función pasando el pet_id -->
-                        <a href="{{ url_for('medical.appointments_schedule', pet_id=mascota.id) }}" class="btn btn-sm" style="background-color: #ff69b4; color: #fff; border-radius: 20px; padding: 6px 25px; font-weight: 500;">
+
+                    <!-- Selector de Fecha y Hora (Se estira en la parte inferior) -->
+                    <div class="mt-auto pt-2">
+                        <div class="mb-3">
+                            <label class="form-label mb-1" style="color: #7a8296; font-size: 0.85rem;">Fecha y Hora de Cita</label>
+                            <input type="datetime-local" 
+                                   name="date" 
+                                   class="form-control form-control-sm" 
+                                   style="background-color: #161920; border: 1px solid #2d323f; color: #fff; border-radius: 6px;" 
+                                   required>
+                        </div>
+
+                        <!-- Botón de Selección -->
+                        <button type="submit" class="btn btn-sm w-100" style="background-color: #ff69b4; color: #fff; border-radius: 20px; padding: 8px; font-weight: 500;">
                             Seleccionar 🗓️
-                        </a>
+                        </button>
                     </div>
 
-                </div>
+                </form>
+
             </div>
         </div>
         {% else %}

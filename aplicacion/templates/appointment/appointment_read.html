@@ -42,9 +42,6 @@
             <h1 class="display-6 fw-normal mb-1">Agenda Médica</h1>
             <p class="mb-0" style="color: var(--gemini-text-sub);">Próximos agendamientos de VETKI.</p>
         </div>
-        <a href="{{ url_for('appointment.appointment_create') }}" class="btn-gemini btn-pink" style="width: auto; padding: 0.8rem 2.5rem;">
-            + Nueva Cita
-        </a>
     </div>
 
     <div class="row g-4">
@@ -89,7 +86,6 @@
         <div class="col-12 text-center py-5">
             <div class="opacity-25 mb-3" style="font-size: 4rem;">📅</div>
             <h5 style="color: var(--gemini-text-sub);">Tu agenda está libre.</h5>
-            <a href="{{ url_for('appointment.appointment_create') }}" class="btn-gemini btn-pink mt-3" style="text-decoration: none;">Agendar primera cita</a>
         </div>
         {% endfor %}
     </div>
