@@ -61,7 +61,7 @@ class CalendarService:
         else:
             date_obj = datetime.strptime(str(appointment_date_str), '%Y-%m-%d')
             
-        start_datetime = datetime(year=date_obj.year, month=date_obj.month, day=date_obj.day, hour=10, minute=0, second=0)
+        start_datetime = datetime(year=date_obj.year, month=date_obj.month, day=date_obj.day, hour=date_obj.hour, minute=date_obj.minute)
         end_datetime = start_datetime + timedelta(hours=1)
 
         event = {
@@ -91,3 +91,61 @@ class CalendarService:
         except Exception as e:
             print(f"CRITICAL ERROR Google Calendar: {e}")
             return None
+
+    def update_event(self, event_id, patient_name, appointment_date_str):
+            """
+            Actualiza la fecha y hora de un evento existente en Google Calendar.
+            event_id: El ID retornado por Google Calendar al momento de crearlo.
+            appointment_date_str: Objeto datetime o string con la nueva fecha/hora.
+            """
+            if not event_id:
+                print("WARNING Google Calendar: Se intentó actualizar sin un event_id válido.")
+                return None
+
+            self._authenticate()
+            service = build('calendar', 'v3', credentials=self.creds)
+
+            # Parsear la fecha recibida
+            if isinstance(appointment_date_str, datetime):
+                start_datetime = appointment_date_str
+            elif isinstance(appointment_date_str, type(datetime.today().date())):
+                date_obj = appointment_date_str
+                start_datetime = datetime(year=date_obj.year, month=date_obj.month, day=date_obj.day, hour=10, minute=0, second=0)
+            else:
+                # Si viene como string 'YYYY-MM-DD' o 'YYYY-MM-DD HH:MM'
+                try:
+                    start_datetime = datetime.strptime(str(appointment_date_str), '%Y-%m-%d %H:%M:%S')
+                except ValueError:
+                    date_obj = datetime.strptime(str(appointment_date_str), '%Y-%m-%d')
+                    start_datetime = datetime(year=date_obj.year, month=date_obj.month, day=date_obj.day, hour=10, minute=0, second=0)
+
+            end_datetime = start_datetime + timedelta(hours=1)
+
+            event = {
+            'summary': f'🐾 Cita Veterinaria: {patient_name.title()}',
+            'location': 'VETKI Clínica Virtual',
+            'description': f'Expediente clínico REPROGRAMADO desde la aplicación VETKI para el paciente {patient_name.title()}.',
+            'start': {
+                'dateTime': start_datetime.isoformat(),
+                'timeZone': 'America/Santiago',
+            },
+            'end': {
+                'dateTime': end_datetime.isoformat(),
+                'timeZone': 'America/Santiago',
+            },
+            'reminders': {
+                'useDefault': False,
+                'overrides': [
+                {'method': 'popup', 'minutes': 60},
+                ],
+            },
+            }
+
+            try:
+                # Usamos patch() para actualizar el evento existente mediante su event_id
+                event_result = service.events().patch(calendarId='primary', eventId=event_id, body=event).execute()
+                print(f"Evento GCalendar Actualizado Exitosamente: {event_result.get('id')}")
+                return event_result.get('id')
+            except Exception as e:
+                print(f"CRITICAL ERROR Google Calendar Update: {e}")
+                return None

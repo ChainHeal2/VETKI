@@ -11,6 +11,10 @@
     </div>
 
     <form method="POST" class="row g-4 px-lg-2">
+        <!--
+        desde el back mandamos el form de pet_update
+        el hidden es el token seguro protegido
+        -->
         {{ pet_update.hidden_tag() }}
 
         <div class="col-12 mb-2">
@@ -22,6 +26,12 @@
 
         <div class="col-md-7">
             <div class="form-floating">
+                <!--
+                ahora lo que hacemos es seleccionar nuestra casilla en este caso de texto
+                y dentro de los parentesis 
+
+                el id nos dice que pet_names esta asociado al label
+                -->
                 {{ pet_update.pet_names(class="form-control", id="pet_names", placeholder="Nombre") }}
                 <label for="pet_names">Nombre del Paciente</label>
             </div>

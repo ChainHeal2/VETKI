@@ -50,6 +50,7 @@ def pet_read():
     datos = c.fetchall()
     objetos_mascotas = [PetModel(f) for f in datos]
     return render_template('pet/pet_read.html',tabla = datos,mascotas = objetos_mascotas)
+
 @bp.route("/pet_update_form/<int:pet_id>", methods = ['GET','POST'])
 def pet_update_form(pet_id):
     """Modifica pets
@@ -59,6 +60,7 @@ def pet_update_form(pet_id):
         - POST
     """
     pet_update = PetUpdate()
+    #pet update es el formulario que se va a mostrar en la vista, y que se va a validar cuando se haga submit
     db,cursor = get_db()
 
     cursor.execute('select * from pet_data where pet_id =%s',(pet_id,))
@@ -68,6 +70,7 @@ def pet_update_form(pet_id):
     pet_species_name = cursor.fetchone()
     
     if request.method == 'GET':
+        #le envio los datos que puede modificar al formulario
         pet_update.pet_names.data = pet_data['pet_names']
         pet_update.pet_species_name.data=pet_data['pet_species_name']
         pet_update.pet_race.data=pet_data['pet_race']
@@ -81,6 +84,7 @@ def pet_update_form(pet_id):
         pet_update.pet_tutor_phone.data=pet_data['pet_tutor_phone']
 
     if pet_update.validate_on_submit():
+        #cuando validate_on_submit es True, que es como lo definimos el formulario,ahivan los datos y validaciones
         pet_user_id = session.get('user_id')
         pet_species_name = pet_update.pet_species_name.data
         pet_race = pet_update.pet_race.data
@@ -93,8 +97,10 @@ def pet_update_form(pet_id):
         pet_tutor_name = pet_update.pet_tutor_name.data
         pet_tutor_address = pet_update.pet_tutor_address.data
         pet_tutor_phone = pet_update.pet_tutor_phone.data
+        #data es una tupla con los datos que se van a actualizar en la base de datos
         data = (pet_user_id,pet_species_name,pet_names,pet_race,pet_datebirth,
                 pet_microchip,pet_gender,pet_color,pet_rstatus,pet_tutor_name,pet_tutor_address,pet_tutor_phone,pet_id)
+        #creamos el script sql para actualizar los datos de la mascota en la base de datos
         sql = """
                 UPDATE pet_data
                 SET pet_user_id = %s, pet_species_name=%s, pet_names = %s, pet_race = %s, pet_datebirth = %s,
@@ -103,9 +109,11 @@ def pet_update_form(pet_id):
                 """
         cursor.execute(sql,data)
         db.commit()
-
-        return redirect(url_for('pet.pet_read'))
+        return redirect(url_for('pet.pet_read'))# nos redirecciona a la vista de lectura de mascotas
     return render_template("pet/pet_update.html",pet_update = pet_update , pet_data = pet_data, pet_species_name=pet_species_name)
+    #al enviar el html, le enviamos el formulario que se va a mostrar en la vista, y los datos de la mascota que se van a mostrar en la vista
+    #pet data es la tupla con los datos de la mascota
+    
 
 @bp.route("/pet_delete/<int:pet_id>",methods = ['GET','POST'])
 def pet_delete(pet_id):

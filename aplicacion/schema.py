@@ -35,9 +35,9 @@ CREATE TABLE pet_data (
 -- 3. AGENDA MÉDICA
 CREATE TABLE vetki.appointments (
     appointment_id SERIAL PRIMARY KEY,
-    appointment_google_id VARCHAR(255) NULL,
+    appointment_google_event_id VARCHAR(255) NULL,
     pet_id INTEGER REFERENCES vetki.pet_data(pet_id) ON DELETE CASCADE,
-    appointment_date DATE NOT NULL,
+    appointment_date TIMESTAMP NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

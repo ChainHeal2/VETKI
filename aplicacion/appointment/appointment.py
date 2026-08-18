@@ -22,24 +22,24 @@ def appointment_create(pet_id):
     mascota = PetModel(c.fetchone())
     if appointment_form.validate_on_submit():
         sql = """
-            INSERT INTO vetki.appointments ( appointment_google_id,pet_id, appointment_date)
+            INSERT INTO vetki.appointments ( appointment_google_event_id,pet_id, appointment_date)
             VALUES (%s, %s, %s)
         """
-        valores = (int(session['google_id']), pet_id, appointment_form.date.data)
-        c.execute(sql, valores)
-        db.commit()
         # --- ENVÍO A GOOGLE CALENDAR ---
         try:
             calendario = CalendarService()
             link_evento = calendario.create_event(mascota.names , appointment_form.date.data)
             if link_evento:
+                valores = (link_evento, pet_id, appointment_form.date.data)
+                c.execute(sql, valores)
+                db.commit()
                 print(link_evento)
                 flash("¡Cita agendada y sincronizada en Google Calendar!", "success")
             else:
                 flash("Cita guardada, pero Google Calendar rechazó la solicitud.", "warning")
         except Exception as e:
             print(f"Error Calendario: {e}")
-            flash("Cita guardada, pero hubo un error de configuración en Google Calendar.", "warning") 
+            flash("Cita guardada, pero hubo un error de configuración en Google Calendar.", "warning")
         return redirect(url_for('index.index'))
     return render_template('appointment/appointment_create.html', appointment_form=appointment_form, mascotas=mascotas)
 
@@ -56,8 +56,8 @@ def appointment_read():
     datos_crudos = c.fetchall()
     # Usamos el modelo para limpiar los datos
     objetos_cita = [AppointmentModel(d) for d in datos_crudos]
-    
     return render_template('appointment/appointment_read.html', citas=objetos_cita)
+
 @bp.route("/appointment_update/<int:appointment_id>", methods=['GET','POST'])
 def appointment_update(appointment_id):
     """Modifica la cita (appointment)
@@ -68,24 +68,32 @@ def appointment_update(appointment_id):
     """
     form_update = AppointmentForm()
     db, cursor = get_db()
-    # 1. Traer datos de la cita
     cursor.execute('SELECT * FROM vetki.appointments WHERE appointment_id = %s', (appointment_id,))
+    #guardamos el cursor.fetchone() en una variable para poder usarla en el formulario
     appointment_data = cursor.fetchone()
-    print(f'Appointment Data: {appointment_data}')
+    cursor.execute('SELECT pet_id, pet_names FROM vetki.pet_data WHERE pet_id = %s', (appointment_data['pet_id'],))
+    pet_data = cursor.fetchone()
     if not appointment_data:
         flash("La cita solicitada no existe.", "error")
         return redirect(url_for('appointment.appointment_read'))
     # POST - Validación
+    if request.method == 'GET':
+            #le envio los datos que puede modificar al formulario
+            form_update.date = form_update['date']
+            form_update.g_id.data = form_update['g_id']
+
     if form_update.validate_on_submit():
         appointment_date = form_update.date.data
-        data = (appointment_date, appointment_id)
         sql = """
             UPDATE vetki.appointments
-            SET pet_id = %s, appointment_date = %s
+            SET appointment_google_event_id = %s, appointment_date = %s
             WHERE appointment_id = %s
         """
         try:
-            cursor.execute(sql, data)
+            calendario = CalendarService()
+            link_evento = calendario.update_event(appointment_data['appointment_google_event_id'], pet_data['pet_names'], appointment_date)
+            data = (link_evento, appointment_date, appointment_id)
+            cursor.execute(sql,data)
             db.commit()
             flash("¡Cita reprogramada exitosamente!", "success")
         except Exception as e:
@@ -98,7 +106,7 @@ def appointment_update(appointment_id):
     # GET - Llenar formulario
     if request.method == 'GET':
         form_update.date.data = appointment_data['appointment_date']
-    return render_template("appointment/appointment_update.html", appointment_update=form_update)
+    return render_template("appointment/appointment_update.html", appointment_update=form_update, appointment_data=appointment_data,)
 
 @bp.route("/appointment_delete/<int:appointment_id>",methods = ['GET','POST'])
 def appointment_delete(appointment_id):
