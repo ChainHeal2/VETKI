@@ -11,7 +11,7 @@ def limpiar_string(valor):
     y si queda vacío, devuelve None (NULL para la DB).
     """
     if valor:
-        texto = valor.strip()
+        texto = valor
         return texto if texto != "" else None
     return None
 def solo_futuro(form, field):

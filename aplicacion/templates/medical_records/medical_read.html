@@ -1,44 +1,68 @@
 {% extends 'base.html' %}
 
-{% block title %}VETKI | Lista de Expedientes Clínicos {% endblock %}
+{% block title %}VETKI | Lista de Expedientes Clínicos{% endblock %}
 
 {% block main %}
-<div class="medical-records-list">
-    
-    {% for expediente in tabla %}
-
-    <div class="card mb-2" style="background-color: #1e222b; border: 1px solid #2d323f; border-radius: 6px; padding: 15px; color: #fff;">
-        <div class="row align-items-center">
-            
-            <div class="col-md-3">
-                <span style="color: #ff69b4; font-weight: bold; font-size: 1.1em;">
-                    🐾 {{ expediente.names }}
-                </span>
-                <br>
-                <small style="color: #a0a5b5;">{{ expediente.pet_species }}</small>
-            </div>
-            
-            <div class="col-md-4">
-                <strong style="color: #e3e6ed;">Especie:</strong> {{ expediente.species }}
-                <br>
-                <small style="color: #7a8296;">Edad {{ expediente.age }}</small>
-            </div>
-            
-            <div class="col-md-3">
-                <strong style="color: #e3e6ed;">Tutor:</strong> 
-                {% if expediente.tutor_name %}{{ expediente.tutor_name }}{% else %}--{% endif %}
-            </div>
-            
-            <div class="col-md-2 text-end">
-                <a href="{{ url_for('medical.pet_history', pet_id=expediente.id) }}" class="btn btn-sm btn-outline-light" style="border-radius: 20px; font-size: 0.85em;">
-                    Ver Ficha
-                </a>
-            </div>
-
-        </div>
+<div>
+    <!-- ENCABEZADO -->
+    <div class="mb-4 border-bottom pb-4">
+        <h1 class="display-6 fw-normal mb-1">Lista de Expedientes Clínicos</h1>
+        <p class="mb-0 text-body-secondary">Pacientes con expediente activo en la clínica.</p>
     </div>
-    {% else %}
-    <p style="color: #a0a5b5;">No hay expedientes clínicos registrados aún.</p>
-    {% endfor %}
+
+    <!-- LISTADO -->
+    <div class="d-flex flex-column gap-3">
+        {% for expediente in tabla %}
+        <div class="card bg-body-tertiary border rounded-4 p-3">
+            <div class="row align-items-center g-3">
+                
+                <!-- PACIENTE Y ESPECIE -->
+                <div class="col-md-3">
+                    <span class="fw-bold text-primary fs-5 d-block">
+                        🐾 {{ expediente.names }}
+                    </span>
+                    <small class="text-body-secondary">
+                        {{ expediente.pet_species or expediente.species or 'Especie N/D' }}
+                    </small>
+                </div>
+                
+                <!-- EDAD Y DETALLES -->
+                <div class="col-md-3">
+                    <div class="text-body">
+                        <strong class="fw-semibold">Edad:</strong> {{ expediente.age or 'N/D' }}
+                    </div>
+                    <small class="text-body-secondary">
+                        <i class="bi bi-person me-1"></i>Tutor: {{ expediente.tutor_name or '--' }}
+                    </small>
+                </div>
+
+                <!-- TELÉFONO DEL TUTOR -->
+                <div class="col-md-3">
+                    <div class="text-body-secondary small">
+                        <i class="bi bi-telephone me-1"></i>Contacto:
+                    </div>
+                    <span class="text-body small fw-medium">
+                        {{ expediente.tutor_phone or 'Sin teléfono' }}
+                    </span>
+                </div>
+                
+                <!-- BOTÓN FICHA -->
+                <div class="col-md-3 text-md-end">
+                    <a href="{{ url_for('medical.pet_history', pet_id=expediente.id) }}" 
+                       class="btn btn-outline-primary btn-sm rounded-pill px-4">
+                        📋 Ver Ficha
+                    </a>
+                </div>
+
+            </div>
+        </div>
+        {% else %}
+        <!-- ESTADO VACÍO -->
+        <div class="text-center py-5">
+            <div class="display-1 text-body-tertiary mb-3">📋</div>
+            <h5 class="text-body-secondary">No hay expedientes clínicos registrados aún.</h5>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

@@ -49,7 +49,7 @@ CREATE TABLE vetki.medical_records (
     medical_record_temperature DOUBLE PRECISION NULL,
     medical_record_heart DOUBLE PRECISION NULL,
     medical_record_respiratory DOUBLE PRECISION NULL,
-    medical_record_water INTEGER NULL,
+    medical_record_water DOUBLE PRECISION NULL,
     medical_record_capillary DOUBLE PRECISION NULL,
     medical_record_arterial DOUBLE PRECISION NULL,
     medical_record_date DATE NOT NULL,

@@ -3,13 +3,13 @@
 {% block title %}VETKI | Agendar Cita - Paso 1{% endblock %}
 
 {% block main %}
-<div class="animate-slide">
+<div>
     
     <!-- Encabezado del Flujo -->
-    <div class="mb-5 border-bottom pb-4" style="border-color: var(--gemini-border) !important;">
+    <div class="mb-5 border-bottom pb-4">
         <h1 class="display-6 fw-normal mb-1">Agendar Cita</h1>
-        <p class="mb-0" style="color: var(--gemini-text-sub);">
-            <span class="badge" style="background-color: #ff69b4; color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 500;">Paso 1 de 2</span> Selecciona al paciente para la consulta.
+        <p class="mb-0 text-body-secondary">
+            <span class="badge text-bg-primary me-2">Paso 1 de 2</span> Selecciona al paciente para la consulta.
         </p>
     </div>
 
@@ -17,51 +17,54 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }} text-white border-0 mb-4" style="background-color: #222731;">{{ message }}</div>
+                {% set alert_type = 'success' if category == 'success' else 'danger' %}
+                <div class="alert alert-{{ alert_type }} alert-dismissible fade show mb-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             {% endfor %}
         {% endif %}
     {% endwith %}
 
-    <!-- Grid de Tarjetas de Mascotas (Reorganizado en Cuadrícula) -->
+    <!-- Grid de Tarjetas de Mascotas -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
         {% for mascota in mascotas %}
         <div class="col">
-            <div class="card h-100" style="background-color: #1e222b; border: 1px solid #2d323f; border-radius: 12px; color: #fff;">
+            <div class="card bg-body-tertiary border rounded-4 h-100">
                 
-                <form action="{{ url_for('appointment.appointment_create', pet_id=mascota.pet_id) }}" method="POST" class="h-100 d-flex flex-column p-3">
+                <form action="{{ url_for('appointment.appointment_create', pet_id=mascota.pet_id) }}" method="POST" class="h-100 d-flex flex-column p-4">
                     {{ appointment_form.csrf_token }}
                     <input type="hidden" name="pet_id" value="{{ mascota.pet_id }}">
 
                     <!-- Cabecera de la Tarjeta: Icono + Nombre del Paciente -->
-                    <div class="d-flex align-items-center mb-3 pb-2 border-bottom" style="border-color: #2d323f !important;">
+                    <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
                         <span class="fs-2 me-3">🐾</span>
                         <div>
-                            <h5 class="mb-0 fw-bold" style="color: #ff69b4;">{{ mascota.pet_names }}</h5>
-                            <small style="color: #a0a5b5;">Paciente Registrado</small>
+                            <h5 class="mb-0 fw-bold text-primary">{{ mascota.pet_names }}</h5>
+                            <small class="text-body-secondary">Paciente Registrado</small>
                         </div>
                     </div>
 
                     <!-- Información del Tutor -->
                     <div class="mb-3">
-                        <small style="color: #7a8296; display: block;" class="mb-1">Tutor responsable:</small>
-                        <strong style="color: #e3e6ed;">
+                        <small class="text-body-secondary d-block mb-1">Tutor responsable:</small>
+                        <strong class="text-body">
                             {% if mascota.pet_tutor_name %}{{ mascota.pet_tutor_name }}{% else %}--{% endif %}
                         </strong>
                     </div>
 
-                    <!-- Selector de Fecha y Hora (Se estira en la parte inferior) -->
+                    <!-- Selector de Fecha y Hora -->
                     <div class="mt-auto pt-2">
                         <div class="mb-3">
-                            <label class="form-label mb-1" style="color: #7a8296; font-size: 0.85rem;">Fecha y Hora de Cita</label>
+                            <label class="form-label mb-1 text-body-secondary small">Fecha y Hora de Cita</label>
                             <input type="datetime-local" 
                                    name="date" 
                                    class="form-control form-control-sm" 
-                                   style="background-color: #161920; border: 1px solid #2d323f; color: #fff; border-radius: 6px;" 
                                    required>
                         </div>
 
                         <!-- Botón de Selección -->
-                        <button type="submit" class="btn btn-sm w-100" style="background-color: #ff69b4; color: #fff; border-radius: 20px; padding: 8px; font-weight: 500;">
+                        <button type="submit" class="btn btn-primary btn-sm w-100 rounded-pill py-2 fw-medium">
                             Seleccionar 🗓️
                         </button>
                     </div>
@@ -71,9 +74,10 @@
             </div>
         </div>
         {% else %}
+        <!-- ESTADO VACÍO -->
         <div class="col-12 text-center py-5">
-            <span class="fs-1">📂</span>
-            <p class="mt-3" style="color: #a0a5b5;">No se encontraron mascotas en la base de datos.</p>
+            <div class="display-1 text-body-tertiary mb-3">📂</div>
+            <p class="text-body-secondary">No se encontraron mascotas en la base de datos.</p>
         </div>
         {% endfor %}
     </div>

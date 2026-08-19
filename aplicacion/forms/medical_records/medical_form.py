@@ -30,9 +30,9 @@ class MedicalRecordForm(FlaskForm):
     heart = FloatField('Frecuencia cardiaca del animal',validators=[Optional(),NumberRange(min=0,max=100)],filters=[])
     respiratory = FloatField('Frecuencia respiratoria del animal',validators=[Optional(), NumberRange(min=0,max=100)],
                             filters=[])
-    water = IntegerField('Cantidad de agua del animal',validators=[Optional(), NumberRange(min=0,max=100)],
+    water = FloatField('Cantidad de agua del animal',validators=[Optional(), NumberRange(min=0,max=100)],
                             filters=[])
-    capillary = FloatField('Tiempo de llenado capilar del animal',validators=[Optional(), NumberRange(min=0,max=100)],
+    capillary = FloatField ('Tiempo de llenado capilar del animal',validators=[Optional(), NumberRange(min=0,max=100)],
                             filters=[])
     arterial = FloatField('Presion arterial del animal',validators=[Optional(), NumberRange(min=0,max=100)],
                             filters=[])

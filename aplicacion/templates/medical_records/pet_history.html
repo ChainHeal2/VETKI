@@ -1,39 +1,141 @@
 {% extends 'base.html' %}
 
-{% block title %}VETKI | Fichas clinicas {% endblock %}
+{% block title %}VETKI | Fichas Clínicas{% endblock %}
 
 {% block main %}
-    {% for expediente in tabla %}
-    <div class="medical-records-list">
-        <div class="card mb-2" style="background-color: #1e222b; border: 1px solid #2d323f; border-radius: 6px; padding: 15px; color: #fff;">
-            <div class="row align-items-center">
-                {{expediente.medical_id}}
-                <div class="col-md-3">
-                    <span style="color: #ff69b4; font-weight: bold; font-size: 1.1em;">
-                        🐾 {{ expediente.names }}
-                    </span>
-                    <br>
-                    <small style="color: #a0a5b5;">{{ expediente.pet_species }}</small>
-                </div>
+<div>
+    <!-- ENCABEZADO -->
+    <div class="mb-4 border-bottom pb-4">
+        <h1 class="display-6 fw-normal mb-1">Fichas Clínicas</h1>
+        <p class="mb-0 text-body-secondary">Historial médico organizado por paciente.</p>
+    </div>
+
+    <!-- TABLA DE PACIENTES ÚNICOS CON ACORDEÓN -->
+    <div class="accordion" id="accordionFichas">
+        {% for grupo_mascota in tabla | groupby('names') %}
+        {% set primera_ficha = grupo_mascota.list[0] %}
+        {% set outer_index = loop.index %}
+        
+        <div class="accordion-item bg-body-tertiary border rounded-4 mb-3 overflow-hidden">
+            
+            <!-- ENCABEZADO ÚNICO DE LA MASCOTA -->
+            <h2 class="accordion-header" id="heading{{ outer_index }}">
+                <button class="accordion-button collapsed bg-body-tertiary shadow-none p-3" 
+                        type="button" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#collapse{{ outer_index }}" 
+                        aria-expanded="false" 
+                        aria-controls="collapse{{ outer_index }}">
+                    
+                    <div class="d-flex align-items-center justify-content-between w-100 me-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="fs-4">🐾</span>
+                            <div>
+                                <span class="fw-bold text-primary fs-5 d-block">{{ grupo_mascota.grouper }}</span>
+                                <small class="text-body-secondary">
+                                    {{ primera_ficha.pet_species or primera_ficha.species or 'Especie N/D' }} 
+                                    &middot; Tutor: {{ primera_ficha.tutor_name or 'Sin tutor' }}
+                                </small>
+                            </div>
+                        </div>
+                        <span class="badge text-bg-primary rounded-pill px-3 py-2 fw-normal">
+                            {{ grupo_mascota.list | length }} {% if grupo_mascota.list | length == 1 %}Historial{% else %}Historiales{% endif %}
+                        </span>
+                    </div>
+
+                </button>
+            </h2>
+
+            <!-- CONTENIDO DESPLEGABLE: TODAS SUS FICHAS MÉDICAS -->
+            <div id="collapse{{ outer_index }}" 
+                 class="accordion-collapse collapse" 
+                 aria-labelledby="heading{{ outer_index }}" 
+                 data-bs-parent="#accordionFichas">
                 
-                    <div class="col-md-4">
-                        <strong style="color: #e3e6ed;">Motivo:</strong> {{ expediente.reason }}
-                    <br>
-                    <small style="color: #7a8296;">📅 {{ expediente.date }}</small>
-                </div>
-                
-                <div class="col-md-3">
-                    <strong style="color: #e3e6ed;">Peso:</strong> 
-                    {% if expediente.weight %}{{ expediente.weight }} Kg{% else %}--{% endif %}
-                </div>
-                <div class="col-md-2 text-end">
-                    <a href="{{ url_for('medical.pet_history', pet_id=expediente.pet_id) }}" class="btn btn-sm btn-outline-light" style="border-radius: 20px; font-size: 0.85em;">
-                        Ver Ficha
-                    </a>
+                <div class="accordion-body bg-body p-3">
+                    <div class="d-flex flex-column gap-3">
+                        
+                        {% for expediente in grupo_mascota.list %}
+                        <div class="border rounded-3 p-3 bg-body-tertiary">
+                            <div class="row align-items-center g-3">
+                                
+                                <div class="col-md-4">
+                                    <div class="text-body mb-1">
+                                        <strong class="fw-semibold">Motivo:</strong> {{ expediente.reason or 'Sin especificar' }}
+                                    </div>
+                                    <small class="text-body-secondary">
+                                        <i class="bi bi-calendar-event me-1"></i>{{ expediente.date or 'Sin fecha' }}
+                                    </small>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="text-body small">
+                                        <strong class="fw-semibold">Peso:</strong> 
+                                        {% if expediente.weight %}{{ expediente.weight }} Kg{% else %}--{% endif %}
+                                        <span class="mx-1">&middot;</span>
+                                        <strong class="fw-semibold">Temp:</strong> 
+                                        {% if expediente.temperature %}{{ expediente.temperature }} °C{% else %}--{% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 text-md-end">
+                                    <span class="badge text-bg-dark border fw-normal me-2">
+                                        Ficha #{{ expediente.medical_id or expediente.id }}
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-secondary rounded-2" 
+                                            type="button" 
+                                            data-bs-toggle="collapse" 
+                                            data-bs-target="#detalleFicha{{ outer_index }}_{{ loop.index }}" 
+                                            aria-expanded="false">
+                                        Ver Evaluación <i class="bi bi-chevron-down small"></i>
+                                    </button>
+                                </div>
+
+                            </div>
+
+                            <!-- EVALUACIÓN Y CONSTANTES FISIOLÓGICAS -->
+                            <div class="collapse mt-3" id="detalleFicha{{ outer_index }}_{{ loop.index }}">
+                                <div class="pt-3 border-top">
+                                    <div class="row g-3">
+                                        
+                                        <div class="col-md-6 border-end-md">
+                                            <h6 class="fw-bold text-primary mb-2">Evaluación Médica</h6>
+                                            <p class="small mb-2"><strong class="text-body">Historia / Anamnesis:</strong> {{ expediente.history or 'Sin registro' }}</p>
+                                            <p class="small mb-2"><strong class="text-body">Diagnóstico:</strong> {{ expediente.diagnosis or 'Sin registro' }}</p>
+                                            <p class="small mb-0"><strong class="text-body">Tratamiento:</strong> {{ expediente.treatment or expediente.tratment or 'Sin registro' }}</p>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <h6 class="fw-bold text-primary mb-2">Constantes Fisiológicas</h6>
+                                            <ul class="list-unstyled small mb-0 d-flex flex-column gap-1 text-body-secondary">
+                                                <li><strong class="text-body">Frecuencia Cardiaca:</strong> {{ expediente.heart or '--' }} lpm</li>
+                                                <li><strong class="text-body">Frecuencia Respiratoria:</strong> {{ expediente.respiratory or '--' }} rpm</li>
+                                                <li><strong class="text-body">Presión Arterial:</strong> {{ expediente.arterial or '--' }} mmHg</li>
+                                                <li><strong class="text-body">Hidratación:</strong> {{ expediente.water or '--' }} %</li>
+                                                <li><strong class="text-body">Llenado Capilar (TLLC):</strong> {{ expediente.capillary or '--' }} seg</li>
+                                            </ul>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        {% endfor %}
+
+                    </div>
                 </div>
 
             </div>
+
         </div>
+        {% else %}
+        <!-- ESTADO VACÍO -->
+        <div class="text-center py-5">
+            <div class="display-1 text-body-tertiary mb-3">🩺</div>
+            <h5 class="text-body-secondary">No se han registrado fichas clínicas todavía.</h5>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+</div>
 {% endblock %}

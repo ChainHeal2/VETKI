@@ -86,10 +86,8 @@ class CalendarService:
 
         try:
             event_result = service.events().insert(calendarId='primary', body=event).execute()
-            print(f"Evento GCalendar Creado: {event_result.get('id')}")
             return event_result.get('id')
         except Exception as e:
-            print(f"CRITICAL ERROR Google Calendar: {e}")
             return None
 
     def update_event(self, event_id, patient_name, appointment_date_str):
@@ -99,7 +97,6 @@ class CalendarService:
             appointment_date_str: Objeto datetime o string con la nueva fecha/hora.
             """
             if not event_id:
-                print("WARNING Google Calendar: Se intentó actualizar sin un event_id válido.")
                 return None
 
             self._authenticate()
@@ -144,8 +141,6 @@ class CalendarService:
             try:
                 # Usamos patch() para actualizar el evento existente mediante su event_id
                 event_result = service.events().patch(calendarId='primary', eventId=event_id, body=event).execute()
-                print(f"Evento GCalendar Actualizado Exitosamente: {event_result.get('id')}")
                 return event_result.get('id')
             except Exception as e:
-                print(f"CRITICAL ERROR Google Calendar Update: {e}")
                 return None

@@ -1,29 +1,47 @@
-<form method="POST" class="row g-4 px-lg-2">
-    {{ appointment_update.hidden_tag() }} 
-    <!-- 1. Muestra el nombre del paciente en un cuadro normal de texto -->
-    <div class="col-md-7">
-        <div class="form-floating">
-            <input type="text" class="form-control" id="pet_name" value="{{ appointment_data.pet_id }}" readonly disabled>
-            <label for="pet_name">Paciente Citado</label>
-        </div>
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Reprogramar Cita{% endblock %}
+
+{% block main %}
+<div>
+    <!-- Encabezado -->
+    <div class="mb-4 border-bottom pb-4">
+        <h1 class="display-6 fw-normal mb-1">Reprogramar Cita</h1>
+        <p class="mb-0 text-body-secondary">Seleccione la nueva fecha y hora para la atención del paciente.</p>
     </div>
 
-    <!-- 2. Campo para la nueva fecha (usa .date que es el nombre REAL en Python) -->
-    <div class="col-md-5">
-        <div class="form-floating">
-            {{ appointment_update.date(class="form-control", id="appointment_date", type="datetime-local") }}
-            <label for="appointment_date">Nueva Fecha Re-programada</label>
-        </div>
-        {% if appointment_update.date.errors %}
-            <span class="text-danger small mt-1 d-block">{{ appointment_update.date.errors[0] }}</span>
-        {% endif %}
-    </div>
+    <!-- Formulario Principal -->
+    <form method="POST" class="row g-4 px-lg-2">
+        {{ appointment_update.hidden_tag() }} 
 
-    <!-- 3. Botones -->
-    <div class="col-12 mt-5">
-        <div class="d-flex justify-content-end align-items-center gap-3">
-            <a href="{{ url_for('appointment.appointment_read') }}" class="btn-gemini btn-outline me-2" style="text-decoration: none;">Cancelar</a>
-            {{ appointment_update.submit(class="btn-gemini btn-pink", style="width: auto; padding: 0.8rem 3rem;", value="Guardar Reprogramación") }}
+        <!-- 1. Nombre del Paciente -->
+        <div class="col-md-7">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="pet_name" value="{{ appointment_data.pet_id }}" readonly disabled>
+                <label for="pet_name">Paciente Citado</label>
+            </div>
         </div>
-    </div>
-</form>
+
+        <!-- 2. Re-programación de Fecha -->
+        <div class="col-md-5">
+            <div class="form-floating">
+                {{ appointment_update.date(class="form-control", id="appointment_date", type="datetime-local") }}
+                <label for="appointment_date">Nueva Fecha Re-programada</label>
+            </div>
+            {% if appointment_update.date.errors %}
+                <span class="text-danger small mt-1 d-block">{{ appointment_update.date.errors[0] }}</span>
+            {% endif %}
+        </div>
+
+        <!-- 3. Botones de Acción -->
+        <div class="col-12 mt-5 pt-3 border-top">
+            <div class="d-flex justify-content-end align-items-center gap-3">
+                <a href="{{ url_for('appointment.appointment_read') }}" class="btn btn-link text-body-secondary text-decoration-none">
+                    Cancelar
+                </a>
+                {{ appointment_update.submit(class="btn btn-primary rounded-pill px-5 py-2 fw-medium", value="Guardar Reprogramación") }}
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

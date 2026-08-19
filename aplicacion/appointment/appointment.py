@@ -33,12 +33,10 @@ def appointment_create(pet_id):
                 valores = (link_evento, pet_id, appointment_form.date.data)
                 c.execute(sql, valores)
                 db.commit()
-                print(link_evento)
                 flash("¡Cita agendada y sincronizada en Google Calendar!", "success")
             else:
                 flash("Cita guardada, pero Google Calendar rechazó la solicitud.", "warning")
         except Exception as e:
-            print(f"Error Calendario: {e}")
             flash("Cita guardada, pero hubo un error de configuración en Google Calendar.", "warning")
         return redirect(url_for('index.index'))
     return render_template('appointment/appointment_create.html', appointment_form=appointment_form, mascotas=mascotas)

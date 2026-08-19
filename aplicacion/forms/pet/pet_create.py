@@ -34,6 +34,6 @@ class PetForm(FlaskForm):
 
     pet_tutor_name = StringField('Nombre del tutor',validators=[DataRequired(),Length(min=3,max=30),solo_letras],filters=[limpiar_string])
     pet_tutor_address = StringField('Direccion del tutor',validators=[Optional(),Length(min=3,max=30)],filters=[limpiar_string])
-    pet_tutor_phone = StringField('Telefono del tutor',validators=[Optional(),Length(min=0,max=30)],filters=[limpiar_string])
+    pet_tutor_phone = StringField('Telefono del tutor',validators=[Optional(),Length(min=0,max=10)],filters=[limpiar_string])
     
     submit = SubmitField('Guardar Datos')

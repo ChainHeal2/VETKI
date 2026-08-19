@@ -51,9 +51,9 @@ def medical_create(pet_id):
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 """
         cursor.execute(sql,data)
+        flash("Expediente clinico creado correctamente")
         db.commit()
         return redirect(url_for('medical.medical_read'))
-    print('Formulario no válido')
     return render_template('medical_records/medical_create.html',medical_record_form = medical_record_form,mascota = pet_data)
 
 @bp.route("/medical_read", methods = ['GET','POST'])
@@ -63,7 +63,6 @@ def medical_read():
     db,c = get_db()
     c.execute('select * from vw_pet_tutor where pet_user_id = %s', (session.get('user_id'),))
     datos = c.fetchall()
-    print('que trae la BD:',datos)
     medical_model_list = [PetModel(ficha) for ficha in datos]
     return render_template('medical_records/medical_read.html',tabla = medical_model_list)
 @bp.route("/pet_history/<int:pet_id>", methods = ['GET','POST'])
