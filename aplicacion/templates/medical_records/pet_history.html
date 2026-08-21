@@ -55,7 +55,8 @@
                 <div class="accordion-body bg-body p-3">
                     <div class="d-flex flex-column gap-3">
                         
-                        {% for expediente in grupo_mascota.list %}
+                        {% for expediente in tabla %}
+                        {{expediente.signals}}
                         <div class="border rounded-3 p-3 bg-body-tertiary">
                             <div class="row align-items-center g-3">
                                 
@@ -101,6 +102,7 @@
                                         <div class="col-md-6 border-end-md">
                                             <h6 class="fw-bold text-primary mb-2">Evaluación Médica</h6>
                                             <p class="small mb-2"><strong class="text-body">Historia / Anamnesis:</strong> {{ expediente.history or 'Sin registro' }}</p>
+                                            <p class="small mb-2"><strong class="text-body">Signos Clínicos:</strong> {{ expediente.signals or 'Sin registro' }}</p>
                                             <p class="small mb-2"><strong class="text-body">Diagnóstico:</strong> {{ expediente.diagnosis or 'Sin registro' }}</p>
                                             <p class="small mb-0"><strong class="text-body">Tratamiento:</strong> {{ expediente.treatment or expediente.tratment or 'Sin registro' }}</p>
                                         </div>

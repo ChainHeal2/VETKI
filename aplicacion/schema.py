@@ -54,6 +54,7 @@ CREATE TABLE vetki.medical_records (
     medical_record_arterial DOUBLE PRECISION NULL,
     medical_record_date DATE NOT NULL,
     medical_record_medical_history TEXT NULL,
+    medical_record_signs TEXT NULL,
     medical_record_diagnosis TEXT NULL,
     medical_record_treatment TEXT NULL,
     medical_record_pet_id INTEGER REFERENCES vetki.pet_data(pet_id) ON DELETE CASCADE,

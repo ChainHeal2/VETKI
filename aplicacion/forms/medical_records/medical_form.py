@@ -39,6 +39,9 @@ class MedicalRecordForm(FlaskForm):
     history = TextAreaField('Historia clinica de la mascota',
                             validators=[Optional(), Length(min=0,max=255)],
                             filters=[])
+    signals = TextAreaField('Signos clinicos de la mascota',
+                            validators=[Optional(), Length(min=0,max=255)],
+                            filters=[])
     diagnosis = TextAreaField('Diagnostico de la mascota',
                             validators=[Optional(), Length(min=0,max=255)],
                             filters=[])

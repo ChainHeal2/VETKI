@@ -65,6 +65,13 @@
 
                     <div class="col-md-6 mt-4">
                         <div class="form-group">
+                            <label for="medical_record_signals" class="form-label small fw-medium mb-2 text-primary">Signos Clínicos</label>
+                            {{ medical_record_form.signals(class="form-control", id="medical_record_signals", rows="4", placeholder="Signos clínicos...") }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mt-4">
+                        <div class="form-group">
                             <label for="medical_record_diagnosis" class="form-label small fw-medium mb-2 text-primary">Diagnóstico</label>
                             {{ medical_record_form.diagnosis(class="form-control", id="medical_record_diagnosis", rows="4", placeholder="Diagnóstico...") }}
                         </div>

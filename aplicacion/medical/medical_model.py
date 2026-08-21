@@ -11,6 +11,7 @@ class MedicalRecordModel:
         self.medical_id = data.get('medical_record_id')
         self.reason = data.get('medical_record_reason')
         self.weight = data.get('medical_record_weight')
+        self.signals = data.get('medical_record_signs')
         self.diagnosis = data.get('medical_record_diagnosis')
         self.treatment = data.get('medical_record_treatment')
         self.date = data.get('medical_record_date')

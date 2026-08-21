@@ -31,6 +31,7 @@ def medical_create(pet_id):
         capillary = medical_record_form.capillary.data
         arterial = medical_record_form.arterial.data
         history = medical_record_form.history.data
+        signals = medical_record_form.signals.data
         diagnosis = medical_record_form.diagnosis.data
         tratment = medical_record_form.tratment.data
         pet_id = pet_data['pet_id']
@@ -40,15 +41,15 @@ def medical_create(pet_id):
         data = (reason,weigth,temperature,
                 heart,respiratory,water,
                 capillary,arterial,date,
-                history,diagnosis,tratment,
+                history,signals,diagnosis,tratment,
                 pet_id,user_id,appointment_id)
         sql = """
                 INSERT INTO medical_records (medical_record_reason,medical_record_weight,medical_record_temperature,
                 medical_record_heart,medical_record_respiratory,medical_record_water,
                 medical_record_capillary,medical_record_arterial,medical_record_date,
-                medical_record_medical_history,medical_record_diagnosis,medical_record_treatment,
+                medical_record_medical_history,medical_record_signs,medical_record_diagnosis,medical_record_treatment,
                 medical_record_pet_id,medical_record_user_id,medical_record_appointment_id)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 """
         cursor.execute(sql,data)
         flash("Expediente clinico creado correctamente")
