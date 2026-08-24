@@ -20,8 +20,6 @@ def appointment_create(pet_id):
     mascotas = c.fetchall()
     c.execute('select * from pet_data where pet_id = %s', (pet_id,))
     mascota = PetModel(c.fetchone())
-    print("mascota",mascota)
-    print(appointment_form.errors)
     if appointment_form.validate_on_submit():
         sql = """
             INSERT INTO vetki.appointments ( appointment_google_event_id,pet_id, appointment_date)
@@ -71,7 +69,7 @@ def appointment_update(appointment_id):
     cursor.execute('SELECT * FROM vetki.appointments WHERE appointment_id = %s', (appointment_id,))
     #guardamos el cursor.fetchone() en una variable para poder usarla en el formulario
     appointment_data = cursor.fetchone()
-    cursor.execute('SELECT pet_id, pet_names FROM vetki.pet_data WHERE pet_id = %s', (appointment_data['pet_id'],))
+    cursor.execute('SELECT pet_id, pet_names,pet_tutor_name FROM vetki.pet_data WHERE pet_id = %s', (appointment_data['pet_id'],))
     pet_data = cursor.fetchone()
     if not appointment_data:
         flash("La cita solicitada no existe.", "error")
@@ -81,7 +79,6 @@ def appointment_update(appointment_id):
             #le envio los datos que puede modificar al formulario
             form_update.date = form_update['date']
             form_update.g_id.data = form_update['g_id']
-
     if form_update.validate_on_submit():
         appointment_date = form_update.date.data
         sql = """
@@ -106,7 +103,7 @@ def appointment_update(appointment_id):
     # GET - Llenar formulario
     if request.method == 'GET':
         form_update.date.data = appointment_data['appointment_date']
-    return render_template("appointment/appointment_update.html", appointment_update=form_update, appointment_data=appointment_data,)
+    return render_template("appointment/appointment_update.html", appointment_update=form_update, appointment_data=appointment_data,pet_data=pet_data)
 
 @bp.route("/appointment_delete/<int:appointment_id>",methods = ['GET','POST'])
 def appointment_delete(appointment_id):

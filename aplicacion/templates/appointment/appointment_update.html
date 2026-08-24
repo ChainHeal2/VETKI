@@ -3,45 +3,77 @@
 {% block title %}VETKI | Reprogramar Cita{% endblock %}
 
 {% block main %}
-<div>
+<div class="container-narrow py-2 mx-auto" style="max-width: 680px;">
+    
     <!-- Encabezado -->
-    <div class="mb-4 border-bottom pb-4">
-        <h1 class="display-6 fw-normal mb-1">Reprogramar Cita</h1>
-        <p class="mb-0 text-body-secondary">Seleccione la nueva fecha y hora para la atención del paciente.</p>
+    <div class="mb-4 text-center">
+        <span class="badge text-bg-primary rounded-pill px-3 py-2 mb-2">Modificación de Agendamiento</span>
+        <h1 class="display-6 fw-bold mb-1">Reprogramar Cita</h1>
+        <p class="text-body-secondary small">Seleccione la nueva fecha y hora para la atención del paciente.</p>
     </div>
 
-    <!-- Formulario Principal -->
-    <form method="POST" class="row g-4 px-lg-2">
-        {{ appointment_update.hidden_tag() }} 
-
-        <!-- 1. Nombre del Paciente -->
-        <div class="col-md-7">
-            <div class="form-floating">
-                <input type="text" class="form-control" id="pet_name" value="{{ appointment_data.pet_id }}" readonly disabled>
-                <label for="pet_name">Paciente Citado</label>
+    <!-- Tarjeta Principal del Formulario -->
+    <div class="card bg-body-tertiary border rounded-4 shadow-sm overflow-hidden">
+        <!-- Cabecera Informativa del Paciente -->
+        <div class="card-header bg-body border-bottom p-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fs-3" style="width: 54px; height: 54px;">
+                    🐾
+                </div>
+                <div>
+                    <small class="text-body-secondary text-uppercase fw-semibold tracking-wide">Paciente Citado</small>
+                    <h4 class="mb-0 fw-bold text-primary">{{ pet_data.pet_names.title() or 'Sin Nombre' }}</h4>
+                </div>
+                <div>
+                    <small class="text-body-secondary text-uppercase fw-semibold tracking-wide">Nombre del tutor</small>
+                    <h4 class="mb-0 fw-bold text-primary">{{ pet_data.pet_tutor_name.title() or 'Sin Nombre' }}</h4>
+                </div>
             </div>
         </div>
 
-        <!-- 2. Re-programación de Fecha -->
-        <div class="col-md-5">
-            <div class="form-floating">
-                {{ appointment_update.date(class="form-control", id="appointment_date", type="datetime-local") }}
-                <label for="appointment_date">Nueva Fecha Re-programada</label>
-            </div>
-            {% if appointment_update.date.errors %}
-                <span class="text-danger small mt-1 d-block">{{ appointment_update.date.errors[0] }}</span>
-            {% endif %}
+        <!-- Cuerpo del Formulario -->
+        <div class="card-body p-4 p-md-5">
+            <form method="POST" action="" class="d-flex flex-column gap-4">
+                {{ appointment_update.hidden_tag() }} 
+
+                <!-- Selección de Nueva Fecha -->
+                <div>
+                    <div class="form-floating">
+                        {{ appointment_update.date(class="form-control border-primary-subtle", id="appointment_date", type="datetime-local", required=True) }}
+                        <label for="appointment_date" class="text-primary fw-medium">
+                            <i class="bi bi-calendar-event me-1"></i>Nueva Fecha y Hora Re-programada
+                        </label>
+                    </div>
+
+                    {% if appointment_update.date.errors %}
+                        <div class="alert alert-danger d-flex align-items-center gap-2 mt-2 py-2 px-3 mb-0 rounded-3 small">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>{{ appointment_update.date.errors[0] }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <hr class="my-2 border-secondary-subtle">
+
+                <!-- Botones de Acción -->
+                <div class="d-flex flex-column-reverse flex-sm-row align-items-center justify-content-end gap-2 pt-2">
+                    <a href="{{ url_for('appointment.appointment_read') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2 w-100 w-sm-auto text-center text-decoration-none">
+                        Cancelar
+                    </a>
+                    
+                    {% if appointment_update.submit is defined %}
+                        {{ appointment_update.submit(class="btn btn-primary rounded-pill px-5 py-2 fw-semibold w-100 w-sm-auto", value="Guardar Reprogramación") }}
+                    {% else %}
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-semibold w-100 w-sm-auto">
+                            Guardar Reprogramación
+                        </button>
+                    {% endif %}
+                </div>
+
+            </form>
         </div>
 
-        <!-- 3. Botones de Acción -->
-        <div class="col-12 mt-5 pt-3 border-top">
-            <div class="d-flex justify-content-end align-items-center gap-3">
-                <a href="{{ url_for('appointment.appointment_read') }}" class="btn btn-link text-body-secondary text-decoration-none">
-                    Cancelar
-                </a>
-                {{ appointment_update.submit(class="btn btn-primary rounded-pill px-5 py-2 fw-medium", value="Guardar Reprogramación") }}
-            </div>
-        </div>
-    </form>
+    </div>
+
 </div>
 {% endblock %}

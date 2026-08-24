@@ -79,7 +79,7 @@ def pet_update_form(pet_id):
         pet_update.pet_gender.data=pet_data['pet_gender']
         pet_update.pet_color.data=pet_data['pet_color']
         pet_update.pet_rstatus.data=pet_data['pet_reproductive_status']
-        pet_update.pet_tutor_name.data=pet_data['pet_tutor_name'].title()
+        pet_update.pet_tutor_name.data=pet_data['pet_tutor_name']
         pet_update.pet_tutor_address.data=pet_data['pet_tutor_address']
         pet_update.pet_tutor_phone.data=pet_data['pet_tutor_phone']
 
@@ -98,8 +98,8 @@ def pet_update_form(pet_id):
         pet_tutor_address = pet_update.pet_tutor_address.data
         pet_tutor_phone = pet_update.pet_tutor_phone.data
         #data es una tupla con los datos que se van a actualizar en la base de datos
-        data = (pet_user_id,pet_species_name,pet_names,pet_race,pet_datebirth,
-                pet_microchip,pet_gender,pet_color,pet_rstatus,pet_tutor_name,pet_tutor_address,pet_tutor_phone,pet_id)
+        data = (pet_user_id,pet_species_name,pet_names.lower(),pet_race.lower(),pet_datebirth,
+                pet_microchip,pet_gender,pet_color.lower(),pet_rstatus,pet_tutor_name.lower(),pet_tutor_address.lower(),pet_tutor_phone,pet_id)
         #creamos el script sql para actualizar los datos de la mascota en la base de datos
         sql = """
                 UPDATE pet_data

@@ -19,10 +19,10 @@
                 <!-- PACIENTE Y ESPECIE -->
                 <div class="col-md-3">
                     <span class="fw-bold text-primary fs-5 d-block">
-                        🐾 {{ expediente.names }}
+                        🐾 {{ expediente.names.title() }}
                     </span>
                     <small class="text-body-secondary">
-                        {{ expediente.pet_species or expediente.species or 'Especie N/D' }}
+                        {{ expediente.species_name.title() or 'Especie N/D' }}
                     </small>
                 </div>
                 
@@ -32,7 +32,7 @@
                         <strong class="fw-semibold">Edad:</strong> {{ expediente.age or 'N/D' }}
                     </div>
                     <small class="text-body-secondary">
-                        <i class="bi bi-person me-1"></i>Tutor: {{ expediente.tutor_name or '--' }}
+                        <i class="bi bi-person me-1"></i>Tutor: {{ expediente.tutor_name.title() or '--' }}
                     </small>
                 </div>
 

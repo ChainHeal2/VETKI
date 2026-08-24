@@ -28,9 +28,14 @@
                         🐾
                     </div>
                     <div class="flex-grow-1">
-                        <h4 class="h5 mb-1 fw-semibold text-body">{{ mascota.names }}</h4>
+                        <h4 class="h5 mb-1 fw-semibold text-body">{{ mascota.names.title() }}</h4>
 
                         <div class="d-flex flex-column gap-1 mt-2 small text-body-secondary">
+                            <span>
+                                <i class="bi bi-person me-1"></i>
+                                <span>Especie:</span>
+                                <span class="text-body">{{ mascota.species_name.title() or 'Sin registrar' }}</span>
+                            </span>
                             <span>
                                 <i class="bi bi-person me-1"></i>
                                 <span>Tutor:</span>

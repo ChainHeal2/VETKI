@@ -31,10 +31,10 @@
                         <div class="d-flex align-items-center gap-3">
                             <span class="fs-4">🐾</span>
                             <div>
-                                <span class="fw-bold text-primary fs-5 d-block">{{ grupo_mascota.grouper }}</span>
+                                <span class="fw-bold text-primary fs-5 d-block">{{ grupo_mascota.grouper.title() }}</span>
                                 <small class="text-body-secondary">
-                                    {{ primera_ficha.species or 'Especie N/D' }}
-                                    &middot; Tutor: {{ primera_ficha.tutor or 'Sin tutor' }}
+                                    {{ primera_ficha.species.title() or 'Especie N/D' }}
+                                    &middot; Tutor: {{ primera_ficha.tutor.title() or 'Sin tutor' }}
                                 </small>
                             </div>
                         </div>
@@ -61,7 +61,7 @@
                                 
                                 <div class="col-md-4">
                                     <div class="text-body mb-1">
-                                        <strong class="fw-semibold">Motivo:</strong> {{ expediente.reason or 'Sin especificar' }}
+                                        <strong class="fw-semibold">Motivo:</strong> {{ expediente.reason.title() or 'Sin especificar' }}
                                     </div>
                                     <small class="text-body-secondary">
                                         <i class="bi bi-calendar-event me-1"></i>{{ expediente.date or 'Sin fecha' }}
