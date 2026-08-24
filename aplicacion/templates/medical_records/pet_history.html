@@ -33,8 +33,8 @@
                             <div>
                                 <span class="fw-bold text-primary fs-5 d-block">{{ grupo_mascota.grouper }}</span>
                                 <small class="text-body-secondary">
-                                    {{ primera_ficha.pet_species or primera_ficha.species or 'Especie N/D' }} 
-                                    &middot; Tutor: {{ primera_ficha.tutor_name or 'Sin tutor' }}
+                                    {{ primera_ficha.species or 'Especie N/D' }}
+                                    &middot; Tutor: {{ primera_ficha.tutor or 'Sin tutor' }}
                                 </small>
                             </div>
                         </div>
@@ -55,8 +55,7 @@
                 <div class="accordion-body bg-body p-3">
                     <div class="d-flex flex-column gap-3">
                         
-                        {% for expediente in tabla %}
-                        {{expediente.signals}}
+                        {% for expediente in grupo_mascota.list %}
                         <div class="border rounded-3 p-3 bg-body-tertiary">
                             <div class="row align-items-center g-3">
                                 
@@ -81,7 +80,7 @@
 
                                 <div class="col-md-4 text-md-end">
                                     <span class="badge text-bg-dark border fw-normal me-2">
-                                        Ficha #{{ expediente.medical_id or expediente.id }}
+                                        Ficha #{{ expediente.medical_id }}
                                     </span>
                                     <button class="btn btn-sm btn-outline-secondary rounded-2" 
                                             type="button" 
@@ -104,7 +103,7 @@
                                             <p class="small mb-2"><strong class="text-body">Historia / Anamnesis:</strong> {{ expediente.history or 'Sin registro' }}</p>
                                             <p class="small mb-2"><strong class="text-body">Signos Clínicos:</strong> {{ expediente.signals or 'Sin registro' }}</p>
                                             <p class="small mb-2"><strong class="text-body">Diagnóstico:</strong> {{ expediente.diagnosis or 'Sin registro' }}</p>
-                                            <p class="small mb-0"><strong class="text-body">Tratamiento:</strong> {{ expediente.treatment or expediente.tratment or 'Sin registro' }}</p>
+                                            <p class="small mb-0"><strong class="text-body">Tratamiento:</strong> {{ expediente.treatment or 'Sin registro' }}</p>
                                         </div>
 
                                         <div class="col-md-6">
@@ -133,9 +132,13 @@
         </div>
         {% else %}
         <!-- ESTADO VACÍO -->
-        <div class="text-center py-5">
+        <div class="col-12 text-center py-5">
             <div class="display-1 text-body-tertiary mb-3">🩺</div>
-            <h5 class="text-body-secondary">No se han registrado fichas clínicas todavía.</h5>
+                <h5 class="text-body-secondary">No se han registrado fichas clínicas todavía.</h5>
+                <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill mt-3">
+                Atender paciente
+                </a>
+            </div>
         </div>
         {% endfor %}
     </div>

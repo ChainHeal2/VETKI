@@ -36,10 +36,11 @@ def google_authorize():
     session['user_name'] = info.get('name')
     session['google_id'] = info.get('id')
     db, cursor = get_db()
-    cursor.execute("select user_id from user_data where user_google_id = %s", (session['google_id'],))
+    cursor.execute("select user_id,user_role from user_data where user_google_id = %s", (session['google_id'],))
     user_data = cursor.fetchone()
     if user_data is not None:
         session['user_id'] = user_data['user_id']
+        session['user_role'] = user_data['user_role']
         return redirect(url_for('index.index'))
     cursor.execute("""
         INSERT INTO vetki.user_data (user_google_id, user_names, user_email) 

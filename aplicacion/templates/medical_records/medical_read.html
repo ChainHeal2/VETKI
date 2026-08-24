@@ -58,9 +58,12 @@
         </div>
         {% else %}
         <!-- ESTADO VACÍO -->
-        <div class="text-center py-5">
+        <div class="col-12 text-center py-5">
             <div class="display-1 text-body-tertiary mb-3">📋</div>
             <h5 class="text-body-secondary">No hay expedientes clínicos registrados aún.</h5>
+            <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill mt-3">
+                Crear expediente clínico
+            </a>
         </div>
         {% endfor %}
     </div>

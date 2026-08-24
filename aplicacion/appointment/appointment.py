@@ -16,10 +16,12 @@ def appointment_create(pet_id):
     """Crea un Agendamiento en la BD y envia a Google Calendar"""
     appointment_form = AppointmentForm()
     db,c = get_db()
-    c.execute('select pet_id, pet_names,pet_tutor_name from vetki.pet_data order by pet_names asc')
+    c.execute('select pet_id, pet_names,pet_tutor_name from vetki.pet_data where pet_id = %s', (pet_id,))
     mascotas = c.fetchall()
     c.execute('select * from pet_data where pet_id = %s', (pet_id,))
     mascota = PetModel(c.fetchone())
+    print("mascota",mascota)
+    print(appointment_form.errors)
     if appointment_form.validate_on_submit():
         sql = """
             INSERT INTO vetki.appointments ( appointment_google_event_id,pet_id, appointment_date)
@@ -38,7 +40,7 @@ def appointment_create(pet_id):
                 flash("Cita guardada, pero Google Calendar rechazó la solicitud.", "warning")
         except Exception as e:
             flash("Cita guardada, pero hubo un error de configuración en Google Calendar.", "warning")
-        return redirect(url_for('index.index'))
+        return redirect(url_for('appointment.appointment_read'))
     return render_template('appointment/appointment_create.html', appointment_form=appointment_form, mascotas=mascotas)
 
 @bp.route("/appointment_read", methods = ['GET','POST'])

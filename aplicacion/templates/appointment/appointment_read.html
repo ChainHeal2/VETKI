@@ -40,7 +40,7 @@
 
                 <!-- Opciones -->
                 <div class="d-flex flex-column align-items-end gap-2 ms-auto">
-                    <a href="{{ url_for('pet.pet_update_form', pet_id=cita.pet_id) }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <a href="{{ url_for('medical.pet_history', pet_id=cita.pet_id) }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                         Ver Expediente
                     </a>
                     
@@ -61,7 +61,10 @@
         <!-- ESTADO VACÍO -->
         <div class="col-12 text-center py-5">
             <div class="display-1 text-body-tertiary mb-3">📅</div>
-            <h5 class="text-body-secondary">Tu agenda está libre.</h5>
+            <h5 class="text-body-secondary">Tu agenda esta libre</h5>
+            <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill mt-3">
+                Agendar primer paciente
+            </a>
         </div>
         {% endfor %}
     </div>

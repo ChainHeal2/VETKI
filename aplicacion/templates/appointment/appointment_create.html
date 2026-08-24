@@ -27,21 +27,28 @@
     {% endwith %}
 
     <!-- Grid de Tarjetas de Mascotas -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 align-items-center">
         {% for mascota in mascotas %}
+        {% set p_id = mascota.pet_id if mascota.pet_id is defined else mascota[0] %}
+        {% set p_names = mascota.pet_names if mascota.pet_names is defined else mascota[1] %}
+        {% set p_tutor = mascota.pet_tutor_name if mascota.pet_tutor_name is defined else mascota[2] %}
+
         <div class="col">
             <div class="card bg-body-tertiary border rounded-4 h-100">
                 
-                <form action="{{ url_for('appointment.appointment_create', pet_id=mascota.pet_id) }}" method="POST" class="h-100 d-flex flex-column p-4">
-                    {{ appointment_form.csrf_token }}
-                    <input type="hidden" name="pet_id" value="{{ mascota.pet_id }}">
+                <form action="{{ url_for('appointment.appointment_create', pet_id=p_id) }}" method="POST" class="h-100 d-flex flex-column p-4">
+                    
+                    <!-- TOKEN DE SEGURIDAD OBLIGATORIO DE FLASK-WTF -->
+                    {{ appointment_form.hidden_tag() }}
+
+                    <input type="hidden" name="pet_id" value="{{ p_id }}">
 
                     <!-- Cabecera de la Tarjeta: Icono + Nombre del Paciente -->
                     <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
                         <span class="fs-2 me-3">🐾</span>
                         <div>
-                            <h5 class="mb-0 fw-bold text-primary">{{ mascota.pet_names }}</h5>
-                            <small class="text-body-secondary">Paciente Registrado</small>
+                            <h5 class="mb-0 fw-bold text-primary">{{ p_names }}</h5>
+                            <small class="text-body-secondary">Nombre del paciente</small>
                         </div>
                     </div>
 
@@ -49,7 +56,7 @@
                     <div class="mb-3">
                         <small class="text-body-secondary d-block mb-1">Tutor responsable:</small>
                         <strong class="text-body">
-                            {% if mascota.pet_tutor_name %}{{ mascota.pet_tutor_name }}{% else %}--{% endif %}
+                            {{ p_tutor or '--' }}
                         </strong>
                     </div>
 
@@ -57,10 +64,20 @@
                     <div class="mt-auto pt-2">
                         <div class="mb-3">
                             <label class="form-label mb-1 text-body-secondary small">Fecha y Hora de Cita</label>
-                            <input type="datetime-local" 
-                                   name="date" 
-                                   class="form-control form-control-sm" 
-                                   required>
+                            
+                            {% if appointment_form.date is defined %}
+                                {{ appointment_form.date(class="form-control form-control-sm", type="datetime-local", required=True) }}
+                            {% else %}
+                                <input type="datetime-local" name="date" class="form-control form-control-sm" required>
+                            {% endif %}
+
+                            {% if appointment_form.date.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for err in appointment_form.date.errors %}
+                                        <small class="d-block">{{ err }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
 
                         <!-- Botón de Selección -->

@@ -37,15 +37,15 @@ class MedicalRecordForm(FlaskForm):
     arterial = FloatField('Presion arterial del animal',validators=[Optional(), NumberRange(min=0,max=100)],
                             filters=[])
     history = TextAreaField('Historia clinica de la mascota',
-                            validators=[Optional(), Length(min=0,max=255)],
+                            validators=[Optional(), Length(min=0,max=500)],
                             filters=[])
     signals = TextAreaField('Signos clinicos de la mascota',
-                            validators=[Optional(), Length(min=0,max=255)],
+                            validators=[Optional(), Length(min=0,max=500)],
                             filters=[])
     diagnosis = TextAreaField('Diagnostico de la mascota',
-                            validators=[Optional(), Length(min=0,max=255)],
+                            validators=[Optional(), Length(min=0,max=500)],
                             filters=[])
     tratment = TextAreaField('tratamiento de la mascota',
-                            validators=[Optional(), Length(min=0,max=255)],
+                            validators=[Optional(), Length(min=0,max=500)],
                             filters=[])
     submit = SubmitField('Registrar Expediente Clinico')

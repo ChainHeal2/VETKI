@@ -11,7 +11,6 @@ from aplicacion.pet.pet_model import PetModel
 bp = Blueprint('medical',__name__,url_prefix='/medical')
 
 @bp.route("/medical_create/<int:pet_id>", methods = ['GET','POST'])
-@login_required #revisar posible bug
 def medical_create(pet_id):
     """Crea un nuevo expediente clinico"""
     medical_record_form = MedicalRecordForm(prefix='medical_record')
@@ -47,12 +46,12 @@ def medical_create(pet_id):
                 INSERT INTO medical_records (medical_record_reason,medical_record_weight,medical_record_temperature,
                 medical_record_heart,medical_record_respiratory,medical_record_water,
                 medical_record_capillary,medical_record_arterial,medical_record_date,
-                medical_record_medical_history,medical_record_signs,medical_record_diagnosis,medical_record_treatment,
+                medical_record_medical_history,medical_record_signals,medical_record_diagnosis,medical_record_treatment,
                 medical_record_pet_id,medical_record_user_id,medical_record_appointment_id)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 """
         cursor.execute(sql,data)
-        flash("Expediente clinico creado correctamente")
+        flash("Expediente clinico creado correctamente", "success")
         db.commit()
         return redirect(url_for('medical.medical_read'))
     return render_template('medical_records/medical_create.html',medical_record_form = medical_record_form,mascota = pet_data)
@@ -73,7 +72,7 @@ def pet_history(pet_id):
     """
     db,c = get_db()
     sql = """
-        SELECT r.*, p.pet_names, p.pet_species_name 
+        SELECT r.*, p.pet_names, p.pet_species_name, p.pet_tutor_name 
         FROM medical_records r
         JOIN pet_data p ON r.medical_record_pet_id = p.pet_id
         WHERE r.medical_record_pet_id = %s

@@ -27,7 +27,7 @@
 
                 <div class="collapse navbar-collapse" id="navVetki">
                     <ul class="navbar-nav ms-auto me-lg-4 align-items-center gap-3">
-                        {% if session.get('user_name') %}
+                        {% if session.get('google_id') %}
                         <li class="nav-item d-none d-lg-block">
                             <span class="badge text-bg-dark border rounded-pill px-3 py-2 fw-normal">
                                 <span class="text-primary">MV.</span> {{ session.get('user_name') }}
@@ -90,14 +90,15 @@
                             <span class="text-body-secondary small">Consultar fichas clínicas de los pacientes.</span>
                         </a>
                     </div>
-
-                    <div class="col-md-6 col-lg-4">
-                        <a href="{{url_for('user.user_create')}}" class="card bg-body-tertiary border-secondary-subtle text-decoration-none p-4 h-100 rounded-4">
-                            <span class="fs-2 mb-2">👤</span>
-                            <h4 class="h5 text-body mb-2">Nuevo Usuario</h4>
-                            <span class="text-body-secondary small">Registrar veterinarios y personal administrativo.</span>
-                        </a>
-                    </div>
+                    {% if session.get('user_role') == 'admin' %}
+                        <div class="col-md-6 col-lg-4">
+                            <a href="{{url_for('user.user_create')}}" class="card bg-body-tertiary border-secondary-subtle text-decoration-none p-4 h-100 rounded-4">
+                                <span class="fs-2 mb-2">👤</span>
+                                <h4 class="h5 text-body mb-2">Nuevo Usuario</h4>
+                                <span class="text-body-secondary small">Registrar veterinarios y personal administrativo.</span>
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
                 {% else %}
                 <!-- PORTAL PÚBLICO -->
@@ -126,9 +127,6 @@
                     <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
                         <a href="{{ url_for('auth.user_login') }}" class="btn btn-primary rounded-pill px-5 py-3 fs-5 shadow">
                             Ingresar al Sistema
-                        </a>
-                        <a href="{{ url_for('auth.user_register') }}" class="btn btn-outline-secondary rounded-pill px-5 py-3 fs-5">
-                            Solicitar Afiliación
                         </a>
                     </div>
                 </div>

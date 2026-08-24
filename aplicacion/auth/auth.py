@@ -54,7 +54,9 @@ def user_login():
             error = 'Correo electrónico no registrado o contraseña inválida.'
         if error is None:
             session.clear()
+            print(session)
             session['user_id'] = user_row['user_id']
+            session['user_role'] = user_row['user_role']
             flash("Conectado exitosamente.", "success")
             return redirect(url_for('index.index'))
         flash(error, "danger")
@@ -66,7 +68,7 @@ def user_login():
 def user_logout():
     """Destruye la sesión actual"""
     session.clear()
-    flash("Has cerrado tu sesión.", "success")
+    flash("Has cerrado tu sesión.", "info")
     return redirect(url_for('auth.user_login'))
 
 @bp.before_app_request
