@@ -6,7 +6,6 @@ from aplicacion.auth.auth import login_required
 from aplicacion.pet.pet_model import PetModel
 from aplicacion.db import get_db
 from aplicacion.forms.pet.pet_create import PetForm
-from aplicacion.forms.pet.pet_update import PetUpdate
 
 bp = Blueprint('pet',__name__,url_prefix='/pet')
 
@@ -20,15 +19,15 @@ def pet_create():
     if pet_form.validate_on_submit():
         pet_user_id = session.get('user_id')
         pet_species_name = pet_form.pet_species_name.data
-        pet_names = pet_form.pet_names.data
-        pet_race = pet_form.pet_race.data
+        pet_names = pet_form.pet_names.data.lower()
+        pet_race = pet_form.pet_race.data.lower()
         pet_datebirth = pet_form.pet_datebirth.data
         pet_microchip = pet_form.pet_microchip.data
         pet_gender = pet_form.pet_gender.data
-        pet_color = pet_form.pet_color.data
+        pet_color = pet_form.pet_color.data.lower()
         pet_rstatus = pet_form.pet_rstatus.data
-        pet_tutor_name = pet_form.pet_tutor_name.data
-        pet_tutor_address = pet_form.pet_tutor_address.data
+        pet_tutor_name = pet_form.pet_tutor_name.data.lower()
+        pet_tutor_address = pet_form.pet_tutor_address.data.lower()
         pet_tutor_phone = pet_form.pet_tutor_phone.data
         data = (pet_user_id, pet_species_name,pet_names,pet_race,pet_datebirth,pet_microchip,pet_gender,pet_color,pet_rstatus,pet_tutor_name,pet_tutor_address,pet_tutor_phone)
         sql = """
@@ -41,15 +40,44 @@ def pet_create():
         return redirect(url_for('pet.pet_read'))
     return render_template('pet/pet_create.html',pet_form = pet_form)
 
-@bp.route("/pet_read", methods = ['GET','POST'])
+@bp.route("/pet_read", methods=['GET', 'POST'])
 @login_required
 def pet_read():
-    """Lista de pet"""
-    db,c = get_db()
-    c.execute('select * from pet_data where pet_user_id = %s', (session.get('user_id'),))
+    """Lista de mascotas con soporte para búsqueda"""
+    db, c = get_db()
+    
+    # Captura el texto ingresado en la barra de búsqueda (si existe)
+    search_query = request.args.get('q', '').strip()
+    user_id = session.get('user_id')
+
+    if search_query:
+        # Busca por nombre de la mascota o por el tutor coincidente
+        sql = """
+            SELECT * FROM pet_data 
+            WHERE pet_user_id = %s 
+              AND (LOWER(pet_names) LIKE LOWER(%s) OR LOWER(pet_tutor_name) LIKE LOWER(%s))
+            ORDER BY pet_names ASC
+        """
+        term = f"%{search_query}%"
+        c.execute(sql, (user_id, term, term))
+    else:
+        # Si no hay término de búsqueda, lista todas las mascotas del usuario
+        sql = """
+            SELECT * FROM pet_data 
+            WHERE pet_user_id = %s 
+            ORDER BY pet_names ASC
+        """
+        c.execute(sql, (user_id,))
+
     datos = c.fetchall()
     objetos_mascotas = [PetModel(f) for f in datos]
-    return render_template('pet/pet_read.html',tabla = datos,mascotas = objetos_mascotas)
+
+    return render_template(
+        'pet/pet_read.html',
+        tabla=datos,
+        mascotas=objetos_mascotas,
+        search_query=search_query
+    )
 
 @bp.route("/pet_update_form/<int:pet_id>", methods = ['GET','POST'])
 def pet_update_form(pet_id):
@@ -59,7 +87,7 @@ def pet_update_form(pet_id):
         - MOSTRAR DATOS
         - POST
     """
-    pet_update = PetUpdate()
+    pet_update = PetForm()
     #pet update es el formulario que se va a mostrar en la vista, y que se va a validar cuando se haga submit
     db,cursor = get_db()
 

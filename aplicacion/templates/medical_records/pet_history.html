@@ -135,7 +135,7 @@
         <div class="col-12 text-center py-5">
             <div class="display-1 text-body-tertiary mb-3">🩺</div>
                 <h5 class="text-body-secondary">No se han registrado fichas clínicas todavía.</h5>
-                <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill mt-3">
+                <a href="{{ url_for('medical.medical_create',pet_id=pet_id) }}" class="btn btn-primary rounded-pill mt-3">
                 Atender paciente
                 </a>
             </div>

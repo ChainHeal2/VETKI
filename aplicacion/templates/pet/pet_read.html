@@ -5,7 +5,7 @@
 {% block main %}
 <div>
     <!-- CABECERA DE SECCIÓN -->
-    <div class="d-flex justify-content-between align-items-end mb-5 border-bottom pb-4">
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-4">
         <div>
             <h1 class="display-6 fw-normal mb-1">Archivo de Pacientes</h1>
             <p class="mb-0 text-body-secondary">Base de datos clínica de VETKI.</p>
@@ -13,6 +13,39 @@
         <a href="{{ url_for('pet.pet_create') }}" class="btn btn-primary rounded-pill px-4 py-2">
             + Registrar Mascota
         </a>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA Y FILTROS -->
+    <div class="row mb-4 g-2 align-items-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <form method="GET" action="{{ url_for('pet.pet_read') }}" class="d-flex gap-2">
+                <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+                    <span class="input-group-text bg-body-tertiary border-0 text-body-secondary ps-3">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="search" 
+                           name="q" 
+                           class="form-control border-0 bg-body-tertiary shadow-none ps-2" 
+                           placeholder="Buscar por paciente o tutor..." 
+                           value="{{ search_query or '' }}"
+                           autocapitalize="none"
+                           autocomplete="off">
+                    <button type="submit" class="btn btn-primary px-4 fw-medium">Buscar</button>
+                </div>
+                
+                {% if search_query %}
+                    <a href="{{ url_for('pet.pet_read') }}" class="btn btn-outline-secondary rounded-pill px-3 d-flex align-items-center gap-1">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if search_query %}
+            <div class="col-12 col-md-auto text-body-secondary small ms-md-2">
+                Resultados para: <strong class="text-primary">"{{ search_query }}"</strong>
+            </div>
+        {% endif %}
     </div>
 
     <!-- GRILLA DE PACIENTES -->
@@ -119,13 +152,21 @@
             </div>
         </div>
         {% else %}
-        <!-- ESTADO VACÍO -->
+        <!-- ESTADO VACÍO / SIN RESULTADOS -->
         <div class="col-12 text-center py-5">
-            <div class="display-1 text-body-tertiary mb-3">📁</div>
-            <h5 class="text-body-secondary">No hay pacientes registrados aún.</h5>
-            <a href="{{ url_for('pet.pet_create') }}" class="btn btn-primary rounded-pill mt-3">
-                Crear primer expediente
-            </a>
+            {% if search_query %}
+                <div class="display-1 text-body-tertiary mb-3">🔍</div>
+                <h5 class="text-body-secondary">No se encontraron pacientes que coincidan con "{{ search_query }}".</h5>
+                <a href="{{ url_for('pet.pet_read') }}" class="btn btn-outline-secondary rounded-pill mt-3 px-4">
+                    Ver todos los pacientes
+                </a>
+            {% else %}
+                <div class="display-1 text-body-tertiary mb-3">📁</div>
+                <h5 class="text-body-secondary">No hay pacientes registrados aún.</h5>
+                <a href="{{ url_for('pet.pet_create') }}" class="btn btn-primary rounded-pill mt-3">
+                    Crear primer expediente
+                </a>
+            {% endif %}
         </div>
         {% endfor %}
     </div>

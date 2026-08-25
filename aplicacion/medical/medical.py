@@ -72,7 +72,7 @@ def pet_history(pet_id):
     """
     db,c = get_db()
     sql = """
-        SELECT r.*, p.pet_names, p.pet_species_name, p.pet_tutor_name 
+        SELECT r.*,  p.pet_names, p.pet_species_name, p.pet_tutor_name 
         FROM medical_records r
         JOIN pet_data p ON r.medical_record_pet_id = p.pet_id
         WHERE r.medical_record_pet_id = %s
@@ -81,7 +81,7 @@ def pet_history(pet_id):
     c.execute(sql,(pet_id,))
     datos = c.fetchall()
     medical_model_list = [MedicalRecordModel(ficha) for ficha in datos]
-    return render_template("medical_records/pet_history.html",tabla = medical_model_list)
+    return render_template("medical_records/pet_history.html",tabla = medical_model_list,pet_id=pet_id)
 
 @bp.route("/pet_delete/<int:pet_id>",methods = ['GET','POST'])
 def pet_delete(pet_id):
