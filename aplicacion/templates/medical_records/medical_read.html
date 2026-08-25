@@ -5,9 +5,14 @@
 {% block main %}
 <div>
     <!-- ENCABEZADO -->
-    <div class="mb-4 border-bottom pb-4">
-        <h1 class="display-6 fw-normal mb-1">Lista de Expedientes Clínicos</h1>
-        <p class="mb-0 text-body-secondary">Pacientes con expediente activo en la clínica.</p>
+    <div class="d-flex justify-content-between align-items-end mb-5 border-bottom pb-4">
+        <div>
+            <h1 class="display-6 fw-normal mb-1">Lista de expedientes medicos.</h1>
+            <p class="mb-0 text-body-secondary">Todos tus pacientes registrados.</p>
+        </div>
+                <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill px-4 py-2">
+            + Atender Mascota
+        </a>
     </div>
 
     <!-- LISTADO -->
