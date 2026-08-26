@@ -9,7 +9,7 @@ class PetModel:
         'data' es el diccionario que viene de la base de datos 
         gracias al RealDictCursor que configuraste en db.py
         """
-        self.id = data.get('pet_id')
+        self.pet_id = data.get('pet_id')
         self.names = data.get('pet_names')
         self.species_name = data.get('pet_species_name')
         self.race = data.get('pet_race')

@@ -119,15 +119,15 @@
 
                             <!-- Acciones Clínicas -->
                             <div class="d-flex gap-1 pt-2 border-top">
-                                <a href="{{ url_for('medical.medical_create', pet_id=mascota.id) }}"
+                                <a href="{{ url_for('medical.medical_create', pet_id=mascota.pet_id) }}"
                                    class="btn btn-sm btn-outline-primary w-100 rounded-2">
                                     🩺 Atender
                                 </a>
-                                <a href="{{ url_for('appointment.appointment_create', pet_id=mascota.id) }}"
+                                <a href="{{ url_for('appointment.appointment_create', pet_id=mascota.pet_id) }}"
                                    class="btn btn-sm btn-outline-secondary w-100 rounded-2">
                                     📅 Agendar
                                 </a>
-                                <a href="{{ url_for('medical.pet_history', pet_id=mascota.id) }}"
+                                <a href="{{ url_for('medical.pet_history', pet_id=mascota.pet_id) }}"
                                    class="btn btn-sm btn-outline-info w-100 rounded-2">
                                     📋 Ficha
                                 </a>
@@ -138,11 +138,11 @@
 
                     <!-- BOTONES PRINCIPALES (Modificar y Eliminar) -->
                     <div class="d-flex gap-2">
-                        <a href="{{ url_for('pet.pet_update_form', pet_id=mascota.id) }}"
+                        <a href="{{ url_for('pet.pet_update_form', pet_id=mascota.pet_id) }}"
                             class="btn btn-sm btn-outline-warning w-50 rounded-2">
                             Modificar
                         </a>
-                        <a href="{{ url_for('pet.pet_delete', pet_id=mascota.id) }}" 
+                        <a href="{{ url_for('pet.pet_delete', pet_id=mascota.pet_id) }}" 
                             class="btn btn-sm btn-outline-danger w-50 rounded-2">
                             Eliminar
                         </a>

@@ -7,6 +7,7 @@ from aplicacion.db import get_db
 from aplicacion.forms.medical_records.medical_form import MedicalRecordForm
 from aplicacion.medical.medical_model import MedicalRecordModel
 from aplicacion.pet.pet_model import PetModel
+import math
 
 bp = Blueprint('medical',__name__,url_prefix='/medical')
 
@@ -56,15 +57,75 @@ def medical_create(pet_id):
         return redirect(url_for('medical.medical_read'))
     return render_template('medical_records/medical_create.html',medical_record_form = medical_record_form,mascota = pet_data)
 
-@bp.route("/medical_read", methods = ['GET','POST'])
+@bp.route("/medical_read", methods=['GET'])
 @login_required
 def medical_read():
-    """Lista de pet"""
-    db,c = get_db()
-    c.execute('select * from vw_pet_tutor where pet_user_id = %s', (session.get('user_id'),))
+    """Lista de expedientes clínicos con soporte para búsqueda y paginación"""
+    db, c = get_db()
+    user_id = session.get('user_id')
+
+    # Parámetros desde la URL
+    search_query = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+
+    per_page = 8  # Cantidad de expedientes por página
+    offset = (page - 1) * per_page
+
+    # 1. Conteo total para paginación
+    if search_query:
+        count_sql = """
+            SELECT COUNT(*) AS total 
+            FROM pet_data 
+            WHERE pet_user_id = %s 
+              AND (LOWER(pet_names) LIKE LOWER(%s) OR LOWER(pet_tutor_name) LIKE LOWER(%s))
+        """
+        term = f"%{search_query}%"
+        c.execute(count_sql, (user_id, term, term))
+    else:
+        count_sql = "SELECT COUNT(*) AS total FROM pet_data WHERE pet_user_id = %s"
+        c.execute(count_sql, (user_id,))
+
+    res_count = c.fetchone()
+    total_records = res_count['total'] if res_count else 0
+    total_pages = math.ceil(total_records / per_page) or 1
+
+    # 2. Consulta proyectada (sin SELECT *) con LIMIT y OFFSET
+    if search_query:
+        sql = """
+            SELECT 
+                pet_id, pet_names, pet_species_name, 
+                pet_datebirth, pet_tutor_name, pet_tutor_phone
+            FROM pet_data 
+            WHERE pet_user_id = %s 
+              AND (LOWER(pet_names) LIKE LOWER(%s) OR LOWER(pet_tutor_name) LIKE LOWER(%s))
+            ORDER BY pet_names ASC
+            LIMIT %s OFFSET %s
+        """
+        c.execute(sql, (user_id, term, term, per_page, offset))
+    else:
+        sql = """
+            SELECT 
+                pet_id, pet_names, pet_species_name, 
+                pet_datebirth, pet_tutor_name, pet_tutor_phone
+            FROM pet_data 
+            WHERE pet_user_id = %s 
+            ORDER BY pet_names ASC
+            LIMIT %s OFFSET %s
+        """
+        c.execute(sql, (user_id, per_page, offset))
+
     datos = c.fetchall()
     medical_model_list = [PetModel(ficha) for ficha in datos]
-    return render_template('medical_records/medical_read.html',tabla = medical_model_list)
+
+    return render_template(
+        'medical_records/medical_read.html',
+        tabla=medical_model_list,
+        search_query=search_query,
+        page=page,
+        total_pages=total_pages,
+        total_records=total_records
+    )
+
 @bp.route("/pet_history/<int:pet_id>", methods = ['GET','POST'])
 def pet_history(pet_id):
     """Historial medico de una mascota
