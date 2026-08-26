@@ -82,7 +82,7 @@
                         </div>
                     </div>
                     <span class="badge text-bg-dark border ms-auto py-1 px-2 fw-normal small">
-                        #{{ mascota.id }}
+                        #{{ mascota.pet_id }}
                     </span>
                 </div>
 
@@ -99,14 +99,14 @@
                 <div class="mt-auto">
                     <!-- BOTÓN DESPLEGABLE -->
                     <button class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center mb-3 rounded-3 py-2 px-3 small"
-                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseData{{ mascota.id }}"
+                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseData{{ mascota.pet_id }}"
                         aria-expanded="false">
                         <span>Ver Expediente Completo</span>
                         <i class="bi bi-chevron-down small"></i>
                     </button>
 
                     <!-- CONTENIDO DESPLEGABLE -->
-                    <div class="collapse" id="collapseData{{ mascota.id }}">
+                    <div class="collapse" id="collapseData{{ mascota.pet_id }}">
                         <div class="card card-body mb-3 border-0 bg-body rounded-3 p-3">
                             
                             <!-- Lista de Detalles -->

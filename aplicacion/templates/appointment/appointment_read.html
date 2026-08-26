@@ -11,9 +11,44 @@
             <h1 class="display-6 fw-normal mb-1">Agenda Médica</h1>
             <p class="mb-0 text-body-secondary">Próximos agendamientos de VETKI.</p>
         </div>
-                <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill px-4 py-2">
-            + Agendar Mascota
+        <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill px-4 py-2">
+           📅 Agendar Mascota
         </a>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA Y FILTROS -->
+    <div class="row mb-4 g-3 align-items-center">
+        <div class="col-12 col-md-8 col-lg-7">
+            <form method="GET" action="{{ url_for('appointment.appointment_read') }}" class="d-flex gap-2">
+                <div class="input-group shadow-sm rounded-pill border overflow-hidden">
+                    <span class="input-group-text bg-body-tertiary border-0 text-body-secondary ps-3">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="search" 
+                           name="q" 
+                           class="form-control border-0 bg-body-tertiary shadow-none ps-2" 
+                           placeholder="Buscar por paciente o tutor..." 
+                           value="{{ search_query or '' }}"
+                           autocapitalize="none"
+                           autocomplete="off">
+                    <button type="submit" class="btn btn-primary px-4 fw-medium border-0">
+                        Buscar
+                    </button>
+                </div>
+                
+                {% if search_query %}
+                    <a href="{{ url_for('appointment.appointment_read') }}" class="btn btn-outline-secondary rounded-pill px-3 d-flex align-items-center gap-1 flex-shrink-0">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if search_query %}
+            <div class="col-12 col-md-auto text-body-secondary small ms-md-auto">
+                Resultados para: <strong class="text-primary">"{{ search_query }}"</strong>
+            </div>
+        {% endif %}
     </div>
 
     <!-- Lista de Citas -->
@@ -63,14 +98,48 @@
         {% else %}
         <!-- ESTADO VACÍO -->
         <div class="col-12 text-center py-5">
-            <div class="display-1 text-body-tertiary mb-3">📅</div>
-            <h5 class="text-body-secondary">Tu agenda esta libre</h5>
-            <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill mt-3">
-                Agendar primer paciente
-            </a>
+            {% if search_query %}
+                <div class="display-1 text-body-tertiary mb-3">🔍</div>
+                <h5 class="text-body-secondary">No se encontraron citas que coincidan con "{{ search_query }}".</h5>
+                <a href="{{ url_for('appointment.appointment_read') }}" class="btn btn-outline-secondary rounded-pill mt-3 px-4">
+                    Ver todas las citas
+                </a>
+            {% else %}
+                <div class="display-1 text-body-tertiary mb-3">📅</div>
+                <h5 class="text-body-secondary">Tu agenda está libre</h5>
+                <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill mt-3">
+                    Agendar primer paciente
+                </a>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
+
+    <!-- NAVEGACIÓN DE PAGINACIÓN -->
+    {% if total_pages is defined and total_pages > 1 %}
+    <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+        <div class="text-body-secondary small">
+            Página <strong>{{ page }}</strong> de <strong>{{ total_pages }}</strong> ({{ total_records }} citas en total)
+        </div>
+        <ul class="pagination mb-0">
+            <!-- Botón Anterior -->
+            <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                <a class="page-link rounded-pill px-3 me-1" 
+                   href="{{ url_for('appointment.appointment_read', page=page-1, q=search_query) }}">
+                    &laquo; Anterior
+                </a>
+            </li>
+
+            <!-- Botón Siguiente -->
+            <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                <a class="page-link rounded-pill px-3" 
+                   href="{{ url_for('appointment.appointment_read', page=page+1, q=search_query) }}">
+                    Siguiente &raquo;
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
 
 </div>
 {% endblock %}

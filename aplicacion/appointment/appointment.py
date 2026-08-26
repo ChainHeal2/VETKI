@@ -8,6 +8,7 @@ from aplicacion.appointment.appointment_model import AppointmentModel
 from aplicacion.pet.pet_model import PetModel
 from aplicacion.db import get_db
 from aplicacion.services.google_calendar import CalendarService
+import math
 
 bp = Blueprint('appointment',__name__)
 
@@ -41,20 +42,77 @@ def appointment_create(pet_id):
         return redirect(url_for('appointment.appointment_read'))
     return render_template('appointment/appointment_create.html', appointment_form=appointment_form, mascotas=mascotas)
 
-@bp.route("/appointment_read", methods = ['GET','POST'])
+@bp.route("/appointment_read", methods=['GET'])
 def appointment_read():
-    """Lista de pet"""
+    """Lista de citas médicas con soporte para búsqueda por paciente y paginación"""
     db, c = get_db()
-    c.execute('''
-        SELECT a.appointment_id, a.appointment_date, p.pet_names, p.pet_id 
-        FROM vetki.appointments a
-        JOIN vetki.pet_data p ON a.pet_id = p.pet_id
-        ORDER BY a.appointment_date ASC
-    ''')
+    user_id = session.get('user_id')
+
+    # Parámetros desde la URL
+    search_query = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+
+    per_page = 6  # Número de citas por página
+    offset = (page - 1) * per_page
+
+    # 1. Obtener el total de registros para la paginación
+    if search_query:
+        count_sql = """
+            SELECT COUNT(*) AS total 
+            FROM vetki.appointments a
+            JOIN vetki.pet_data p ON a.pet_id = p.pet_id
+            WHERE p.pet_user_id = %s 
+              AND (LOWER(p.pet_names) LIKE LOWER(%s) OR LOWER(p.pet_tutor_name) LIKE LOWER(%s))
+        """
+        term = f"%{search_query}%"
+        c.execute(count_sql, (user_id, term, term))
+    else:
+        count_sql = """
+            SELECT COUNT(*) AS total 
+            FROM vetki.appointments a
+            JOIN vetki.pet_data p ON a.pet_id = p.pet_id
+            WHERE p.pet_user_id = %s
+        """
+        c.execute(count_sql, (user_id,))
+
+    res_count = c.fetchone()
+    total_records = res_count['total'] if res_count else 0
+    total_pages = math.ceil(total_records / per_page) or 1
+
+    # 2. Consulta de datos optimizada con columnas explícitas, LIMIT y OFFSET
+    if search_query:
+        sql = """
+            SELECT a.appointment_id, a.appointment_date, p.pet_names, p.pet_id 
+            FROM vetki.appointments a
+            JOIN vetki.pet_data p ON a.pet_id = p.pet_id
+            WHERE p.pet_user_id = %s 
+              AND (LOWER(p.pet_names) LIKE LOWER(%s) OR LOWER(p.pet_tutor_name) LIKE LOWER(%s))
+            ORDER BY a.appointment_date ASC
+            LIMIT %s OFFSET %s
+        """
+        c.execute(sql, (user_id, term, term, per_page, offset))
+    else:
+        sql = """
+            SELECT a.appointment_id, a.appointment_date, p.pet_names, p.pet_id 
+            FROM vetki.appointments a
+            JOIN vetki.pet_data p ON a.pet_id = p.pet_id
+            WHERE p.pet_user_id = %s
+            ORDER BY a.appointment_date ASC
+            LIMIT %s OFFSET %s
+        """
+        c.execute(sql, (user_id, per_page, offset))
+
     datos_crudos = c.fetchall()
-    # Usamos el modelo para limpiar los datos
     objetos_cita = [AppointmentModel(d) for d in datos_crudos]
-    return render_template('appointment/appointment_read.html', citas=objetos_cita)
+
+    return render_template(
+        'appointment/appointment_read.html',
+        citas=objetos_cita,
+        search_query=search_query,
+        page=page,
+        total_pages=total_pages,
+        total_records=total_records
+    )
 
 @bp.route("/appointment_update/<int:appointment_id>", methods=['GET','POST'])
 def appointment_update(appointment_id):
