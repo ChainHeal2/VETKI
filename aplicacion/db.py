@@ -17,7 +17,8 @@ def get_db():
             host = current_app.config['DATABASE_HOST'],
             user = current_app.config['DATABASE_USER'],
             password = current_app.config['DATABASE_PASSWORD'],
-            database = current_app.config['DATABASE']
+            database = current_app.config['DATABASE'],
+            connect_timeout=5
         )
         cur = conn.cursor(cursor_factory=RealDictCursor)
         # Agrega esta línea para que Postgres encuentre tus tablas automáticamente
