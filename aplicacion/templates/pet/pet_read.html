@@ -170,5 +170,31 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- NAVEGACIÓN DE PAGINACIÓN -->
+    {% if total_pages > 1 %}
+    <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+        <div class="text-body-secondary small">
+            Página <strong>{{ page }}</strong> de <strong>{{ total_pages }}</strong> ({{ total_records }} mascotas en total)
+        </div>
+        <ul class="pagination mb-0">
+            <!-- Botón Anterior -->
+            <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                <a class="page-link rounded-pill px-3 me-1" 
+                   href="{{ url_for('pet.pet_read', page=page-1, q=search_query) }}">
+                    &laquo; Anterior
+                </a>
+            </li>
+
+            <!-- Botón Siguiente -->
+            <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                <a class="page-link rounded-pill px-3" 
+                   href="{{ url_for('pet.pet_read', page=page+1, q=search_query) }}">
+                    Siguiente &raquo;
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

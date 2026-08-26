@@ -6,6 +6,7 @@ from aplicacion.auth.auth import login_required
 from aplicacion.pet.pet_model import PetModel
 from aplicacion.db import get_db
 from aplicacion.forms.pet.pet_create import PetForm
+import math
 
 bp = Blueprint('pet',__name__,url_prefix='/pet')
 
@@ -40,34 +41,65 @@ def pet_create():
         return redirect(url_for('pet.pet_read'))
     return render_template('pet/pet_create.html',pet_form = pet_form)
 
-@bp.route("/pet_read", methods=['GET', 'POST'])
+@bp.route("/pet_read", methods=['GET'])
 @login_required
 def pet_read():
-    """Lista de mascotas con soporte para búsqueda"""
+    """Lista de mascotas con soporte para búsqueda y paginación optimizada"""
     db, c = get_db()
-    
-    # Captura el texto ingresado en la barra de búsqueda (si existe)
-    search_query = request.args.get('q', '').strip()
     user_id = session.get('user_id')
+    
+    # Parámetros desde la URL
+    search_query = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+    
+    per_page = 6
+    offset = (page - 1) * per_page
 
+    # 1. Obtener el total de registros usando un ALIAS ("AS total")
     if search_query:
-        # Busca por nombre de la mascota o por el tutor coincidente
+        count_sql = """
+            SELECT COUNT(*) AS total 
+            FROM pet_data 
+            WHERE pet_user_id = %s 
+              AND (LOWER(pet_names) LIKE LOWER(%s) OR LOWER(pet_tutor_name) LIKE LOWER(%s))
+        """
+        term = f"%{search_query}%"
+        c.execute(count_sql, (user_id, term, term))
+    else:
+        count_sql = "SELECT COUNT(*) AS total FROM pet_data WHERE pet_user_id = %s"
+        c.execute(count_sql, (user_id,))
+    
+    # 2. Acceso correcto al diccionario para RealDictCursor
+    res_count = c.fetchone()
+    total_records = res_count['total'] if res_count else 0
+    total_pages = math.ceil(total_records / per_page) or 1
+
+    # 3. Consulta de datos optimizada
+    if search_query:
         sql = """
-            SELECT * FROM pet_data 
+            SELECT 
+                pet_id, pet_names, pet_species_name, pet_race, pet_datebirth,
+                pet_microchip, pet_gender, pet_color, pet_reproductive_status,
+                pet_tutor_name, pet_tutor_address, pet_tutor_phone
+            FROM pet_data 
             WHERE pet_user_id = %s 
               AND (LOWER(pet_names) LIKE LOWER(%s) OR LOWER(pet_tutor_name) LIKE LOWER(%s))
             ORDER BY pet_names ASC
+            LIMIT %s OFFSET %s
         """
-        term = f"%{search_query}%"
-        c.execute(sql, (user_id, term, term))
+        c.execute(sql, (user_id, term, term, per_page, offset))
     else:
-        # Si no hay término de búsqueda, lista todas las mascotas del usuario
         sql = """
-            SELECT * FROM pet_data 
+            SELECT 
+                pet_id, pet_names, pet_species_name, pet_race, pet_datebirth,
+                pet_microchip, pet_gender, pet_color, pet_reproductive_status,
+                pet_tutor_name, pet_tutor_address, pet_tutor_phone
+            FROM pet_data 
             WHERE pet_user_id = %s 
             ORDER BY pet_names ASC
+            LIMIT %s OFFSET %s
         """
-        c.execute(sql, (user_id,))
+        c.execute(sql, (user_id, per_page, offset))
 
     datos = c.fetchall()
     objetos_mascotas = [PetModel(f) for f in datos]
@@ -76,7 +108,10 @@ def pet_read():
         'pet/pet_read.html',
         tabla=datos,
         mascotas=objetos_mascotas,
-        search_query=search_query
+        search_query=search_query,
+        page=page,
+        total_pages=total_pages,
+        total_records=total_records
     )
 
 @bp.route("/pet_update_form/<int:pet_id>", methods = ['GET','POST'])
