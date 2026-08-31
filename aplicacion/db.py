@@ -16,6 +16,7 @@ def get_db():
         conn = psycopg2.connect(
             host = current_app.config['DATABASE_HOST'],
             user = current_app.config['DATABASE_USER'],
+            port = current_app.config['DATABASE_PORT'],
             password = current_app.config['DATABASE_PASSWORD'],
             database = current_app.config['DATABASE'],
             connect_timeout=5

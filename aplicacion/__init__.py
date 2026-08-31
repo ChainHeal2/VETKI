@@ -2,7 +2,6 @@
 """
 import os
 from flask import Flask
-from werkzeug.middleware.proxy_fix import ProxyFix
 def create_app():
     """Creamos la APP
     Recuerda tus variables de entorno
@@ -14,11 +13,10 @@ def create_app():
     FLASK_APP='aplicacion:create_app'
     """
     app = Flask(__name__)
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
     app.config.from_mapping(
         SECRET_KEY = os.environ.get('FLASK_SECRET_KEY'),
         DATABASE_HOST = os.environ.get('FLASK_DATABASE_HOST'),
-        DATABASE_PORT= os.environ.get('FLASK_DATABASE_PORT'),
+        DATABASE_PORT= int(os.environ.get('FLASK_DATABASE_PORT')),
         DATABASE_USER = os.environ.get('FLASK_DATABASE_USER'),
         DATABASE_PASSWORD = os.environ.get('FLASK_DATABASE_PASSWORD'),
         DATABASE = os.environ.get('FLASK_DATABASE'),
