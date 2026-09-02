@@ -5,41 +5,66 @@ from flask import (Blueprint,flash,render_template,url_for,redirect,request, ses
 from aplicacion.auth.auth import login_required
 from aplicacion.pet.pet_model import PetModel
 from aplicacion.db import get_db
-from aplicacion.forms.pet.pet_create import PetForm
+from aplicacion.forms.pet.pet_form import PetForm
 import math
+
+from aplicacion.utils import sanitizar
 
 bp = Blueprint('pet',__name__,url_prefix='/pet')
 
 @bp.route("/pet_create", methods = ['GET','POST'])
 @login_required
 def pet_create():
-    """Crea un nueva pet"""
+    """Crea una nueva pet"""
     pet_form = PetForm()
-    db,cursor = get_db()
+    db, cursor = get_db()
 
-    if pet_form.validate_on_submit():
-        pet_user_id = session.get('user_id')
-        pet_species_name = pet_form.pet_species_name.data
-        pet_names = pet_form.pet_names.data.lower()
-        pet_race = pet_form.pet_race.data.lower()
-        pet_datebirth = pet_form.pet_datebirth.data
-        pet_microchip = pet_form.pet_microchip.data
-        pet_gender = pet_form.pet_gender.data
-        pet_color = pet_form.pet_color.data.lower()
-        pet_rstatus = pet_form.pet_rstatus.data
-        pet_tutor_name = pet_form.pet_tutor_name.data.lower()
-        pet_tutor_address = pet_form.pet_tutor_address.data.lower()
-        pet_tutor_phone = pet_form.pet_tutor_phone.data
-        data = (pet_user_id, pet_species_name,pet_names,pet_race,pet_datebirth,pet_microchip,pet_gender,pet_color,pet_rstatus,pet_tutor_name,pet_tutor_address,pet_tutor_phone)
-        sql = """
-            insert into vetki.pet_data(pet_user_id, pet_species_name,pet_names,pet_race,pet_datebirth,
-            pet_microchip,pet_gender,pet_color,pet_reproductive_status,pet_tutor_name,pet_tutor_address,pet_tutor_phone)
-            values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-        cursor.execute(sql,data)
-        db.commit()
-        flash("Mascota ingresada con exito y asignada a su expediente!","success")
-        return redirect(url_for('pet.pet_read'))
-    return render_template('pet/pet_create.html',pet_form = pet_form)
+    if request.method == 'POST':
+        if pet_form.validate_on_submit():
+            # 1. Sanitizamos los datos del formulario
+            form = sanitizar(pet_form.data)
+
+            # 2. Armamos la tupla 'data' extrayendo directamente del diccionario sanitizado 'form'
+            # (Garantiza el orden exacto para el SQL e ignora cosas extra como csrf_token)
+            data = (
+                session.get('user_id'),
+                form.get('pet_species_name'),
+                form.get('pet_names'),
+                form.get('pet_race'),
+                form.get('pet_datebirth'),  # Se mantiene la fecha intacta
+                form.get('pet_microchip'),
+                form.get('pet_gender'),
+                form.get('pet_color'),
+                form.get('pet_rstatus'),     # Se mapea con pet_reproductive_status en SQL
+                form.get('pet_tutor_name'),
+                form.get('pet_tutor_address'),
+                form.get('pet_tutor_phone')
+            )
+
+            sql = """
+                INSERT INTO vetki.pet_data (
+                    pet_user_id, pet_species_name, pet_names, pet_race, pet_datebirth,
+                    pet_microchip, pet_gender, pet_color, pet_reproductive_status,
+                    pet_tutor_name, pet_tutor_address, pet_tutor_phone
+                )
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """
+
+            # 3. Ejecutamos pasando 'data' en lugar de 'form.values()'
+            cursor.execute(sql, data)
+            db.commit()
+
+            flash("Mascota ingresada con éxito y asignada a su expediente!", "success")
+            return redirect(url_for('pet.pet_read'))
+        else:
+            for campo, lista_errores in pet_form.errors.items():
+                # Extraemos el nombre visible del campo (ej: "Nombre de la mascota")
+                etiqueta = getattr(pet_form, campo).label.text
+                for error in lista_errores:
+                    # Se envía directamente a la cola de flashes de Flask
+                    flash(f"{etiqueta}: {error}", "error")
+
+    return render_template('pet/pet_create.html', pet_form=pet_form)
 
 @bp.route("/pet_read", methods=['GET'])
 @login_required
@@ -118,65 +143,83 @@ def pet_read():
 def pet_update_form(pet_id):
     """Modifica pets
         Dividido en 3 bloques
-        - Preparacion
-        - MOSTRAR DATOS
-        - POST
+        - Preparación
+        - Carga de Datos (GET)
+        - Procesamiento y Guardado (POST)
     """
-    pet_update = PetForm()
-    #pet update es el formulario que se va a mostrar en la vista, y que se va a validar cuando se haga submit
-    db,cursor = get_db()
+    db, cursor = get_db()
 
-    cursor.execute('select * from pet_data where pet_id =%s',(pet_id,))
+    # 1. Traer datos actuales de la mascota (sirve para validar existencia y pasar a la plantilla)
+    cursor.execute('SELECT * FROM vetki.pet_data WHERE pet_id = %s', (pet_id,))
     pet_data = cursor.fetchone()
 
-    cursor.execute('select pet_id,pet_species_name from pet_data where pet_id =%s',(pet_id,))
-    pet_species_name = cursor.fetchone()
-    
-    if request.method == 'GET':
-        #le envio los datos que puede modificar al formulario
-        pet_update.pet_names.data = pet_data['pet_names']
-        pet_update.pet_species_name.data=pet_data['pet_species_name']
-        pet_update.pet_race.data=pet_data['pet_race']
-        pet_update.pet_datebirth.data=pet_data['pet_datebirth']
-        pet_update.pet_microchip.data=pet_data['pet_microchip']
-        pet_update.pet_gender.data=pet_data['pet_gender']
-        pet_update.pet_color.data=pet_data['pet_color']
-        pet_update.pet_rstatus.data=pet_data['pet_reproductive_status']
-        pet_update.pet_tutor_name.data=pet_data['pet_tutor_name']
-        pet_update.pet_tutor_address.data=pet_data['pet_tutor_address']
-        pet_update.pet_tutor_phone.data=pet_data['pet_tutor_phone']
+    # Si la mascota no existe en BD, evitamos errores cargando un formulario vacío
+    if not pet_data:
+        flash("La mascota no fue encontrada.", "error")
+        return redirect(url_for('pet.pet_read'))
 
+    # Cargar formulario inicializándolo con los datos de la base de datos para el GET
+    pet_update = PetForm(data=pet_data)
+    # Ajuste manual solo para la variable con nombre distinto (pet_rstatus vs pet_reproductive_status)
+    if request.method == 'GET':
+        pet_update.pet_rstatus.data = pet_data.get('pet_reproductive_status')
+
+    # 2. Procesamiento del POST cuando se envía el formulario
     if pet_update.validate_on_submit():
-        #cuando validate_on_submit es True, que es como lo definimos el formulario,ahivan los datos y validaciones
-        pet_user_id = session.get('user_id')
-        pet_species_name = pet_update.pet_species_name.data
-        pet_race = pet_update.pet_race.data
-        pet_names = pet_update.pet_names.data
-        pet_datebirth = pet_update.pet_datebirth.data
-        pet_microchip = pet_update.pet_microchip.data
-        pet_gender = pet_update.pet_gender.data
-        pet_color = pet_update.pet_color.data
-        pet_rstatus = pet_update.pet_rstatus.data
-        pet_tutor_name = pet_update.pet_tutor_name.data
-        pet_tutor_address = pet_update.pet_tutor_address.data
-        pet_tutor_phone = pet_update.pet_tutor_phone.data
-        #data es una tupla con los datos que se van a actualizar en la base de datos
-        data = (pet_user_id,pet_species_name,pet_names.lower(),pet_race.lower(),pet_datebirth,
-                pet_microchip,pet_gender,pet_color.lower(),pet_rstatus,pet_tutor_name.lower(),pet_tutor_address.lower(),pet_tutor_phone,pet_id)
-        #creamos el script sql para actualizar los datos de la mascota en la base de datos
+        # Sanitizamos los datos procesando el formulario completo de un solo golpe
+        form = sanitizar(pet_update.data)
+
+        # Mapeamos la tupla usando form.get() con los datos ya sanitizados (limpios)
+        data = (
+            session.get('user_id'),
+            form.get('pet_species_name'),
+            form.get('pet_names'),
+            form.get('pet_race'),
+            form.get('pet_datebirth'),
+            form.get('pet_microchip'),
+            form.get('pet_gender'),
+            form.get('pet_color'),
+            form.get('pet_rstatus'),       # Mapeado a pet_reproductive_status en SQL
+            form.get('pet_tutor_name'),
+            form.get('pet_tutor_address'),
+            form.get('pet_tutor_phone'),
+            pet_id                         # ID para la cláusula WHERE
+        )
+
         sql = """
-                UPDATE pet_data
-                SET pet_user_id = %s, pet_species_name=%s, pet_names = %s, pet_race = %s, pet_datebirth = %s,
-                pet_microchip = %s, pet_gender = %s, pet_color = %s, pet_reproductive_status = %s, pet_tutor_name = %s, pet_tutor_address = %s, pet_tutor_phone = %s
-                WHERE pet_id = %s
-                """
-        cursor.execute(sql,data)
+            UPDATE vetki.pet_data
+            SET pet_user_id = %s,
+                pet_species_name = %s,
+                pet_names = %s,
+                pet_race = %s,
+                pet_datebirth = %s,
+                pet_microchip = %s,
+                pet_gender = %s,
+                pet_color = %s,
+                pet_reproductive_status = %s,
+                pet_tutor_name = %s,
+                pet_tutor_address = %s,
+                pet_tutor_phone = %s
+            WHERE pet_id = %s
+        """
+
+        cursor.execute(sql, data)
         db.commit()
-        return redirect(url_for('pet.pet_read'))# nos redirecciona a la vista de lectura de mascotas
-    return render_template("pet/pet_update.html",pet_update = pet_update , pet_data = pet_data, pet_species_name=pet_species_name)
-    #al enviar el html, le enviamos el formulario que se va a mostrar en la vista, y los datos de la mascota que se van a mostrar en la vista
-    #pet data es la tupla con los datos de la mascota
-    
+
+        flash("Mascota actualizada con éxito!", "success")
+        return redirect(url_for('pet.pet_read'))
+    else:
+        for campo, lista_errores in pet_update.errors.items():
+            # Extraemos el nombre visible del campo (ej: "Nombre de la mascota")
+            etiqueta = getattr(pet_update, campo).label.text
+            for error in lista_errores:
+                # Se envía directamente a la cola de flashes de Flask
+                flash(f"{etiqueta}: {error}", "error")
+    return render_template(
+        "pet/pet_update.html",
+        pet_update=pet_update,
+        pet_data=pet_data
+    )
 
 @bp.route("/pet_delete/<int:pet_id>",methods = ['GET','POST'])
 def pet_delete(pet_id):

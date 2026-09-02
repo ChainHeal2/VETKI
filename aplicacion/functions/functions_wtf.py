@@ -1,3 +1,4 @@
+from dataclasses import field
 from datetime import datetime,date
 from wtforms.validators import ValidationError
 
@@ -15,6 +16,14 @@ def limpiar_string(valor):
         return texto if texto != "" else None
     return None
 def solo_futuro(form, field):
-    """No permite fechas pasadas"""
-    if field.data and field.data < datetime.now():
-        raise ValidationError("La fecha no puede ser pasada.")
+    """No permite fechas ni horas pasadas"""
+    if field.data:
+        # Si el valor viene como datetime (ej: DateTimeLocalField)
+        if isinstance(field.data, datetime):
+            if field.data < datetime.now():
+                raise ValidationError("La fecha no puede ser pasada.")
+        
+        # Si viene como date (ej: DateField)
+        elif isinstance(field.data, date):
+            if field.data < date.today():
+                raise ValidationError("La fecha no puede ser pasada.")

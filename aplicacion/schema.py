@@ -29,7 +29,7 @@ CREATE TABLE pet_data (
     pet_reproductive_status VARCHAR(50),
     pet_tutor_name VARCHAR(50),
     pet_tutor_address VARCHAR(50) NULL,
-    pet_tutor_phone INTEGER NULL,
+    pet_tutor_phone VARCHAR(15) NULL,
     CONSTRAINT fk_pet_user FOREIGN KEY (pet_user_id) 
         REFERENCES vetki.user_data(user_id) ON DELETE CASCADE
 );
