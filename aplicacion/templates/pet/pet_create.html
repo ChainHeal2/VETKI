@@ -71,6 +71,10 @@
                 {{ pet_form.pet_microchip(class="form-control", id="pet_microchip", placeholder="Microchip") }}
                 <label for="pet_microchip">N° Microchip (Opcional)</label>
             </div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal"
+                data-bs-target="#qrScannerModal">
+                <i class="bi bi-qr-code-scan me-1"></i> Escanear microchip
+            </button>
         </div>
 
         <div class="col-md-4">
@@ -127,4 +131,75 @@
         </div>
     </form>
 </div>
+
+<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="qrScannerLabel">Escanear código QR</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="qr-reader" class="w-100"></div>
+                <p id="qr-status" class="small text-body-secondary mt-3 mb-0" role="status">
+                    Apunta la cámara trasera al código del microchip.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ super() }}
+<script src="https://unpkg.com/html5-qrcode" defer></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("qrScannerModal");
+    const status = document.getElementById("qr-status");
+    const input = document.getElementById("pet_microchip");
+    const token = document.querySelector('input[name="csrf_token"]')?.value;
+    let scanner;
+
+    modal.addEventListener("shown.bs.modal", async () => {
+        if (!window.isSecureContext) {
+            status.textContent = "La cámara requiere HTTPS (o localhost). Abre el sistema en un entorno seguro.";
+            return;
+        }
+        if (!window.Html5Qrcode) {
+            status.textContent = "No se pudo cargar el lector QR. Comprueba tu conexión.";
+            return;
+        }
+        scanner = new Html5Qrcode("qr-reader");
+        try {
+            await scanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                async (decodedText) => {
+                    await scanner.stop();
+                    const response = await fetch("{{ url_for('api.process_qr') }}", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "X-CSRFToken": token || "" },
+                        body: JSON.stringify({ content: decodedText })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || "QR inválido");
+                    input.value = result.microchip;
+                    status.textContent = "Microchip cargado correctamente.";
+                    bootstrap.Modal.getInstance(modal).hide();
+                }
+            );
+        } catch (error) {
+            status.textContent = "No se pudo acceder a la cámara. Revisa el permiso del navegador y usa HTTPS.";
+        }
+    });
+    modal.addEventListener("hidden.bs.modal", async () => {
+        if (scanner) {
+            try { await scanner.stop(); } catch (_) { /* ya detenido */ }
+            scanner.clear();
+            scanner = null;
+        }
+    });
+});
+</script>
 {% endblock %}

@@ -131,6 +131,11 @@
                                    class="btn btn-sm btn-outline-info w-100 rounded-2">
                                     📋 Ficha
                                 </a>
+                                <button type="button" class="btn btn-sm btn-outline-success w-100 rounded-2"
+                                   data-bs-toggle="modal" data-bs-target="#vaccinationModal"
+                                   data-pet-id="{{ mascota.pet_id }}" data-pet-name="{{ mascota.names }}">
+                                    💉 Vacunas
+                                </button>
                             </div>
                             
                         </div>
@@ -197,4 +202,68 @@
     </div>
     {% endif %}
 </div>
+
+<div class="modal fade" id="vaccinationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5">Vacunación: <span id="vaccinationPetName"></span></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="vaccinationHistory" class="mb-3"></div>
+                <form id="vaccinationForm" class="row g-2">
+                    {{ vaccination_form.hidden_tag() }}
+                    <input type="hidden" id="vaccinationPetId">
+                    <div class="col-12 col-md-6"><input class="form-control" name="vaccine_name" placeholder="Vacuna" required maxlength="120"></div>
+                    <div class="col-6 col-md-3"><input class="form-control" type="date" name="application_date" required></div>
+                    <div class="col-6 col-md-3"><input class="form-control" type="date" name="next_due_date" title="Próxima dosis"></div>
+                    <div class="col-6"><input class="form-control" name="lot_number" placeholder="Lote" maxlength="80"></div>
+                    <div class="col-6"><input class="form-control" name="veterinarian_notes" placeholder="Notas" maxlength="4000"></div>
+                    <div class="col-12"><button class="btn btn-primary" type="submit">Guardar vacuna</button></div>
+                </form>
+                <div id="vaccinationStatus" class="small mt-2" role="status"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ super() }}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("vaccinationModal");
+    const form = document.getElementById("vaccinationForm");
+    const history = document.getElementById("vaccinationHistory");
+    const status = document.getElementById("vaccinationStatus");
+    let petId;
+    const csrf = "{{ csrf_token() }}";
+    async function loadHistory() {
+        const response = await fetch(`/api/vaccinations/${petId}`);
+        const data = await response.json();
+        history.innerHTML = response.ok && data.vaccinations.length
+            ? data.vaccinations.map(v => `<div class="border-bottom py-2"><strong>${v.vaccine_name}</strong> · ${v.application_date}${v.next_due_date ? ` · próxima: ${v.next_due_date}` : ""}</div>`).join("")
+            : "<p class='text-body-secondary small'>Sin registros de vacunación.</p>";
+    }
+    modal.addEventListener("show.bs.modal", event => {
+        const button = event.relatedTarget;
+        petId = button.dataset.petId;
+        document.getElementById("vaccinationPetId").value = petId;
+        document.getElementById("vaccinationPetName").textContent = button.dataset.petName;
+        loadHistory().catch(() => { history.textContent = "No se pudo cargar el historial."; });
+    });
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
+        const payload = Object.fromEntries(new FormData(form));
+        const response = await fetch(`/api/vaccinations/${petId}`, {
+            method: "POST", headers: {"Content-Type": "application/json", "X-CSRFToken": csrf},
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        status.textContent = response.ok ? "Vacuna guardada y refuerzo agendado." : (data.error || "No se pudo guardar.");
+        if (response.ok) { form.reset(); await loadHistory(); }
+    });
+});
+</script>
 {% endblock %}

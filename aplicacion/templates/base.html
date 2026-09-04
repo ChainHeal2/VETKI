@@ -90,6 +90,13 @@
                             <span class="text-body-secondary small">Consultar fichas clínicas de los pacientes.</span>
                         </a>
                     </div>
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{ url_for('api.analytics_dashboard') }}" class="card bg-body-tertiary border-secondary-subtle text-decoration-none p-4 h-100 rounded-4">
+                            <span class="fs-2 mb-2">📊</span>
+                            <h4 class="h5 text-body mb-2">Epidemiología</h4>
+                            <span class="text-body-secondary small">Indicadores de enfermedades clínicas en Chile.</span>
+                        </a>
+                    </div>
                     {% if session.get('user_role') == 'admin' %}
                         <div class="col-md-6 col-lg-4">
                             <a href="{{url_for('user.user_create')}}" class="card bg-body-tertiary border-secondary-subtle text-decoration-none p-4 h-100 rounded-4">

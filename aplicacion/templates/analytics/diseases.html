@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}VETKI | Dashboard epidemiológico{% endblock %}
+{% block main %}
+<h1 class="h2 mb-4">Dashboard epidemiológico Chile</h1>
+<div id="diseaseCards" class="row g-3 mb-4"></div>
+<div class="card bg-body-tertiary border-0 p-3">
+    <canvas id="diseaseChart" aria-label="Variación de casos clínicos" role="img"></canvas>
+</div>
+{% endblock %}
+{% block footer %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const response = await fetch("{{ url_for('api.disease_analytics') }}");
+    if (!response.ok) return;
+    const { diseases } = await response.json();
+    document.getElementById("diseaseCards").innerHTML = diseases.map(d => `
+        <div class="col-12 col-sm-6 col-lg-3"><div class="card h-100 border-0 bg-body-tertiary p-3">
+            <span class="small text-body-secondary">${d.disease}</span>
+            <strong class="fs-3">${d.variation_percent > 0 ? "↑" : "↓"} ${Math.abs(d.variation_percent)}%</strong>
+            <span class="small text-body-secondary">${d.current_cases} casos últimos 30 días</span>
+        </div></div>`).join("");
+    new Chart(document.getElementById("diseaseChart"), {
+        type: "bar",
+        data: { labels: diseases.map(d => d.disease),
+            datasets: [{ label: "% variación", data: diseases.map(d => d.variation_percent),
+                backgroundColor: "#0d6efd" }] },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+});
+</script>
+{% endblock %}

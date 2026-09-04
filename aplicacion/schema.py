@@ -64,7 +64,29 @@ CREATE TABLE vetki.medical_records (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
---5. VISTAS PARA CONSULTAS
+-- 5. HISTORIAL DE VACUNACIÓN
+CREATE TABLE vetki.vaccinations (
+    id SERIAL PRIMARY KEY,
+    pet_id INTEGER NOT NULL REFERENCES vetki.pet_data(pet_id) ON DELETE CASCADE,
+    vaccine_name VARCHAR(120) NOT NULL,
+    application_date DATE NOT NULL,
+    next_due_date DATE NULL,
+    lot_number VARCHAR(80) NULL,
+    veterinarian_notes TEXT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT vaccination_due_after_application
+        CHECK (next_due_date IS NULL OR next_due_date >= application_date)
+);
+
+-- Casos agregados para el dashboard epidemiológico.
+CREATE TABLE vetki.disease_cases (
+    id SERIAL PRIMARY KEY,
+    disease_name VARCHAR(80) NOT NULL,
+    report_date DATE NOT NULL,
+    case_count INTEGER NOT NULL CHECK (case_count >= 0)
+);
+
+--6. VISTAS PARA CONSULTAS
 CREATE OR REPLACE VIEW vetki.vw_medical_history AS
 SELECT r.medical_record_id, r.medical_record_reason, r.medical_record_weight, r.medical_record_temperature,
        r.medical_record_heart, r.medical_record_respiratory, r.medical_record_water, r.medical_record_capillary, r.medical_record_arterial,

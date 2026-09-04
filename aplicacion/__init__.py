@@ -43,6 +43,11 @@ def create_app():
     from aplicacion.medical import medical
     app.register_blueprint(medical.bp)
 
+    from aplicacion import api
+    app.register_blueprint(api.bp)
+    api.limiter.init_app(app)
+    app.cli.add_command(api.check_vaccination_alerts_command)
+
     from aplicacion.google_login.google_login import google_bp
     app.register_blueprint(google_bp, url_prefix="/login")
     
