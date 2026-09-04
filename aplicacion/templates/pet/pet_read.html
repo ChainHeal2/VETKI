@@ -238,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const history = document.getElementById("vaccinationHistory");
     const status = document.getElementById("vaccinationStatus");
     let petId;
-    const csrf = "{{ csrf_token() }}";
+    const csrf = document.querySelector('#vaccinationForm input[name="csrf_token"]')?.value || "";
     async function loadHistory() {
         const response = await fetch(`/api/vaccinations/${petId}`);
         const data = await response.json();

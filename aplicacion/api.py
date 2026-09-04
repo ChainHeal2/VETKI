@@ -2,6 +2,7 @@
 from datetime import date, datetime, time, timedelta
 import re
 
+import psycopg2.errors
 from flask import Blueprint, jsonify, render_template, request, session
 import click
 from flask_wtf.csrf import validate_csrf
@@ -194,14 +195,20 @@ def disease_analytics():
     today = date.today()
     current_start = today - timedelta(days=30)
     previous_start = current_start - timedelta(days=30)
-    cursor.execute(
-        "SELECT disease_name, "
-        "SUM(CASE WHEN report_date >= %s THEN case_count ELSE 0 END) AS current_cases, "
-        "SUM(CASE WHEN report_date >= %s AND report_date < %s THEN case_count ELSE 0 END) AS previous_cases "
-        "FROM vetki.disease_cases WHERE disease_name = ANY(%s) GROUP BY disease_name",
-        (current_start, previous_start, current_start, list(_DISEASES)),
-    )
-    rows = {row["disease_name"]: row for row in cursor.fetchall()}
+    try:
+        cursor.execute(
+            "SELECT disease_name, "
+            "SUM(CASE WHEN report_date >= %s THEN case_count ELSE 0 END) AS current_cases, "
+            "SUM(CASE WHEN report_date >= %s AND report_date < %s THEN case_count ELSE 0 END) AS previous_cases "
+            "FROM vetki.disease_cases WHERE disease_name = ANY(%s) GROUP BY disease_name",
+            (current_start, previous_start, current_start, list(_DISEASES)),
+        )
+        rows = {row["disease_name"]: row for row in cursor.fetchall()}
+    except psycopg2.errors.UndefinedTable:
+        # Permite mostrar el dashboard en instalaciones antiguas antes de
+        # ejecutar la migración que crea disease_cases.
+        db.rollback()
+        rows = {}
     result = []
     for disease in _DISEASES:
         row = rows.get(disease, {"current_cases": 0, "previous_cases": 0})
