@@ -18,7 +18,7 @@ try:
     from flask_limiter.util import get_remote_address
 
     limiter = Limiter(key_func=get_remote_address, default_limits=[])
-except ImportError:  # Permite iniciar instalaciones antiguas antes de actualizar requirements.
+except ImportError:
     class _NoopLimiter:
         def limit(self, _limit):
             return lambda view: view
@@ -84,6 +84,7 @@ def process_qr():
 
     db, cursor = get_db()
     requested_pet_id = payload.get("pet_id")
+    
     if requested_pet_id is not None:
         try:
             pet_id = int(requested_pet_id)
@@ -94,11 +95,10 @@ def process_qr():
             return jsonify(error="No autorizado"), 403
         if content != str(pet["pet_microchip"] or ""):
             return jsonify(error="El QR no corresponde a la mascota"), 400
-        return jsonify(pet_id=pet_id, microchip=content, pet_name=pet["pet_names"])
+        return jsonify(pet_id=pet_id, microchip=content, pet_name=pet["pet_names"]), 200
 
-    # En el alta de paciente todavía no existe pet_id: solo se devuelve el
-    # microchip validado para que el formulario pueda continuar.
-    return jsonify(microchip=content)
+    # Retorno estructurado garantizado para alta de paciente (Evita congelar el JS)
+    return jsonify(pet_id=None, microchip=content, pet_name=None), 200
 
 
 @bp.get("/vaccinations/<int:pet_id>")
@@ -124,7 +124,7 @@ def list_vaccinations(pet_id):
             }
             for row in cursor.fetchall()
         ]
-    )
+    ), 200
 
 
 @bp.post("/vaccinations/<int:pet_id>")
@@ -205,8 +205,6 @@ def disease_analytics():
         )
         rows = {row["disease_name"]: row for row in cursor.fetchall()}
     except psycopg2.errors.UndefinedTable:
-        # Permite mostrar el dashboard en instalaciones antiguas antes de
-        # ejecutar la migración que crea disease_cases.
         db.rollback()
         rows = {}
     result = []
@@ -221,7 +219,7 @@ def disease_analytics():
             {"disease": disease, "current_cases": current,
              "previous_cases": previous, "variation_percent": round(variation, 2)}
         )
-    return jsonify(period_days=30, diseases=result)
+    return jsonify(period_days=30, diseases=result), 200
 
 
 @bp.get("/analytics")

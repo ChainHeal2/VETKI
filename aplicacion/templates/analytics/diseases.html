@@ -1,41 +1,71 @@
 {% extends 'base.html' %}
 {% block title %}VETKI | Dashboard epidemiológico{% endblock %}
+
 {% block main %}
 <h1 class="h2 mb-4">Dashboard epidemiológico Chile</h1>
+
 <div id="diseaseCards" class="row g-3 mb-4"></div>
-<div class="card bg-body-tertiary border-0 p-3" style="min-height: 360px;">
-    <canvas id="diseaseChart" aria-label="Variación de casos clínicos" role="img"></canvas>
+
+<!-- 🔹 CONTENEDOR CON ALTURA Y DESBORDAMIENTO RIGIDAMENTE CONTROLADOS -->
+<div class="card bg-body-tertiary border-0 p-3 mb-4">
+    <div style="position: relative; height: 320px; width: 100%; overflow: hidden;">
+        <canvas id="diseaseChart" aria-label="Variación de casos clínicos" role="img"></canvas>
+    </div>
     <p id="diseaseStatus" class="small text-body-secondary mt-3 mb-0" role="status">
         Cargando indicadores...
     </p>
 </div>
 {% endblock %}
+
 {% block footer %}
 {{ super() }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"
-    onerror="document.getElementById('diseaseStatus').textContent='No se pudo cargar la librería de gráficos.'"></script>
+    onerror="window.chartJsLoadError = true;"></script>
+
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
     const status = document.getElementById("diseaseStatus");
+    const cardsContainer = document.getElementById("diseaseCards");
+
     try {
         const response = await fetch("{{ url_for('api.disease_analytics') }}", {
             headers: { "Accept": "application/json" }
         });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || `Error del servidor (${response.status})`);
+        }
+
         const payload = await response.json();
-        if (!response.ok || !Array.isArray(payload.diseases)) {
-            throw new Error(payload.error || "No se pudieron cargar los indicadores.");
+        if (!payload || !Array.isArray(payload.diseases)) {
+            throw new Error("Formato de datos no válido.");
         }
+
         const diseases = payload.diseases;
-        document.getElementById("diseaseCards").innerHTML = diseases.map(d => `
-            <div class="col-12 col-sm-6 col-lg-3"><div class="card h-100 border-0 bg-body-tertiary p-3">
-                <span class="small text-body-secondary">${d.disease}</span>
-                <strong class="fs-3">${d.variation_percent > 0 ? "↑" : d.variation_percent < 0 ? "↓" : "→"} ${Math.abs(d.variation_percent)}%</strong>
-                <span class="small text-body-secondary">${d.current_cases} casos últimos 30 días</span>
-            </div></div>`).join("");
-        if (!window.Chart) {
-            throw new Error("La librería de gráficos no está disponible.");
+
+        // Renderizado de tarjetas sin afectar el layout vertical
+        cardsContainer.innerHTML = diseases.map(d => {
+            const symbol = d.variation_percent > 0 ? "↑" : d.variation_percent < 0 ? "↓" : "→";
+            const textClass = d.variation_percent > 0 ? "text-danger" : d.variation_percent < 0 ? "text-success" : "text-body-secondary";
+            return `
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card h-100 border-0 bg-body-tertiary p-3">
+                    <span class="small text-body-secondary">${d.disease}</span>
+                    <strong class="fs-3 ${textClass}">${symbol} ${Math.abs(d.variation_percent)}%</strong>
+                    <span class="small text-body-secondary">${d.current_cases} casos últimos 30 días</span>
+                </div>
+            </div>`;
+        }).join("");
+
+        if (window.chartJsLoadError || typeof Chart === "undefined") {
+            status.textContent = "Indicadores cargados (Gráfico no disponible).";
+            return;
         }
-        new Chart(document.getElementById("diseaseChart"), {
+
+        // Configuración segura del gráfico
+        const ctx = document.getElementById("diseaseChart");
+        new Chart(ctx, {
             type: "bar",
             data: {
                 labels: diseases.map(d => d.disease),
@@ -47,13 +77,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true } }
+                maintainAspectRatio: false, // 🔹 Ahora es seguro porque el envoltorio tiene height fijo
+                scales: { 
+                    y: { beginAtZero: true } 
+                }
             }
         });
+
         status.textContent = diseases.every(d => d.current_cases === 0 && d.previous_cases === 0)
             ? "No hay casos registrados todavía; se muestran los indicadores en cero."
             : "Comparación de casos entre los últimos 30 días y el período anterior.";
+
     } catch (error) {
         status.textContent = error.message || "No se pudieron cargar los indicadores.";
     }

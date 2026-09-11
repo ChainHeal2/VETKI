@@ -24,6 +24,7 @@ def app():
     app.config.update({
         "TESTING": True,
         "WTF_CSRF_ENABLED": False,#solo para casos de prueba
+        "RATELIMIT_STORAGE_URI": "memory://",
     })
     yield app
 

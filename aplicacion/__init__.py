@@ -2,6 +2,9 @@
 """
 import os
 from flask import Flask
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="flask_limiter")
+# ... aquí siguen tus imports normales (from aplicacion import create_app, etc.)
 def create_app():
     """Creamos la APP
     Recuerda tus variables de entorno

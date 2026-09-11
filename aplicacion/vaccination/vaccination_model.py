@@ -3,7 +3,7 @@
 La aplicación histórica usa SQL directo; este modelo permite reutilizar el
 contrato ORM en nuevas integraciones sin cambiar la conexión de producción.
 """
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
 from sqlalchemy import Date, ForeignKey, Integer, String, Text
@@ -27,3 +27,21 @@ class Vaccination(Base):
     next_due_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     lot_number: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
     veterinarian_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    def to_dict(self):
+        def _fmt(val):
+            if val is None:
+                return None
+            if isinstance(val, (date, datetime)):
+                return val.isoformat()
+            return str(val)
+
+        return {
+            "id": self.id,
+            "pet_id": self.pet_id,
+            "vaccine_name": self.vaccine_name,
+            "application_date": _fmt(self.application_date),
+            "next_due_date": _fmt(self.next_due_date),
+            "lot_number": self.lot_number,
+            "veterinarian_notes": self.veterinarian_notes,
+        }
