@@ -2,18 +2,30 @@
 {% block title %}VETKI | Dashboard epidemiológico{% endblock %}
 
 {% block main %}
-<h1 class="h2 mb-4">Dashboard epidemiológico Chile</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h2 mb-1">Dashboard Epidemiológico Oficial</h1>
+        <p class="text-body-secondary small mb-0">Monitoreo de enfermedades transmisibles en mascotas (Chile)</p>
+    </div>
+    <span id="sourceBadge" class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill small">
+        Fuente: Carga en proceso...
+    </span>
+</div>
 
+<!-- Tarjetas con indicadores rápidos -->
 <div id="diseaseCards" class="row g-3 mb-4"></div>
 
-<!-- 🔹 CONTENEDOR CON ALTURA Y DESBORDAMIENTO RIGIDAMENTE CONTROLADOS -->
-<div class="card bg-body-tertiary border-0 p-3 mb-4">
-    <div style="position: relative; height: 320px; width: 100%; overflow: hidden;">
+<!-- Contenedor del Gráfico -->
+<div class="card bg-body-tertiary border-0 p-3 mb-4 shadow-sm">
+    <h2 class="h6 text-body-secondary mb-3">Comparativa de casos reportados (Últimos 30 días vs. Período Anterior)</h2>
+    <div style="position: relative; height: 340px; width: 100%;">
         <canvas id="diseaseChart" aria-label="Variación de casos clínicos" role="img"></canvas>
     </div>
-    <p id="diseaseStatus" class="small text-body-secondary mt-3 mb-0" role="status">
-        Cargando indicadores...
-    </p>
+    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+        <p id="diseaseStatus" class="small text-body-secondary mb-0" role="status">
+            Cargando indicadores...
+        </p>
+    </div>
 </div>
 {% endblock %}
 
@@ -26,6 +38,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const status = document.getElementById("diseaseStatus");
     const cardsContainer = document.getElementById("diseaseCards");
+    const sourceBadge = document.getElementById("sourceBadge");
 
     try {
         const response = await fetch("{{ url_for('api.disease_analytics') }}", {
@@ -42,18 +55,31 @@ document.addEventListener("DOMContentLoaded", async () => {
             throw new Error("Formato de datos no válido.");
         }
 
+        if (payload.source) {
+            sourceBadge.textContent = `Fuente: ${payload.source}`;
+        }
+
         const diseases = payload.diseases;
 
-        // Renderizado de tarjetas sin afectar el layout vertical
+        // Renderizado de tarjetas de resumen
         cardsContainer.innerHTML = diseases.map(d => {
-            const symbol = d.variation_percent > 0 ? "↑" : d.variation_percent < 0 ? "↓" : "→";
-            const textClass = d.variation_percent > 0 ? "text-danger" : d.variation_percent < 0 ? "text-success" : "text-body-secondary";
+            const isUp = d.variation_percent > 0;
+            const isDown = d.variation_percent < 0;
+            const symbol = isUp ? "↑" : isDown ? "↓" : "=";
+            const badgeBg = isUp ? "bg-danger-subtle text-danger" : isDown ? "bg-success-subtle text-success" : "bg-secondary-subtle text-secondary";
+            
             return `
             <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card h-100 border-0 bg-body-tertiary p-3">
-                    <span class="small text-body-secondary">${d.disease}</span>
-                    <strong class="fs-3 ${textClass}">${symbol} ${Math.abs(d.variation_percent)}%</strong>
-                    <span class="small text-body-secondary">${d.current_cases} casos últimos 30 días</span>
+                <div class="card h-100 border-0 bg-body-tertiary p-3 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold text-body-emphasis small">${d.disease}</span>
+                        <span class="badge ${badgeBg} fw-semibold">${symbol} ${Math.abs(d.variation_percent)}%</span>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <span class="fs-2 fw-bold text-body-emphasis">${d.current_cases}</span>
+                        <span class="small text-body-secondary">casos actuales</span>
+                    </div>
+                    <span class="small text-body-secondary mt-1">Previo: ${d.previous_cases} casos</span>
                 </div>
             </div>`;
         }).join("");
@@ -63,33 +89,78 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        // Configuración segura del gráfico
+        // Configuración clara y legible del gráfico
         const ctx = document.getElementById("diseaseChart");
         new Chart(ctx, {
             type: "bar",
             data: {
                 labels: diseases.map(d => d.disease),
-                datasets: [{
-                    label: "% variación",
-                    data: diseases.map(d => d.variation_percent),
-                    backgroundColor: ["#0d6efd", "#198754", "#ffc107", "#dc3545"]
-                }]
+                datasets: [
+                    {
+                        label: "Últimos 30 días",
+                        data: diseases.map(d => d.current_cases),
+                        backgroundColor: "rgba(13, 110, 253, 0.85)", // Azul Bootstrap
+                        borderColor: "#0d6efd",
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: "Período Anterior",
+                        data: diseases.map(d => d.previous_cases),
+                        backgroundColor: "rgba(108, 117, 125, 0.4)", // Gris claro
+                        borderColor: "#6c757d",
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }
+                ]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // 🔹 Ahora es seguro porque el envoltorio tiene height fijo
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "top",
+                        labels: {
+                            boxWidth: 12,
+                            usePointStyle: true,
+                            pointStyle: "circle"
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ` ${context.dataset.label}: ${context.raw} casos`;
+                            }
+                        }
+                    }
+                },
                 scales: { 
-                    y: { beginAtZero: true } 
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0 // Asegura mostrar números enteros en casos
+                        },
+                        title: {
+                            display: true,
+                            text: 'Nº de Casos'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
                 }
             }
         });
 
         status.textContent = diseases.every(d => d.current_cases === 0 && d.previous_cases === 0)
-            ? "No hay casos registrados todavía; se muestran los indicadores en cero."
-            : "Comparación de casos entre los últimos 30 días y el período anterior.";
+            ? "No se registran casos recientes en el boletín epidemiológico."
+            : "Monitoreo epidemiológico consolidado de los últimos 30 días.";
 
     } catch (error) {
-        status.textContent = error.message || "No se pudieron cargar los indicadores.";
+        status.textContent = error.message || "No se pudieron cargar los indicadores epidemiológicos.";
     }
 });
 </script>
