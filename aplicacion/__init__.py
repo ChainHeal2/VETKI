@@ -1,33 +1,32 @@
-"""Para mi prometida con todo mi amor.
-"""
+"""Para mi prometida con todo mi amor."""
 import os
-from flask import Flask
 import warnings
+from flask import Flask
+from flask_wtf.csrf import CSRFProtect
 warnings.filterwarnings("ignore", category=UserWarning, module="flask_limiter")
-# ... aquí siguen tus imports normales (from aplicacion import create_app, etc.)
-def create_app():
-    """Creamos la APP
-    Recuerda tus variables de entorno
+csrf = CSRFProtect()
 
-    FLASK_DATABASE_HOST='127.0.0.1'
-    FLASK_DATABASE_USER='user'
-    FLASK_DATABASE_PASSWORD='password'
-    FLASK_DATABASE='tudatabase'
-    FLASK_APP='aplicacion:create_app'
-    """
+
+def create_app():
+    """Creamos la APP"""
     app = Flask(__name__)
     app.config.from_mapping(
-        SECRET_KEY = os.environ.get('FLASK_SECRET_KEY'),
-        DATABASE_HOST = os.environ.get('FLASK_DATABASE_HOST'),
-        DATABASE_PORT= os.environ.get('FLASK_DATABASE_PORT' or 5432),
-        DATABASE_USER = os.environ.get('FLASK_DATABASE_USER'),
-        DATABASE_PASSWORD = os.environ.get('FLASK_DATABASE_PASSWORD'),
-        DATABASE = os.environ.get('FLASK_DATABASE'),
+        SECRET_KEY=os.environ.get("FLASK_SECRET_KEY"),
+        DATABASE_HOST=os.environ.get("FLASK_DATABASE_HOST"),
+        DATABASE_PORT=os.environ.get("FLASK_DATABASE_PORT", 5432),
+        DATABASE_USER=os.environ.get("FLASK_DATABASE_USER"),
+        DATABASE_PASSWORD=os.environ.get("FLASK_DATABASE_PASSWORD"),
+        DATABASE=os.environ.get("FLASK_DATABASE"),
     )
+    
+    # Inicializas CSRF aquí para que inyecte el token globalmente en Jinja
+    csrf.init_app(app)
 
+    # Base de datos
     from . import db
     db.init_app(app)
 
+    # Blueprints
     from aplicacion.index import index
     app.register_blueprint(index.bp)
 
@@ -45,13 +44,18 @@ def create_app():
 
     from aplicacion.medical import medical
     app.register_blueprint(medical.bp)
-
-    from aplicacion import api
-    app.register_blueprint(api.bp)
-    api.limiter.init_app(app)
-    app.cli.add_command(api.check_vaccination_alerts_command)
+    
+    from aplicacion.analytic import analytic
+    app.register_blueprint(analytic.bp)
 
     from aplicacion.google_login.google_login import google_bp
     app.register_blueprint(google_bp, url_prefix="/login")
+
+    # API Blueprint, Limiter y CLI Command desde aplicacion.api
+    from aplicacion.api import bp as api_bp, limiter as api_limiter, check_vaccination_alerts_command
     
+    app.register_blueprint(api_bp)
+    api_limiter.init_app(app)
+    app.cli.add_command(check_vaccination_alerts_command)
+
     return app

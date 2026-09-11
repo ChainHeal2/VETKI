@@ -6,7 +6,7 @@ from aplicacion.auth.auth import login_required
 from aplicacion.pet.pet_model import PetModel
 from aplicacion.db import get_db
 from aplicacion.forms.pet.pet_form import PetForm
-from aplicacion.forms.vaccination_form import VaccinationForm
+from aplicacion.forms.vaccination.vaccination_form import VaccinationForm
 import math
 
 from aplicacion.utils import sanitizar

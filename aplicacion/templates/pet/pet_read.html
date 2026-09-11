@@ -1,8 +1,13 @@
 {% extends 'base.html' %}
 
 {% block title %}VETKI | Archivo General de Pacientes{% endblock %}
-
+    {% block head %}
+        {{ super() }}
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+    {% endblock %}
 {% block main %}
+
+
 <div>
     <!-- CABECERA DE SECCIÓN -->
     <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-4">
@@ -203,25 +208,101 @@
     {% endif %}
 </div>
 
+<!-- MODAL DE VACUNACIÓN (OPCIÓN B: PESTAÑAS) -->
+<!-- MODAL DE VACUNACIÓN (CON HEADER FIJO EN LA TABLA) -->
 <div class="modal fade" id="vaccinationModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title fs-5">Vacunación: <span id="vaccinationPetName"></span></h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content bg-dark text-light border-secondary">
+            <div class="modal-header border-secondary pb-0">
+                <div class="w-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="modal-title fw-bold">💉 Vacunación: <span id="vaccinationPetName"></span></h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <!-- Navigation Tabs -->
+                    <ul class="nav nav-tabs border-bottom-0" id="vaccineTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active text-light bg-transparent border-secondary border-bottom-0" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-pane" type="button" role="tab">
+                                📋 Historial
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-body-secondary bg-transparent border-0" id="new-tab" data-bs-toggle="tab" data-bs-target="#new-pane" type="button" role="tab">
+                                ➕ Registrar Nueva
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <div class="modal-body">
-                <div id="vaccinationHistory" class="mb-3"></div>
-                <form id="vaccinationForm" class="row g-2">
-                    {{ vaccination_form.hidden_tag() }}
-                    <input type="hidden" id="vaccinationPetId">
-                    <div class="col-12 col-md-6"><input class="form-control" name="vaccine_name" placeholder="Vacuna" required maxlength="120"></div>
-                    <div class="col-6 col-md-3"><input class="form-control" type="date" name="application_date" required></div>
-                    <div class="col-6 col-md-3"><input class="form-control" type="date" name="next_due_date" title="Próxima dosis"></div>
-                    <div class="col-6"><input class="form-control" name="lot_number" placeholder="Lote" maxlength="80"></div>
-                    <div class="col-6"><input class="form-control" name="veterinarian_notes" placeholder="Notas" maxlength="4000"></div>
-                    <div class="col-12"><button class="btn btn-primary" type="submit">Guardar vacuna</button></div>
-                </form>
+            <div class="modal-body p-4">
+                <div class="tab-content" id="vaccineTabContent">
+                    <!-- Tab 1: History -->
+                    <div class="tab-pane fade show active" id="history-pane" role="tabpanel" tabindex="0">
+                        <div style="max-height: 250px; overflow-y: auto;">
+                            <table class="table table-dark table-hover table-sm align-middle text-nowrap mb-0">
+                                <!-- Encabezado Fijo -->
+                                <thead class="sticky-top bg-dark">
+                                    <tr class="text-body-secondary small border-secondary">
+                                        <th class="bg-dark">Vacuna</th>
+                                        <th class="bg-dark">Aplicación</th>
+                                        <th class="bg-dark">Próxima Dosis</th>
+                                        <th class="bg-dark">Lote</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vaccinationHistory">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Form -->
+                    <div class="tab-pane fade" id="new-pane" role="tabpanel" tabindex="0">
+                        <form id="vaccinationForm">
+                            {{ vaccination_form.hidden_tag() }}
+                            <input type="hidden" id="vaccinationPetId">
+
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="form-label small text-body-secondary mb-1">Nombre de la vacuna</label>
+                                    <input class="form-control form-control-sm bg-body-tertiary text-light border-secondary" 
+                                           name="vaccine_name" placeholder="Ej: Octuple, Rabia..." required maxlength="120">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small text-body-secondary mb-1">Fecha aplicación</label>
+                                    <input class="form-control form-control-sm bg-body-tertiary text-light border-secondary" 
+                                           type="date" id="appDate" name="application_date" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small text-body-secondary mb-1">Intervalo refuerzo</label>
+                                    <select class="form-select form-select-sm bg-body-tertiary text-light border-secondary" id="intervalSelect">
+                                        <option value="none">Sin refuerzo</option>
+                                        <option value="1">En 1 mes</option>
+                                        <option value="6">En 6 meses</option>
+                                        <option value="12" selected>En 1 año (12m)</option>
+                                        <option value="custom">Personalizada</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small text-body-secondary mb-1">Próxima dosis agendada</label>
+                                    <input class="form-control form-control-sm bg-body-tertiary text-light border-secondary" 
+                                           type="date" id="nextDueDate" name="next_due_date" readonly>
+                                </div>
+                                <div class="col-6">
+                                    <input class="form-control form-control-sm bg-body-tertiary text-light border-secondary" 
+                                           name="lot_number" placeholder="Lote (opcional)" maxlength="80">
+                                </div>
+                                <div class="col-6">
+                                    <input class="form-control form-control-sm bg-body-tertiary text-light border-secondary" 
+                                           name="veterinarian_notes" placeholder="Notas adicionales" maxlength="4000">
+                                </div>
+                                <div class="col-12 text-end mt-3">
+                                    <button class="btn btn-primary btn-sm px-4" type="submit">Guardar Vacuna</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 <div id="vaccinationStatus" class="small mt-2" role="status"></div>
             </div>
         </div>
@@ -232,38 +313,158 @@
 {% block footer %}
 {{ super() }}
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const modal = document.getElementById("vaccinationModal");
-    const form = document.getElementById("vaccinationForm");
-    const history = document.getElementById("vaccinationHistory");
-    const status = document.getElementById("vaccinationStatus");
-    let petId;
-    const csrf = document.querySelector('#vaccinationForm input[name="csrf_token"]')?.value || "";
-    async function loadHistory() {
-        const response = await fetch(`/api/vaccinations/${petId}`);
-        const data = await response.json();
-        history.innerHTML = response.ok && data.vaccinations.length
-            ? data.vaccinations.map(v => `<div class="border-bottom py-2"><strong>${v.vaccine_name}</strong> · ${v.application_date}${v.next_due_date ? ` · próxima: ${v.next_due_date}` : ""}</div>`).join("")
-            : "<p class='text-body-secondary small'>Sin registros de vacunación.</p>";
-    }
-    modal.addEventListener("show.bs.modal", event => {
-        const button = event.relatedTarget;
-        petId = button.dataset.petId;
-        document.getElementById("vaccinationPetId").value = petId;
-        document.getElementById("vaccinationPetName").textContent = button.dataset.petName;
-        loadHistory().catch(() => { history.textContent = "No se pudo cargar el historial."; });
-    });
-    form.addEventListener("submit", async event => {
-        event.preventDefault();
-        const payload = Object.fromEntries(new FormData(form));
-        const response = await fetch(`/api/vaccinations/${petId}`, {
-            method: "POST", headers: {"Content-Type": "application/json", "X-CSRFToken": csrf},
-            body: JSON.stringify(payload)
+(function() {
+    function initVaccinationModal() {
+        const modal = document.getElementById("vaccinationModal");
+        if (!modal) return;
+
+        const form = document.getElementById("vaccinationForm");
+        const history = document.getElementById("vaccinationHistory");
+        const status = document.getElementById("vaccinationStatus");
+        const appDateInput = document.getElementById("appDate");
+        const intervalSelect = document.getElementById("intervalSelect");
+        const nextDueDateInput = document.getElementById("nextDueDate");
+        const historyTabTrigger = document.getElementById("history-tab");
+        let petId;
+
+        // Auto-calcular fecha de próxima dosis según la opción elegida
+        function calculateNextDate() {
+            const appDateVal = appDateInput.value;
+            const interval = intervalSelect.value;
+
+            if (!appDateVal || interval === 'none') {
+                nextDueDateInput.value = '';
+                nextDueDateInput.readOnly = true;
+                return;
+            }
+
+            if (interval === 'custom') {
+                nextDueDateInput.readOnly = false;
+                return;
+            }
+
+            nextDueDateInput.readOnly = true;
+            const dateObj = new Date(appDateVal + 'T00:00:00');
+            dateObj.setMonth(dateObj.getMonth() + parseInt(interval));
+
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+
+            nextDueDateInput.value = `${year}-${month}-${day}`;
+        }
+
+        appDateInput.addEventListener("change", calculateNextDate);
+        intervalSelect.addEventListener("change", calculateNextDate);
+
+        // Cargar historial de vacunas vía GET
+        async function loadHistory() {
+            try {
+                const response = await fetch(`/api/vaccinations/${petId}`);
+                const data = await response.json();
+                const list = data.vaccinations || data || [];
+
+                if (response.ok && Array.isArray(list) && list.length > 0) {
+                    history.innerHTML = list.map(v => `
+                        <tr>
+                            <td class="fw-bold">${v.vaccine_name || ''}</td>
+                            <td>${v.application_date || ''}</td>
+                            <td>${v.next_due_date ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle">${v.next_due_date}</span>` : '<span class="text-body-secondary small">Sin refuerzo</span>'}</td>
+                            <td class="text-body-secondary small">${v.lot_number || '-'}</td>
+                        </tr>
+                    `).join("");
+                } else {
+                    history.innerHTML = `<tr><td colspan="4" class="text-center text-body-secondary small py-3">Sin registros de vacunación.</td></tr>`;
+                }
+            } catch (err) {
+                history.innerHTML = `<tr><td colspan="4" class="text-center text-danger small py-3">No se pudo cargar el historial.</td></tr>`;
+            }
+        }
+
+        // Evento al abrir el Modal
+        modal.addEventListener("show.bs.modal", event => {
+            const button = event.relatedTarget;
+            petId = button.dataset.petId;
+            document.getElementById("vaccinationPetId").value = petId;
+            document.getElementById("vaccinationPetName").textContent = button.dataset.petName || '';
+            
+            // Asignar fecha actual por defecto
+            appDateInput.valueAsDate = new Date();
+            calculateNextDate();
+            status.textContent = "";
+
+            if (window.bootstrap && bootstrap.Tab) {
+                const tabInstance = bootstrap.Tab.getOrCreateInstance(historyTabTrigger);
+                tabInstance.show();
+            }
+
+            loadHistory();
         });
-        const data = await response.json();
-        status.textContent = response.ok ? "Vacuna guardada y refuerzo agendado." : (data.error || "No se pudo guardar.");
-        if (response.ok) { form.reset(); await loadHistory(); }
-    });
-});
+
+        // Enviar formulario mediante POST
+        form.addEventListener("submit", async event => {
+            event.preventDefault();
+            status.className = "small mt-2 text-info";
+            status.textContent = "Guardando...";
+            
+            const csrf = document.querySelector('#vaccinationForm input[name="csrf_token"]')?.value || "";
+            const rawFormData = Object.fromEntries(new FormData(form));
+
+            // Sanear campos vacíos para evitar que rompan las validaciones de tipo en WTForms
+            const payload = {
+                vaccine_name: rawFormData.vaccine_name ? rawFormData.vaccine_name.trim() : "",
+                application_date: rawFormData.application_date || null,
+                next_due_date: rawFormData.next_due_date || null,
+                lot_number: rawFormData.lot_number ? rawFormData.lot_number.trim() : null,
+                veterinarian_notes: rawFormData.veterinarian_notes ? rawFormData.veterinarian_notes.trim() : null
+            };
+            
+            try {
+                const response = await fetch(`/api/vaccinations/${petId}`, {
+                    method: "POST", 
+                    headers: {
+                        "Content-Type": "application/json", 
+                        "X-CSRFToken": csrf
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    status.className = "small mt-2 text-success fw-medium";
+                    status.textContent = "✓ Vacuna guardada con éxito.";
+                    form.reset();
+                    appDateInput.valueAsDate = new Date();
+                    calculateNextDate();
+                    await loadHistory();
+
+                    setTimeout(() => {
+                        if (window.bootstrap && bootstrap.Tab) {
+                            const tabInstance = bootstrap.Tab.getOrCreateInstance(historyTabTrigger);
+                            tabInstance.show();
+                        }
+                    }, 800);
+                } else {
+                    status.className = "small mt-2 text-danger";
+                    if (data.fields) {
+                        const firstError = Object.values(data.fields)[0];
+                        status.textContent = `Error: ${firstError}`;
+                    } else {
+                        status.textContent = data.error || "No se pudo guardar la vacuna.";
+                    }
+                }
+            } catch (err) {
+                status.className = "small mt-2 text-danger";
+                status.textContent = "Error de conexión con el servidor.";
+            }
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initVaccinationModal);
+    } else {
+        initVaccinationModal();
+    }
+})();
 </script>
 {% endblock %}

@@ -6,7 +6,6 @@
     <title>{% block title %}VETKI | Dashboard{% endblock %}</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-
     <!-- CSS Bootstrap 5 e Iconos Nativos -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
@@ -91,7 +90,7 @@
                         </a>
                     </div>
                     <div class="col-md-6 col-lg-4">
-                        <a href="{{ url_for('api.analytics_dashboard') }}" class="card bg-body-tertiary border-secondary-subtle text-decoration-none p-4 h-100 rounded-4">
+                        <a href="{{ url_for('analytic.analytics_dashboard') }}" class="card bg-body-tertiary border-secondary-subtle text-decoration-none p-4 h-100 rounded-4">
                             <span class="fs-2 mb-2">📊</span>
                             <h4 class="h5 text-body mb-2">Epidemiología</h4>
                             <span class="text-body-secondary small">Indicadores de enfermedades clínicas en Chile.</span>

@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const sourceBadge = document.getElementById("sourceBadge");
 
     try {
-        const response = await fetch("{{ url_for('api.disease_analytics') }}", {
+        const response = await fetch("{{ url_for('analytic.disease_analytics') }}", {
             headers: { "Accept": "application/json" }
         });
 
