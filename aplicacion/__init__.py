@@ -17,6 +17,7 @@ def create_app():
         DATABASE_USER=os.environ.get("FLASK_DATABASE_USER"),
         DATABASE_PASSWORD=os.environ.get("FLASK_DATABASE_PASSWORD"),
         DATABASE=os.environ.get("FLASK_DATABASE"),
+        COOKIE_SECURE=os.environ.get("FLASK_COOKIE_SECURE"),
     )
     
     # Inicializas CSRF aquí para que inyecte el token globalmente en Jinja
