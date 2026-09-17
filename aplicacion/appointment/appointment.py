@@ -22,24 +22,38 @@ def appointment_create(pet_id):
     c.execute('select * from pet_data where pet_id = %s', (pet_id,))
     mascota = PetModel(c.fetchone())
     if appointment_form.validate_on_submit():
-        sql = """
-            INSERT INTO vetki.appointments ( appointment_google_event_id,pet_id, appointment_date)
-            VALUES (%s, %s, %s)
-        """
-        # --- ENVÍO A GOOGLE CALENDAR ---
-        try:
-            calendario = CalendarService()
-            link_evento = calendario.create_event(mascota.names , appointment_form.date.data)
-            if link_evento:
-                valores = (link_evento, pet_id, appointment_form.date.data)
+            appointment_date = appointment_form.date.data
+            
+            # 1. PRIMERO: Guardamos siempre en Supabase (independiente de Google)
+            sql = """
+                INSERT INTO vetki.appointments (appointment_google_event_id, pet_id, appointment_date)
+                VALUES (%s, %s, %s)
+            """
+            link_evento = None  # Valor por defecto si Google falla
+            
+            try:
+                # 2. SEGUNDO: Intentamos sincronizar con Google Calendar de forma opcional
+                calendario = CalendarService()
+                link_evento = calendario.create_event(mascota.names, appointment_date)
+            except Exception as e:
+                print(f"Aviso: No se pudo sincronizar con Google Calendar: {e}")
+
+            try:
+                # 3. Guardamos en la base de datos usando el link_evento (o None si falló Google)
+                valores = (link_evento, pet_id, appointment_date)
                 c.execute(sql, valores)
                 db.commit()
-                flash("¡Cita agendada y sincronizada en Google Calendar!", "success")
-            else:
-                flash("Cita guardada, pero Google Calendar rechazó la solicitud.", "warning")
-        except Exception as e:
-            flash("Cita guardada, pero hubo un error de configuración en Google Calendar.", "warning")
-        return redirect(url_for('appointment.appointment_read'))
+                
+                if link_evento:
+                    flash("¡Cita agendada y sincronizada en Google Calendar!", "success")
+                else:
+                    flash("¡Cita agendada en VETKI! (No se sincronizó con Google Calendar en la nube).", "warning")
+                    
+            except Exception as db_error:
+                db.rollback()
+                flash(f"Error crítico al guardar la cita en la base de datos: {db_error}", "error")
+
+            return redirect(url_for('appointment.appointment_read'))
     return render_template('appointment/appointment_create.html', appointment_form=appointment_form, mascotas=mascotas)
 
 @bp.route("/appointment_read", methods=['GET'])
