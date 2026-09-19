@@ -5,9 +5,14 @@
 {% block main %}
 <div>
     <!-- ENCABEZADO -->
-    <div class="mb-4 border-bottom pb-4">
-        <h1 class="display-6 fw-normal mb-1">Fichas Clínicas</h1>
-        <p class="mb-0 text-body-secondary">Historial médico organizado por paciente.</p>
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-4">
+        <div>
+            <h1 class="display-6 fw-normal mb-1">Fichas Clínicas</h1>
+            <p class="mb-0 text-body-secondary">Historial médico organizado por paciente.</p>
+        </div>
+        <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill px-4 py-2">
+            + Nueva Atención
+        </a>
     </div>
 
     <!-- TABLA DE PACIENTES ÚNICOS CON ACORDEÓN -->
@@ -16,11 +21,11 @@
         {% set primera_ficha = grupo_mascota.list[0] %}
         {% set outer_index = loop.index %}
         
-        <div class="accordion-item bg-body-tertiary border rounded-4 mb-3 overflow-hidden">
+        <div class="accordion-item bg-body-tertiary border rounded-4 mb-3 overflow-hidden shadow-sm">
             
             <!-- ENCABEZADO ÚNICO DE LA MASCOTA -->
             <h2 class="accordion-header" id="heading{{ outer_index }}">
-                <button class="accordion-button collapsed bg-body-tertiary shadow-none p-3" 
+                <button class="accordion-button collapsed bg-body-tertiary shadow-none p-4" 
                         type="button" 
                         data-bs-toggle="collapse" 
                         data-bs-target="#collapse{{ outer_index }}" 
@@ -29,16 +34,19 @@
                     
                     <div class="d-flex align-items-center justify-content-between w-100 me-3">
                         <div class="d-flex align-items-center gap-3">
-                            <span class="fs-4">🐾</span>
+                            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-4 flex-shrink-0"
+                                style="width: 48px; height: 48px;">
+                                🐾
+                            </div>
                             <div>
                                 <span class="fw-bold text-primary fs-5 d-block">{{ grupo_mascota.grouper.title() }}</span>
                                 <small class="text-body-secondary">
-                                    {{ primera_ficha.species.title() or 'Especie N/D' }}
-                                    &middot; Tutor: {{ primera_ficha.tutor.title() or 'Sin tutor' }}
+                                    {{ primera_ficha.species.title() or 'Especie N/D' }} 
+                                    &middot; Tutor: <strong class="text-body">{{ primera_ficha.tutor.title() or 'Sin tutor' }}</strong>
                                 </small>
                             </div>
                         </div>
-                        <span class="badge text-bg-primary rounded-pill px-3 py-2 fw-normal">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 fw-medium">
                             {{ grupo_mascota.list | length }} {% if grupo_mascota.list | length == 1 %}Historial{% else %}Historiales{% endif %}
                         </span>
                     </div>
@@ -52,42 +60,39 @@
                  aria-labelledby="heading{{ outer_index }}" 
                  data-bs-parent="#accordionFichas">
                 
-                <div class="accordion-body bg-body p-3">
+                <div class="accordion-body bg-body p-4 border-top">
                     <div class="d-flex flex-column gap-3">
                         
                         {% for expediente in grupo_mascota.list %}
-                        <div class="border rounded-3 p-3 bg-body-tertiary">
+                        <div class="border rounded-4 p-3 bg-body-tertiary shadow-sm">
                             <div class="row align-items-center g-3">
                                 
-                                <div class="col-md-4">
+                                <div class="col-12 col-md-5">
                                     <div class="text-body mb-1">
-                                        <strong class="fw-semibold">Motivo:</strong> {{ expediente.reason.title() or 'Sin especificar' }}
+                                        <strong class="text-primary fw-semibold">Motivo:</strong> {{ expediente.reason.title() or 'Sin especificar' }}
                                     </div>
                                     <small class="text-body-secondary">
-                                        <i class="bi bi-calendar-event me-1"></i>{{ expediente.date or 'Sin fecha' }}
+                                        <i class="bi bi-calendar-event me-1 text-primary"></i>{{ expediente.date or 'Sin fecha' }}
                                     </small>
                                 </div>
                                 
-                                <div class="col-md-4">
-                                    <div class="text-body small">
-                                        <strong class="fw-semibold">Peso:</strong> 
-                                        {% if expediente.weight %}{{ expediente.weight }} Kg{% else %}--{% endif %}
-                                        <span class="mx-1">&middot;</span>
-                                        <strong class="fw-semibold">Temp:</strong> 
-                                        {% if expediente.temperature %}{{ expediente.temperature }} °C{% else %}--{% endif %}
+                                <div class="col-12 col-md-3">
+                                    <div class="text-body small d-flex gap-3">
+                                        <div><strong class="text-body">Peso:</strong> {% if expediente.weight %}{{ expediente.weight }} kg{% else %}--{% endif %}</div>
+                                        <div><strong class="text-body">Temp:</strong> {% if expediente.temperature %}{{ expediente.temperature }} °C{% else %}--{% endif %}</div>
                                     </div>
                                 </div>
 
-                                <div class="col-md-4 text-md-end">
-                                    <span class="badge text-bg-dark border fw-normal me-2">
+                                <div class="col-12 col-md-4 text-md-end d-flex justify-content-md-end align-items-center gap-2">
+                                    <span class="badge bg-secondary-subtle text-body-secondary border fw-normal">
                                         Ficha #{{ expediente.medical_id }}
                                     </span>
-                                    <button class="btn btn-sm btn-outline-secondary rounded-2" 
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" 
                                             type="button" 
                                             data-bs-toggle="collapse" 
                                             data-bs-target="#detalleFicha{{ outer_index }}_{{ loop.index }}" 
                                             aria-expanded="false">
-                                        Ver Evaluación <i class="bi bi-chevron-down small"></i>
+                                        Ver Evaluación <i class="bi bi-chevron-down small ms-1"></i>
                                     </button>
                                 </div>
 
@@ -95,20 +100,23 @@
 
                             <!-- EVALUACIÓN Y CONSTANTES FISIOLÓGICAS -->
                             <div class="collapse mt-3" id="detalleFicha{{ outer_index }}_{{ loop.index }}">
-                                <div class="pt-3 border-top">
-                                    <div class="row g-3">
+                                <div class="pt-3 border-top bg-body p-3 rounded-3 border">
+                                    <div class="row g-4">
                                         
-                                        <div class="col-md-6 border-end-md">
-                                            <h6 class="fw-bold text-primary mb-2">Evaluación Médica</h6>
-                                            <p class="small mb-2"><strong class="text-body">Historia / Anamnesis:</strong> {{ expediente.history or 'Sin registro' }}</p>
-                                            <p class="small mb-2"><strong class="text-body">Signos Clínicos:</strong> {{ expediente.signals or 'Sin registro' }}</p>
-                                            <p class="small mb-2"><strong class="text-body">Diagnóstico:</strong> {{ expediente.diagnosis or 'Sin registro' }}</p>
-                                            <p class="small mb-0"><strong class="text-body">Tratamiento:</strong> {{ expediente.treatment or 'Sin registro' }}</p>
+                                        <div class="col-12 col-md-7">
+                                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-journal-medical me-1"></i> Evaluación Médica</h6>
+                                            <div class="d-flex flex-column gap-2 small">
+                                                <div><strong class="text-body">Historia / Anamnesis:</strong> <span class="text-body-secondary">{{ expediente.history or 'Sin registro' }}</span></div>
+                                                {{expediente.if_history}}
+                                                <div><strong class="text-body">Signos Clínicos:</strong> <span class="text-body-secondary">{{ expediente.signals or 'Sin registro' }}</span></div>
+                                                <div><strong class="text-body">Diagnóstico:</strong> <span class="text-body-secondary">{{ expediente.diagnosis or 'Sin registro' }}</span></div>
+                                                <div><strong class="text-body">Tratamiento:</strong> <span class="text-body-secondary">{{ expediente.treatment or 'Sin registro' }}</span></div>
+                                            </div>
                                         </div>
 
-                                        <div class="col-md-6">
-                                            <h6 class="fw-bold text-primary mb-2">Constantes Fisiológicas</h6>
-                                            <ul class="list-unstyled small mb-0 d-flex flex-column gap-1 text-body-secondary">
+                                        <div class="col-12 col-md-5 border-start-md">
+                                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-activity me-1"></i> Constantes Fisiológicas</h6>
+                                            <ul class="list-unstyled small mb-0 d-flex flex-column gap-2 text-body-secondary">
                                                 <li><strong class="text-body">Frecuencia Cardiaca:</strong> {{ expediente.heart or '--' }} lpm</li>
                                                 <li><strong class="text-body">Frecuencia Respiratoria:</strong> {{ expediente.respiratory or '--' }} rpm</li>
                                                 <li><strong class="text-body">Presión Arterial:</strong> {{ expediente.arterial or '--' }} mmHg</li>
@@ -134,11 +142,10 @@
         <!-- ESTADO VACÍO -->
         <div class="col-12 text-center py-5">
             <div class="display-1 text-body-tertiary mb-3">🩺</div>
-                <h5 class="text-body-secondary">No se han registrado fichas clínicas todavía.</h5>
-                <a href="{{ url_for('medical.medical_create',pet_id=pet_id) }}" class="btn btn-primary rounded-pill mt-3">
+            <h5 class="text-body-secondary">No se han registrado fichas clínicas todavía.</h5>
+            <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill mt-3 px-4">
                 Atender paciente
-                </a>
-            </div>
+            </a>
         </div>
         {% endfor %}
     </div>

@@ -1,4 +1,4 @@
-from datetime import date
+
 class MedicalRecordModel:
     """
     Este objeto toma los datos y lo transofrma en un diccionario
@@ -33,19 +33,11 @@ class MedicalRecordModel:
         self.gender = data.get('pet_gender')
         self.reproductive_status = data.get('pet_reproductive_status')
         self.tutor = data.get('pet_tutor_name')
-    @property
-    def age(self):
-        """Esta es tu Lógica de Negocio"""
-        if not self.datebirth:
-            return "Edad desconocida"
         
-        today = date.today()
-        # Calculamos la diferencia de años
-        years = today.year - self.datebirth.year
-        # Ajustamos si aún no ha pasado su cumpleaños este año
-        if (today.month, today.day) < (self.datebirth.month, self.datebirth.day):
-            years -= 1
-            
-        if years < 1:
-            return "menos de 1 año"
-        return f"{years}"
+    @property
+    def if_history(self):
+        """
+        Indica si la historia clínica es muy corta para mostrar un mensaje en la vista
+        """
+        if len(self.history) <= 15:
+            return '⚠️ Historia muy corta'

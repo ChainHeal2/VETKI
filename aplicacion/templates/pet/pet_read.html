@@ -7,7 +7,6 @@
     {% endblock %}
 {% block main %}
 
-
 <div>
     <!-- CABECERA DE SECCIÓN -->
     <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-4">
@@ -57,50 +56,78 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
         {% for mascota in mascotas %}
         <div class="col">
-            <div class="card bg-body-tertiary border rounded-4 h-100 p-4 d-flex flex-column">
+            <div class="card bg-body-tertiary border rounded-4 h-100 p-4 d-flex flex-column shadow-sm">
 
                 <!-- CABECERA DE TARJETA -->
-                <div class="d-flex align-items-start mb-4">
+                <div class="d-flex align-items-start mb-3">
                     <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center me-3 fs-4 flex-shrink-0"
                         style="width: 50px; height: 50px;">
                         🐾
                     </div>
                     <div class="flex-grow-1">
                         <h4 class="h5 mb-1 fw-semibold text-body">{{ mascota.names.title() }}</h4>
-
-                        <div class="d-flex flex-column gap-1 mt-2 small text-body-secondary">
-                            <span>
-                                <i class="bi bi-person me-1"></i>
-                                <span>Especie:</span>
-                                <span class="text-body">{{ mascota.species_name.title() or 'Sin registrar' }}</span>
-                            </span>
-                            <span>
-                                <i class="bi bi-person me-1"></i>
-                                <span>Tutor:</span>
-                                <span class="text-body">{{ mascota.tutor_name.title() or 'Sin registrar' }}</span>
-                            </span>
-                            <span>
-                                <i class="bi bi-telephone me-1"></i>
-                                <span>Teléfono:</span>
-                                <span class="text-body">{{ mascota.tutor_phone or 'Sin teléfono' }}</span>
-                            </span>
-                        </div>
+                        <span class="badge text-bg-primary fw-normal py-1 px-2 mb-2">
+                            <i class="bi bi-calendar-event me-1"></i> {{ mascota.etapa_vida }}
+                        </span>
                     </div>
-                    <span class="badge text-bg-dark border ms-auto py-1 px-2 fw-normal small">
-                        #{{ mascota.pet_id }}
-                    </span>
                 </div>
 
-                <!-- ETIQUETAS/BADGES -->
-                <div class="mb-4">
-                    <span class="badge text-bg-secondary fw-normal me-2 mb-2 py-2 px-3">
-                        {{ mascota.race or 'Sin raza.' }}
-                    </span>
-                    <span class="badge text-bg-primary fw-normal mb-2 py-2 px-3">
-                        <i class="bi bi-calendar-event me-1"></i> {{ mascota.age }}
-                    </span>
+                <!-- CUERPO DE DATOS PRINCIPALES -->
+                <div class="d-flex flex-column gap-2 small text-body-secondary mb-4">
+                    <!-- Especie -->
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-tag me-2 text-primary"></i>
+                        <span class="fw-medium text-body me-1">Especie:</span>
+                        <span>{{ mascota.species_name.title() if mascota.species_name else 'Sin registrar' }}</span>
+                    </div>
+
+                    <!-- Raza (Encapsulada con POO) -->
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-circle-square me-2 text-primary"></i>
+                        <span class="fw-medium text-body me-1">Raza:</span>
+                        <span class="{{ mascota.clase_raza_css }} fw-semibold">
+                            {{ mascota.tiene_raza }}
+                        </span>
+                    </div>
+
+                    <!-- Edad -->
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-calendar-heart me-2 text-primary"></i>
+                        <span class="fw-medium text-body me-1">Edad:</span>
+                        <span class="text-body">{{ mascota.age }}</span>
+                    </div>
+
+                    <!-- Tutor -->
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-person me-2 text-primary"></i>
+                        <span class="fw-medium text-body me-1">Tutor:</span>
+                        <span class="text-body">{{ mascota.tutor_name.title() if mascota.tutor_name else 'Sin registrar' }}</span>
+                    </div>
+
+                    <!-- Teléfono interactivo -->
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-telephone me-2 text-primary"></i>
+                        <span class="fw-medium text-body me-1">Teléfono:</span>
+                        {% if mascota.tiene_telefono %}
+                            <a href="tel:{{ mascota.telefono_limpio }}" class="text-primary fw-semibold text-decoration-none">
+                                {{ mascota.tutor_phone }} 📞
+                            </a>
+                        {% else %}
+                            <span class="text-muted">Sin teléfono</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Alerta de Microchip -->
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-cpu me-2 text-primary"></i>
+                        <span class="fw-medium text-body me-1">Microchip:</span>
+                        <span class="{{ mascota.clase_microchip_css }} fw-semibold">
+                            {{ mascota.alerta_microchip }}
+                        </span>
+                    </div>
                 </div>
 
+                <!-- SECCIÓN INFERIOR Y ACCIONES -->
                 <div class="mt-auto">
                     <!-- BOTÓN DESPLEGABLE -->
                     <button class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center mb-3 rounded-3 py-2 px-3 small"
@@ -113,7 +140,6 @@
                     <!-- CONTENIDO DESPLEGABLE -->
                     <div class="collapse" id="collapseData{{ mascota.pet_id }}">
                         <div class="card card-body mb-3 border-0 bg-body rounded-3 p-3">
-                            
                             <!-- Lista de Detalles -->
                             <ul class="list-unstyled mb-3 small d-flex flex-column gap-2 text-body-secondary">
                                 <li><strong class="text-body">Microchip:</strong> {{ mascota.microchip or 'No registrado' }}</li>
@@ -125,24 +151,23 @@
                             <!-- Acciones Clínicas -->
                             <div class="d-flex gap-1 pt-2 border-top">
                                 <a href="{{ url_for('medical.medical_create', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-primary w-100 rounded-2">
+                                   class="btn btn-sm btn-outline-primary w-100 rounded-2" title="Atender">
                                     🩺 Atender
                                 </a>
                                 <a href="{{ url_for('appointment.appointment_create', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-secondary w-100 rounded-2">
+                                   class="btn btn-sm btn-outline-secondary w-100 rounded-2" title="Agendar">
                                     📅 Agendar
                                 </a>
                                 <a href="{{ url_for('medical.pet_history', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-info w-100 rounded-2">
+                                   class="btn btn-sm btn-outline-info w-100 rounded-2" title="Ficha">
                                     📋 Ficha
                                 </a>
                                 <button type="button" class="btn btn-sm btn-outline-success w-100 rounded-2"
                                    data-bs-toggle="modal" data-bs-target="#vaccinationModal"
-                                   data-pet-id="{{ mascota.pet_id }}" data-pet-name="{{ mascota.names }}">
+                                   data-pet-id="{{ mascota.pet_id }}" data-pet-name="{{ mascota.names }}" title="Vacunas">
                                     💉 Vacunas
                                 </button>
                             </div>
-                            
                         </div>
                     </div>
 
@@ -188,15 +213,12 @@
             Página <strong>{{ page }}</strong> de <strong>{{ total_pages }}</strong> ({{ total_records }} mascotas en total)
         </div>
         <ul class="pagination mb-0">
-            <!-- Botón Anterior -->
             <li class="page-item {% if page <= 1 %}disabled{% endif %}">
                 <a class="page-link rounded-pill px-3 me-1" 
                    href="{{ url_for('pet.pet_read', page=page-1, q=search_query) }}">
                     &laquo; Anterior
                 </a>
             </li>
-
-            <!-- Botón Siguiente -->
             <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
                 <a class="page-link rounded-pill px-3" 
                    href="{{ url_for('pet.pet_read', page=page+1, q=search_query) }}">
@@ -208,8 +230,7 @@
     {% endif %}
 </div>
 
-<!-- MODAL DE VACUNACIÓN (OPCIÓN B: PESTAÑAS) -->
-<!-- MODAL DE VACUNACIÓN (CON HEADER FIJO EN LA TABLA) -->
+<!-- MODAL DE VACUNACIÓN -->
 <div class="modal fade" id="vaccinationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content bg-dark text-light border-secondary">
@@ -219,7 +240,6 @@
                         <h5 class="modal-title fw-bold">💉 Vacunación: <span id="vaccinationPetName"></span></h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
-                    <!-- Navigation Tabs -->
                     <ul class="nav nav-tabs border-bottom-0" id="vaccineTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active text-light bg-transparent border-secondary border-bottom-0" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-pane" type="button" role="tab">
@@ -236,11 +256,9 @@
             </div>
             <div class="modal-body p-4">
                 <div class="tab-content" id="vaccineTabContent">
-                    <!-- Tab 1: History -->
                     <div class="tab-pane fade show active" id="history-pane" role="tabpanel" tabindex="0">
                         <div style="max-height: 250px; overflow-y: auto;">
                             <table class="table table-dark table-hover table-sm align-middle text-nowrap mb-0">
-                                <!-- Encabezado Fijo -->
                                 <thead class="sticky-top bg-dark">
                                     <tr class="text-body-secondary small border-secondary">
                                         <th class="bg-dark">Vacuna</th>
@@ -249,14 +267,11 @@
                                         <th class="bg-dark">Lote</th>
                                     </tr>
                                 </thead>
-                                <tbody id="vaccinationHistory">
-                                    <!-- Populated dynamically via JS -->
-                                </tbody>
+                                <tbody id="vaccinationHistory"></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- Tab 2: Form -->
                     <div class="tab-pane fade" id="new-pane" role="tabpanel" tabindex="0">
                         <form id="vaccinationForm">
                             {{ vaccination_form.hidden_tag() }}
@@ -327,7 +342,6 @@
         const historyTabTrigger = document.getElementById("history-tab");
         let petId;
 
-        // Auto-calcular fecha de próxima dosis según la opción elegida
         function calculateNextDate() {
             const appDateVal = appDateInput.value;
             const interval = intervalSelect.value;
@@ -357,7 +371,6 @@
         appDateInput.addEventListener("change", calculateNextDate);
         intervalSelect.addEventListener("change", calculateNextDate);
 
-        // Cargar historial de vacunas vía GET
         async function loadHistory() {
             try {
                 const response = await fetch(`/api/vaccinations/${petId}`);
@@ -381,14 +394,12 @@
             }
         }
 
-        // Evento al abrir el Modal
         modal.addEventListener("show.bs.modal", event => {
             const button = event.relatedTarget;
             petId = button.dataset.petId;
             document.getElementById("vaccinationPetId").value = petId;
             document.getElementById("vaccinationPetName").textContent = button.dataset.petName || '';
             
-            // Asignar fecha actual por defecto
             appDateInput.valueAsDate = new Date();
             calculateNextDate();
             status.textContent = "";
@@ -401,7 +412,6 @@
             loadHistory();
         });
 
-        // Enviar formulario mediante POST
         form.addEventListener("submit", async event => {
             event.preventDefault();
             status.className = "small mt-2 text-info";
@@ -410,7 +420,6 @@
             const csrf = document.querySelector('#vaccinationForm input[name="csrf_token"]')?.value || "";
             const rawFormData = Object.fromEntries(new FormData(form));
 
-            // Sanear campos vacíos para evitar que rompan las validaciones de tipo en WTForms
             const payload = {
                 vaccine_name: rawFormData.vaccine_name ? rawFormData.vaccine_name.trim() : "",
                 application_date: rawFormData.application_date || null,

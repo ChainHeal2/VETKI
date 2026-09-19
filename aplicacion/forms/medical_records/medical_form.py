@@ -25,10 +25,10 @@ class MedicalRecordForm(FlaskForm):
     reason = SelectField('Especies',choices=[('preventiva','Preventiva')
                                                             ,('control','Control'),
                                                             ('urgencia','Urgencia')])
-    weigth = FloatField('Peso del animal',validators=[DataRequired(),NumberRange(min=0.05,max=100.0)],filters=[])
+    weigth = FloatField('Peso del animal',validators=[DataRequired(),NumberRange(min=0.05,max=250.0)],filters=[])
     temperature = FloatField('Temperatura del animal',validators=[Optional()])
-    heart = FloatField('Frecuencia cardiaca del animal',validators=[Optional(),NumberRange(min=0,max=100)],filters=[])
-    respiratory = FloatField('Frecuencia respiratoria del animal',validators=[Optional(), NumberRange(min=0,max=100)],
+    heart = FloatField('Frecuencia cardiaca del animal',validators=[Optional(),NumberRange(min=0,max=200)],filters=[])
+    respiratory = FloatField('Frecuencia respiratoria del animal',validators=[Optional(), NumberRange(min=0,max=200)],
                             filters=[])
     water = FloatField('Cantidad de agua del animal',validators=[Optional(), NumberRange(min=0,max=100)],
                             filters=[])

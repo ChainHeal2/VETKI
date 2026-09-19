@@ -55,6 +55,7 @@ def medical_create(pet_id):
         flash("Expediente clinico creado correctamente", "success")
         db.commit()
         return redirect(url_for('medical.medical_read'))
+    print(medical_record_form.errors)
     return render_template('medical_records/medical_create.html',medical_record_form = medical_record_form,mascota = pet_data)
 
 @bp.route("/medical_read", methods=['GET'])
