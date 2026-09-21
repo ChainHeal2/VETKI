@@ -51,6 +51,9 @@ def create_app():
 
     from aplicacion.google_login.google_login import google_bp
     app.register_blueprint(google_bp, url_prefix="/login")
+    
+    from aplicacion.carnet_vacuna import carnet
+    app.register_blueprint(carnet.bp)
 
     # API Blueprint, Limiter y CLI Command desde aplicacion.api
     from aplicacion.api import bp as api_bp, limiter as api_limiter, check_vaccination_alerts_command

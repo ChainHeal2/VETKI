@@ -167,6 +167,10 @@
                                    data-pet-id="{{ mascota.pet_id }}" data-pet-name="{{ mascota.names }}" title="Vacunas">
                                     💉 Vacunas
                                 </button>
+                                <a href="{{ url_for('carnet.carnet_read', pet_id=mascota.pet_id) }}"
+                                   class="btn btn-sm btn-outline-primary w-100 rounded-2" title="Carnet">
+                                    📄 Carnet
+                                </a>
                             </div>
                         </div>
                     </div>

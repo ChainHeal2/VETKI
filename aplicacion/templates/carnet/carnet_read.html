@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Carnet de Vacunación{% endblock %}
+
+{% block main %}
+<div class="container-fluid px-0">
+    
+    <!-- ENCABEZADO -->
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-4">
+        <div>
+            <h1 class="display-6 fw-normal mb-1">Carnet de Vacunación</h1>
+            <p class="mb-0 text-body-secondary">Registro de inmunizaciones del paciente.</p>
+        </div>
+        <div>
+            <button onclick="window.print()" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="bi bi-printer"></i> Imprimir
+            </button>
+        </div>
+    </div>
+
+    <!-- TARJETA DE DATOS (Mascota y Tutor) -->
+    <div class="card bg-body-tertiary border rounded-4 p-4 shadow-sm mb-4">
+        <div class="row align-items-center g-4">
+            
+            <div class="col-12 col-md-4 d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-2 flex-shrink-0"
+                    style="width: 60px; height: 60px;">
+                    🐾
+                </div>
+                <div>
+                    <h3 class="h4 mb-1 fw-bold text-primary">{{ carnet.pet_name }}</h3>
+                    <span class="text-body-secondary small">
+                        {{ carnet.species }} &middot; {{ carnet.breed }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4 text-body-secondary small">
+                <div><strong>Género:</strong> {{ carnet.gender }}</div>
+                <div><strong>F. Nacimiento:</strong> {{ carnet.datebirth }}</div>
+                <div><strong>Estado Reproductivo:</strong> {{ carnet.reproductive_status }}</div>
+            </div>
+
+            <div class="col-12 col-md-4 text-body-secondary small">
+                <div><strong>Tutor:</strong> {{ carnet.tutor_name }}</div>
+                <div><strong>Teléfono:</strong> {{ carnet.tutor_phone }}</div>
+                <div><strong>Dirección:</strong> {{ carnet.tutor_address }}</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TABLA DE VACUNAS -->
+    <div class="card border rounded-4 p-4 shadow-sm bg-body">
+        <h4 class="h5 fw-semibold mb-3 text-body">Historial de Vacunas</h4>
+        
+        {% if carnet.vaccines %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="py-3">Vacuna</th>
+                        <th class="py-3">Fecha de Aplicación</th>
+                        <th class="py-3">Próximo Refuerzo</th>
+                        <th class="py-3">No. Lote</th>
+                        <th class="py-3">Notas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vacuna in carnet.vaccines %}
+                    <tr>
+                        <td class="fw-semibold text-primary">{{ vacuna.name }}</td>
+                        <td>{{ vacuna.application_date }}</td>
+                        <td>{{ vacuna.next_due_date }}</td>
+                        <td><code>{{ vacuna.lot_number }}</code></td>
+                        <td class="text-body-secondary small">{{ vacuna.notes }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <p class="text-body-secondary mb-0">No hay registros de vacunas para mostrar.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
