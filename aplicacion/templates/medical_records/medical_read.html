@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Lista de Expedientes Clínicos{% endblock %}
+
+{% block main %}
+<div>
+    <!-- ENCABEZADO -->
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-4">
+        <div>
+            <h1 class="display-6 fw-normal mb-1">Lista de Expedientes Clínicos</h1>
+            <p class="mb-0 text-body-secondary">Historiales y consultas médicas de tus pacientes.</p>
+        </div>
+        <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill px-4 py-2">
+            + Atender Paciente
+        </a>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA Y FILTROS -->
+    <div class="row mb-4 g-2 align-items-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <form method="GET" action="{{ url_for('medical.medical_read') }}" class="d-flex gap-2">
+                <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+                    <span class="input-group-text bg-body-tertiary border-0 text-body-secondary ps-3">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="search" 
+                           name="q" 
+                           class="form-control border-0 bg-body-tertiary shadow-none ps-2" 
+                           placeholder="Buscar por paciente o tutor..." 
+                           value="{{ search_query or '' }}"
+                           autocapitalize="none"
+                           autocomplete="off">
+                    <button type="submit" class="btn btn-primary px-4 fw-medium">Buscar</button>
+                </div>
+                
+                {% if search_query %}
+                    <a href="{{ url_for('medical.medical_read') }}" class="btn btn-outline-secondary rounded-pill px-3 d-flex align-items-center gap-1">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if search_query %}
+            <div class="col-12 col-md-auto text-body-secondary small ms-md-2">
+                Resultados para: <strong class="text-primary">"{{ search_query }}"</strong>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- LISTADO DE EXPEDIENTES -->
+    <div class="d-flex flex-column gap-3">
+        {% for expediente in tabla %}
+        <div class="card bg-body-tertiary border rounded-4 p-4 shadow-sm">
+            <div class="row align-items-center g-3">
+                
+                <!-- AVATAR Y PACIENTE -->
+                <div class="col-12 col-md-4 d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-4 flex-shrink-0"
+                        style="width: 50px; height: 50px;">
+                        🐾
+                    </div>
+                    <div>
+                        <h4 class="h5 mb-1 fw-semibold text-body">{{ expediente.names.title() }}</h4>
+                        <span class="badge bg-secondary-subtle text-body-secondary border fw-normal py-1 px-2">
+                            {{ expediente.species_name.title() or 'Especie N/D' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- EDAD Y TUTOR -->
+                <div class="col-12 col-md-4 text-body-secondary small">
+                    <div class="mb-1">
+                        <strong class="text-body">Edad:</strong> {{ expediente.age or 'N/D' }}
+                    </div>
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="bi bi-person me-1 text-primary"></i>
+                        <span class="text-body fw-medium me-1">Tutor:</span> 
+                        <span class="text-body">{{ expediente.tutor_name.title() or 'Sin registrar' }}</span>
+                    </div>
+                    <div>
+                        <i class="bi bi-telephone me-1 text-primary"></i>
+                        <span class="text-body fw-medium me-1">Contacto:</span> 
+                        <span>{{ expediente.tutor_phone or 'Sin teléfono' }}</span>
+                    </div>
+                </div>
+
+                <!-- BOTONES DE ACCIÓN RÁPIDA -->
+                <div class="col-12 col-md-4 text-md-end d-flex justify-content-md-end gap-2">
+                    <a href="{{ url_for('medical.medical_create', pet_id=expediente.pet_id) }}" 
+                       class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                        🩺 Atender
+                    </a>
+                    <a href="{{ url_for('medical.pet_history', pet_id=expediente.pet_id) }}" 
+                       class="btn btn-primary btn-sm rounded-pill px-3">
+                        📋 Ver Ficha
+                    </a>
+                </div>
+
+            </div>
+        </div>
+        {% else %}
+        <!-- ESTADO VACÍO -->
+        <div class="col-12 text-center py-5">
+            {% if search_query %}
+                <div class="display-1 text-body-tertiary mb-3">🔍</div>
+                <h5 class="text-body-secondary">No se encontraron expedientes que coincidan con "{{ search_query }}".</h5>
+                <a href="{{ url_for('medical.medical_read') }}" class="btn btn-outline-secondary rounded-pill mt-3 px-4">
+                    Ver todos los expedientes
+                </a>
+            {% else %}
+                <div class="display-1 text-body-tertiary mb-3">📋</div>
+                <h5 class="text-body-secondary">No hay expedientes clínicos registrados aún.</h5>
+                <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill mt-3">
+                    Crear expediente clínico
+                </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- NAVEGACIÓN DE PAGINACIÓN -->
+    {% if total_pages > 1 %}
+    <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+        <div class="text-body-secondary small">
+            Página <strong>{{ page }}</strong> de <strong>{{ total_pages }}</strong> ({{ total_records }} pacientes en total)
+        </div>
+        <ul class="pagination mb-0">
+            <!-- Botón Anterior -->
+            <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                <a class="page-link rounded-pill px-3 me-1" 
+                   href="{{ url_for('medical.medical_read', page=page-1, q=search_query) }}">
+                    &laquo; Anterior
+                </a>
+            </li>
+
+            <!-- Botón Siguiente -->
+            <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                <a class="page-link rounded-pill px-3" 
+                   href="{{ url_for('medical.medical_read', page=page+1, q=search_query) }}">
+                    Siguiente &raquo;
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

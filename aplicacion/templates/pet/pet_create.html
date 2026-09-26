@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Nuevo Paciente{% endblock %}
+
+{% block main %}
+<div class="animate-slide">
+
+    <div class="mb-5 border-bottom pb-4" style="border-color: var(--gemini-border) !important;">
+        <h1 class="display-6 fw-normal mb-1">Ingreso de Paciente</h1>
+        <p class="mb-0" style="color: var(--gemini-text-sub);">Complete el expediente clínico para la base de datos.</p>
+    </div>
+
+    <form method="POST" class="row g-4 px-lg-2">
+        {{ pet_form.hidden_tag() }}
+
+        <div class="col-12 mb-2">
+            <h3 class="h5 fw-normal text-secondary mb-1">
+                <i class="bi bi-paw-fill me-2"></i>Datos de la Mascota
+            </h3>
+            <hr class="mt-2 mb-0" style="color: var(--gemini-border); opacity: 0.5;">
+        </div>
+
+        <div class="col-md-7">
+            <div class="form-floating">
+                {{ pet_form.pet_names(class="form-control", id="pet_names", placeholder="Nombre") }}
+                <label for="pet_names">Nombre del Paciente</label>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="form-floating">
+                {{ pet_form.pet_species_name(class="form-select", id="pet_species_name", placeholder="Especie") }}
+                <label for="pet_species_name">Especie</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ pet_form.pet_race(class="form-control", id="pet_race", placeholder="Raza") }}
+                <label for="pet_race">Raza / Cruce</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ pet_form.pet_color(class="form-control", id="pet_color", placeholder="Color") }}
+                <label for="pet_color">Color</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                <select name="pet_gender" class="form-select" id="pet_gender">
+                    <option value="" disabled selected>Seleccione...</option>
+                    <option value="Macho">Macho</option>
+                    <option value="Hembra">Hembra</option>
+                </select>
+                <label for="pet_gender">Género Biológico</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ pet_form.pet_datebirth(class="form-control", id="pet_datebirth", type="date") }}
+                <label for="pet_datebirth">Fecha de Nacimiento</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ pet_form.pet_microchip(class="form-control", id="pet_microchip", placeholder="Microchip") }}
+                <label for="pet_microchip">N° Microchip (Opcional)</label>
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal"
+                data-bs-target="#qrScannerModal">
+                <i class="bi bi-qr-code-scan me-1"></i> Escanear microchip
+            </button>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                <select name="pet_rstatus" class="form-select" id="pet_rstatus">
+                    <option value="" disabled selected>Seleccione...</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Castrado">Castrado</option>
+                    <option value="Esterilizada">Esterilizada</option>
+                </select>
+                <label for="pet_rstatus">Estado Reproductivo</label>
+            </div>
+        </div>
+
+
+        <div class="col-12 mt-5 mb-2">
+            <h3 class="h5 fw-normal text-secondary mb-1">
+                <i class="bi bi-person-bounding-box me-2"></i>Datos del Tutor
+            </h3>
+            <hr class="mt-2 mb-0" style="color: var(--gemini-border); opacity: 0.5;">
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ pet_form.pet_tutor_name(class="form-control", id="pet_tutor_name", placeholder="Nombre del tutor") }}
+                <label for="pet_tutor_name">Nombre del tutor</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ pet_form.pet_tutor_phone(class="form-control", id="pet_tutor_phone", placeholder="Telefono del
+                tutor") }}
+                <label for="pet_tutor_phone">Telefono del tutor</label>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-floating">
+                {{ pet_form.pet_tutor_address(class="form-control", id="pet_tutor_address", placeholder="Direccion del
+                tutor") }}
+                <label for="pet_tutor_address">Direccion del tutor</label>
+            </div>
+        </div>
+
+
+        <div class="col-12 mt-5">
+            <div class="d-flex justify-content-end align-items-center gap-3">
+                <a href="{{url_for('index.index')}}"
+                    class="text-decoration-none small fw-medium text-secondary me-3">Descartar</a>
+                {{ pet_form.submit(class="btn-gemini btn-pink", style="width: auto; padding: 0.8rem 3rem;",
+                value="Registrar Paciente") }}
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="qrScannerLabel">Escanear código QR</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="qr-reader" class="w-100"></div>
+                <p id="qr-status" class="small text-body-secondary mt-3 mb-0" role="status">
+                    Apunta la cámara trasera al código del microchip.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ super() }}
+<script src="https://unpkg.com/html5-qrcode" defer></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("qrScannerModal");
+    const status = document.getElementById("qr-status");
+    const input = document.getElementById("pet_microchip");
+    const token = document.querySelector('input[name="csrf_token"]')?.value;
+    let scanner;
+
+    modal.addEventListener("shown.bs.modal", async () => {
+        if (!window.isSecureContext) {
+            status.textContent = "La cámara requiere HTTPS (o localhost). Abre el sistema en un entorno seguro.";
+            return;
+        }
+        if (!window.Html5Qrcode) {
+            status.textContent = "No se pudo cargar el lector QR. Comprueba tu conexión.";
+            return;
+        }
+        scanner = new Html5Qrcode("qr-reader");
+        try {
+            await scanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                async (decodedText) => {
+                    await scanner.stop();
+                    const response = await fetch("{{ url_for('api.process_qr') }}", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "X-CSRFToken": token || "" },
+                        body: JSON.stringify({ content: decodedText })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || "QR inválido");
+                    input.value = result.microchip;
+                    status.textContent = "Microchip cargado correctamente.";
+                    bootstrap.Modal.getInstance(modal).hide();
+                }
+            );
+        } catch (error) {
+            status.textContent = "No se pudo acceder a la cámara. Revisa el permiso del navegador y usa HTTPS.";
+        }
+    });
+    modal.addEventListener("hidden.bs.modal", async () => {
+        if (scanner) {
+            try { await scanner.stop(); } catch (_) { /* ya detenido */ }
+            scanner.clear();
+            scanner = null;
+        }
+    });
+});
+</script>
+{% endblock %}

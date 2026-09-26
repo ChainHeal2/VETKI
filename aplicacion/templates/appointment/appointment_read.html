@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Agenda de Pacientes{% endblock %}
+
+{% block main %}
+<div>
+
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-end mb-5 border-bottom pb-4">
+        <div>
+            <h1 class="display-6 fw-normal mb-1">Agenda Médica</h1>
+            <p class="mb-0 text-body-secondary">Próximos agendamientos de VETKI.</p>
+        </div>
+        <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill px-4 py-2">
+           📅 Agendar Mascota
+        </a>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA Y FILTROS -->
+    <div class="row mb-4 g-3 align-items-center">
+        <div class="col-12 col-md-8 col-lg-7">
+            <form method="GET" action="{{ url_for('appointment.appointment_read') }}" class="d-flex gap-2">
+                <div class="input-group shadow-sm rounded-pill border overflow-hidden">
+                    <span class="input-group-text bg-body-tertiary border-0 text-body-secondary ps-3">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="search" 
+                           name="q" 
+                           class="form-control border-0 bg-body-tertiary shadow-none ps-2" 
+                           placeholder="Buscar por paciente o tutor..." 
+                           value="{{ search_query or '' }}"
+                           autocapitalize="none"
+                           autocomplete="off">
+                    <button type="submit" class="btn btn-primary px-4 fw-medium border-0">
+                        Buscar
+                    </button>
+                </div>
+                
+                {% if search_query %}
+                    <a href="{{ url_for('appointment.appointment_read') }}" class="btn btn-outline-secondary rounded-pill px-3 d-flex align-items-center gap-1 flex-shrink-0">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if search_query %}
+            <div class="col-12 col-md-auto text-body-secondary small ms-md-auto">
+                Resultados para: <strong class="text-primary">"{{ search_query }}"</strong>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Lista de Citas -->
+    <div class="row g-4">
+        {% for cita in citas %}
+        <div class="col-12 col-xl-6">
+            <div class="card bg-body-tertiary border rounded-4 p-4 d-flex flex-row align-items-center gap-3">
+                
+                <!-- Date Box -->
+                <div class="bg-primary-subtle text-primary border border-primary-subtle rounded-4 p-3 text-center d-flex flex-column justify-content-center flex-shrink-0" style="min-width: 80px;">
+                    <span class="display-6 fw-bold lh-1 mb-1">{{ cita.date.strftime('%d') if cita.date else '--' }}</span>
+                    <span class="small text-uppercase fw-semibold tracking-wider">{{ cita.date.strftime('%b') if cita.date else '--' }}</span>
+                </div>
+
+                <!-- Info de la cita -->
+                <div class="flex-grow-1">
+                    <span class="badge text-bg-secondary fw-normal mb-2 px-3">
+                        Cita Confirmada
+                    </span>
+                    <h4 class="h5 mb-1 fw-semibold text-body">Paciente: {{ cita.pet_names }}</h4>
+                    <div class="text-body-secondary small">
+                        <span><i class="bi bi-hash"></i> Cita ID: {{ cita.id }}</span>
+                        <span class="mx-1">•</span>
+                        <span>Expediente: #{{ cita.pet_id }}</span>
+                    </div>
+                </div>
+
+                <!-- Opciones -->
+                <div class="d-flex flex-column align-items-end gap-2 ms-auto">
+                    <a href="{{ url_for('medical.pet_history', pet_id=cita.pet_id) }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                        Ver Expediente
+                    </a>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('appointment.appointment_update', appointment_id=cita.id) }}" class="btn btn-outline-warning btn-sm rounded-2">
+                            Modificar
+                        </a>
+                        
+                        <a href="{{ url_for('appointment.appointment_delete', appointment_id=cita.id) }}" class="btn btn-outline-danger btn-sm rounded-2" onclick="return confirm('¿Confirma que desea eliminar esta cita del sistema?');">
+                            Eliminar
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        {% else %}
+        <!-- ESTADO VACÍO -->
+        <div class="col-12 text-center py-5">
+            {% if search_query %}
+                <div class="display-1 text-body-tertiary mb-3">🔍</div>
+                <h5 class="text-body-secondary">No se encontraron citas que coincidan con "{{ search_query }}".</h5>
+                <a href="{{ url_for('appointment.appointment_read') }}" class="btn btn-outline-secondary rounded-pill mt-3 px-4">
+                    Ver todas las citas
+                </a>
+            {% else %}
+                <div class="display-1 text-body-tertiary mb-3">📅</div>
+                <h5 class="text-body-secondary">Tu agenda está libre</h5>
+                <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill mt-3">
+                    Agendar primer paciente
+                </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- NAVEGACIÓN DE PAGINACIÓN -->
+    {% if total_pages is defined and total_pages > 1 %}
+    <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+        <div class="text-body-secondary small">
+            Página <strong>{{ page }}</strong> de <strong>{{ total_pages }}</strong> ({{ total_records }} citas en total)
+        </div>
+        <ul class="pagination mb-0">
+            <!-- Botón Anterior -->
+            <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                <a class="page-link rounded-pill px-3 me-1" 
+                   href="{{ url_for('appointment.appointment_read', page=page-1, q=search_query) }}">
+                    &laquo; Anterior
+                </a>
+            </li>
+
+            <!-- Botón Siguiente -->
+            <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                <a class="page-link rounded-pill px-3" 
+                   href="{{ url_for('appointment.appointment_read', page=page+1, q=search_query) }}">
+                    Siguiente &raquo;
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
