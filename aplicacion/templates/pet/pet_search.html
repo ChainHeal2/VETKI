@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Buscador de Mascotas{% endblock %}
+
+{% block main %}
+<div class="container-fluid px-0">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4 border-bottom pb-4">
+        <div>
+            <h1 class="display-6 fw-normal mb-1">Buscador de Mascotas</h1>
+            <p class="mb-0 text-body-secondary">Módulo de pacientes · busca por nombre o microchip.</p>
+        </div>
+        <a href="{{ url_for('index.index') }}" class="btn btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-arrow-left me-1"></i>Volver al dashboard
+        </a>
+    </div>
+
+    <div class="card bg-body-tertiary border rounded-4 p-3 p-md-4 shadow-sm mb-4">
+        <form method="GET" action="{{ url_for('pet.pet_search') }}" role="search">
+            <label for="petSearchQuery" class="form-label fw-semibold">Nombre de la mascota</label>
+            <div class="input-group">
+                <span class="input-group-text bg-body border-secondary-subtle">
+                    <i class="bi bi-search text-primary"></i>
+                </span>
+                <input class="form-control bg-body border-secondary-subtle" id="petSearchQuery"
+                       type="search" name="q" value="{{ search_query }}"
+                       placeholder="Ejemplo: Ichiro" autocomplete="off">
+                <button class="btn btn-primary px-4" type="submit">Buscar</button>
+            </div>
+        </form>
+    </div>
+
+    {% if microchip %}
+    <div class="card bg-body-tertiary border rounded-4 p-3 p-md-4 shadow-sm mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-4 flex-shrink-0"
+                 style="width: 48px; height: 48px;">
+                <i class="bi bi-qr-code-scan"></i>
+            </div>
+            <div>
+                <div class="small text-body-secondary">Búsqueda realizada con QR</div>
+                <div class="fw-semibold">Microchip: {{ microchip }}</div>
+            </div>
+        </div>
+    </div>
+    {% elif search_query %}
+    <p class="text-body-secondary mb-3">
+        {{ total_records }} resultado{% if total_records != 1 %}s{% endif %}
+        para <strong class="text-body">“{{ search_query }}”</strong>
+    </p>
+    {% endif %}
+
+    {% if mascotas %}
+    <div class="card border rounded-4 p-3 p-md-4 shadow-sm bg-body">
+        <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+            <h2 class="h5 fw-semibold mb-0">Pacientes encontrados</h2>
+            <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+                {{ total_records }}
+            </span>
+        </div>
+
+        <ol class="list-group list-group-numbered">
+            {% for mascota in mascotas %}
+            <li class="list-group-item bg-transparent border-secondary-subtle py-3 px-2 px-md-3">
+                <div class="row align-items-center g-3">
+                    <div class="col-12 col-lg">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-4 flex-shrink-0"
+                                 style="width: 48px; height: 48px;">
+                                🐾
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="h5 fw-bold text-primary mb-1 text-break">
+                                    {{ mascota.names.title() }}
+                                </h3>
+                                <span class="text-body-secondary small">
+                                    {{ mascota.species_name.title() if mascota.species_name else 'Especie sin registrar' }}
+                                    {% if mascota.race %}&middot; {{ mascota.race }}{% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 small text-body-secondary">
+                            <div class="col-12 col-md-6">
+                                <strong class="text-body">Tutor:</strong>
+                                {{ mascota.tutor_name or 'Sin registrar' }}
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <strong class="text-body">Microchip:</strong>
+                                {% if mascota.microchip %}<code>{{ mascota.microchip }}</code>{% else %}Sin registrar{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-auto">
+                        <div class="d-flex flex-wrap gap-2">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill px-3"
+                               href="{{ url_for('medical.pet_history', pet_id=mascota.pet_id) }}">
+                                <i class="bi bi-journal-medical me-1"></i>Ficha clínica
+                            </a>
+                            <a class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                               href="{{ url_for('carnet.carnet_read', pet_id=mascota.pet_id) }}">
+                                <i class="bi bi-card-list me-1"></i>Carnet
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ol>
+
+        {% if total_pages > 1 %}
+        <nav class="mt-4" aria-label="Paginación de resultados de mascotas">
+            <ul class="pagination justify-content-center flex-wrap gap-1 mb-0">
+                <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                    <a class="page-link rounded-pill px-3"
+                       href="{{ url_for('pet.pet_search', q=search_query, microchip=microchip, page=page-1) }}"
+                       aria-label="Página anterior">Anterior</a>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link border-0 bg-transparent">Página {{ page }} de {{ total_pages }}</span>
+                </li>
+                <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                    <a class="page-link rounded-pill px-3"
+                       href="{{ url_for('pet.pet_search', q=search_query, microchip=microchip, page=page+1) }}"
+                       aria-label="Página siguiente">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+    {% elif search_query or microchip %}
+    <div class="card border rounded-4 p-5 shadow-sm bg-body text-center">
+        <div class="rounded-circle bg-body-tertiary text-body-secondary d-flex align-items-center justify-content-center fs-2 mx-auto mb-3"
+             style="width: 64px; height: 64px;">
+            <i class="bi bi-search"></i>
+        </div>
+        <h2 class="h5">No encontramos mascotas</h2>
+        <p class="text-body-secondary mb-0">Prueba con otro nombre o revisa el QR escaneado.</p>
+    </div>
+    {% else %}
+    <div class="card border rounded-4 p-5 shadow-sm bg-body text-center">
+        <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-2 mx-auto mb-3"
+             style="width: 64px; height: 64px;">
+            <i class="bi bi-paw"></i>
+        </div>
+        <h2 class="h5">Busca un paciente</h2>
+        <p class="text-body-secondary mb-0">Escribe un nombre para ver sus coincidencias.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

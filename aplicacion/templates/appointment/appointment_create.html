@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}VETKI | Agendar Cita - Paso 1{% endblock %}
+
+{% block main %}
+<div>
+    
+    <!-- Encabezado del Flujo -->
+    <div class="mb-5 border-bottom pb-4">
+        <h1 class="display-6 fw-normal mb-1">Agendar Cita</h1>
+        <p class="mb-0 text-body-secondary">
+            <span class="badge text-bg-primary me-2">Paso 1 de 2</span> Selecciona al paciente para la consulta.
+        </p>
+    </div>
+
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% set alert_type = 'success' if category == 'success' else 'danger' %}
+                <div class="alert alert-{{ alert_type }} alert-dismissible fade show mb-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Grid de Tarjetas de Mascotas -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 align-items-center">
+        {% for mascota in mascotas %}
+        {% set p_id = mascota.pet_id if mascota.pet_id is defined else mascota[0] %}
+        {% set p_names = mascota.pet_names if mascota.pet_names is defined else mascota[1] %}
+        {% set p_tutor = mascota.pet_tutor_name if mascota.pet_tutor_name is defined else mascota[2] %}
+
+        <div class="col">
+            <div class="card bg-body-tertiary border rounded-4 h-100">
+                
+                <form action="{{ url_for('appointment.appointment_create', pet_id=p_id) }}" method="POST" class="h-100 d-flex flex-column p-4">
+                    
+                    <!-- TOKEN DE SEGURIDAD OBLIGATORIO DE FLASK-WTF -->
+                    {{ appointment_form.hidden_tag() }}
+
+                    <input type="hidden" name="pet_id" value="{{ p_id }}">
+
+                    <!-- Cabecera de la Tarjeta: Icono + Nombre del Paciente -->
+                    <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                        <span class="fs-2 me-3">🐾</span>
+                        <div>
+                            <h5 class="mb-0 fw-bold text-primary">{{ p_names }}</h5>
+                            <small class="text-body-secondary">Nombre del paciente</small>
+                        </div>
+                    </div>
+
+                    <!-- Información del Tutor -->
+                    <div class="mb-3">
+                        <small class="text-body-secondary d-block mb-1">Tutor responsable:</small>
+                        <strong class="text-body">
+                            {{ p_tutor or '--' }}
+                        </strong>
+                    </div>
+
+                    <!-- Selector de Fecha y Hora -->
+                    <div class="mt-auto pt-2">
+                        <div class="mb-3">
+                            <label class="form-label mb-1 text-body-secondary small">Fecha y Hora de Cita</label>
+                            
+                            {% if appointment_form.date is defined %}
+                                {{ appointment_form.date(class="form-control form-control-sm", type="datetime-local", required=True) }}
+                            {% else %}
+                                <input type="datetime-local" name="date" class="form-control form-control-sm" required>
+                            {% endif %}
+
+                            {% if appointment_form.date.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for err in appointment_form.date.errors %}
+                                        <small class="d-block">{{ err }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botón de Selección -->
+                        <button type="submit" class="btn btn-primary btn-sm w-100 rounded-pill py-2 fw-medium">
+                            Seleccionar 🗓️
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+        {% else %}
+        <!-- ESTADO VACÍO -->
+        <div class="col-12 text-center py-5">
+            <div class="display-1 text-body-tertiary mb-3">📂</div>
+            <p class="text-body-secondary">No se encontraron mascotas en la base de datos.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
