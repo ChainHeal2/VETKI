@@ -141,6 +141,72 @@ def pet_read():
         vaccination_form=VaccinationForm()
     )
 
+@bp.route("/pet_search", methods=["GET"])
+@login_required
+def pet_search():
+    """Busca mascotas propias por nombre o por el microchip leído desde un QR."""
+    user_id = session.get("user_id")
+    search_query = request.args.get("q", "").strip()
+    microchip = request.args.get("microchip", "").strip()
+    page = max(request.args.get("page", 1, type=int), 1)
+    per_page = 8
+
+    _, cursor = get_db()
+    if microchip:
+        count_sql = (
+            "SELECT COUNT(*) AS total FROM vetki.pet_data "
+            "WHERE pet_user_id = %s AND pet_microchip = %s"
+        )
+        cursor.execute(count_sql, (user_id, microchip))
+    elif search_query:
+        count_sql = (
+            "SELECT COUNT(*) AS total FROM vetki.pet_data "
+            "WHERE pet_user_id = %s AND LOWER(pet_names) LIKE LOWER(%s)"
+        )
+        cursor.execute(count_sql, (user_id, f"%{search_query}%"))
+    else:
+        total_records = 0
+
+    if microchip or search_query:
+        count_result = cursor.fetchone()
+        total_records = count_result["total"] if count_result else 0
+    total_pages = max(math.ceil(total_records / per_page), 1)
+    page = min(page, total_pages)
+    offset = (page - 1) * per_page
+
+    pet_fields = """
+        SELECT pet_id, pet_names, pet_species_name, pet_race, pet_datebirth,
+               pet_microchip, pet_gender, pet_color, pet_reproductive_status,
+               pet_tutor_name, pet_tutor_address, pet_tutor_phone
+        FROM vetki.pet_data
+    """
+    if microchip:
+        cursor.execute(
+            pet_fields + "WHERE pet_user_id = %s AND pet_microchip = %s "
+            "ORDER BY pet_names ASC LIMIT %s OFFSET %s",
+            (user_id, microchip, per_page, offset),
+        )
+    elif search_query:
+        cursor.execute(
+            pet_fields + "WHERE pet_user_id = %s AND LOWER(pet_names) LIKE LOWER(%s) "
+            "ORDER BY pet_names ASC LIMIT %s OFFSET %s",
+            (user_id, f"%{search_query}%", per_page, offset),
+        )
+
+    if microchip or search_query:
+        mascotas = [PetModel(row) for row in cursor.fetchall()]
+    else:
+        mascotas = []
+    return render_template(
+        "pet/pet_search.html",
+        mascotas=mascotas,
+        search_query=search_query,
+        microchip=microchip,
+        page=page,
+        total_pages=total_pages,
+        total_records=total_records,
+    )
+
 @bp.route("/pet_update_form/<int:pet_id>", methods = ['GET','POST'])
 @login_required
 def pet_update_form(pet_id):

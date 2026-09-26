@@ -1,10 +1,30 @@
 """Creamos la conexion de la base de datos"""
 import psycopg2
 from psycopg2.extras import RealDictCursor
-import click
-from flask import current_app,g
-from flask.cli import with_appcontext
-from .schema import esquema
+from flask import current_app, g
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
+from .schema import metadata
+
+
+orm_db = SQLAlchemy(metadata=metadata)
+
+
+def _include_migration_name(name, object_type, parent_names):
+    """Limita las migraciones al esquema vetki de esta aplicación."""
+    if object_type == "schema":
+        return name == "vetki"
+    if object_type == "table":
+        return parent_names.get("schema_name") == "vetki"
+    return True
+
+
+migrate = Migrate(
+    compare_type=True,
+    include_schemas=True,
+    include_name=_include_migration_name,
+)
 
 def get_db():
     """funcion que crea db en g
@@ -33,20 +53,10 @@ def close_db(e=None):
     db = g.pop('db',None)
     if db is not None:
         db.close()
-def init_db():
-    """Ejecuta el esquema que creamos en schema"""
-    db,c = get_db()
-    for i in esquema:
-        c.execute(i)
-    db.commit()
-@click.command('init-db')
-@with_appcontext
-def init_db_command():
-    """Inicia la base de datos segun el esquema de init_db"""
-    init_db()
-    click.echo('Base de datos inicializada')
+
+
 def init_app(app):
-    """Cierra la conexion despues de cada contexto y creamos la inicializacion
-    por comandos"""
+    """Inicializa Flask-SQLAlchemy, Flask-Migrate y la conexión psycopg2."""
+    orm_db.init_app(app)
+    migrate.init_app(app, orm_db)
     app.teardown_appcontext(close_db)
-    app.cli.add_command(init_db_command)

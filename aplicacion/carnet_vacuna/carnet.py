@@ -9,8 +9,21 @@ bp = Blueprint('carnet',__name__,)
 
 @bp.route("/carnet_read/<int:pet_id>", methods=['GET'])
 def carnet_read(pet_id):
-    """Lista de citas médicas con soporte para búsqueda por paciente y paginación"""
-    db, c = get_db()
+    """Devuelve el carnet de vacunas de la mascota con paginación."""
+    _, c = get_db()
+    page = max(request.args.get('page', 1, type=int), 1)
+    per_page = 5
+
+    c.execute(
+        "SELECT COUNT(*) AS total FROM vetki.vaccinations WHERE pet_id = %s",
+        (pet_id,),
+    )
+    count_result = c.fetchone()
+    total_records = count_result['total'] if count_result else 0
+    total_pages = max((total_records + per_page - 1) // per_page, 1)
+    page = min(page, total_pages)
+    offset = (page - 1) * per_page
+
     consulta =("""
             SELECT 
             -- Datos de la mascota y tutor (Tabla pet_data)
@@ -28,15 +41,19 @@ def carnet_read(pet_id):
             v.id AS vaccine_id,
             v.vaccine_name,
             v.application_date,
-            v.next_due_date,
             v.lot_number,
             v.veterinarian_notes
             FROM vetki.pet_data p
             LEFT JOIN vetki.vaccinations v ON p.pet_id = v.pet_id
             WHERE p.pet_id = %s
-            ORDER BY v.application_date DESC;""")
-    c.execute(consulta, (pet_id,))
-    carnet = CarnetModel(c.fetchone())
+            ORDER BY v.application_date DESC, v.id DESC
+            LIMIT %s OFFSET %s;""")
+    c.execute(consulta, (pet_id, per_page, offset))
+    carnet = CarnetModel(c.fetchall())
     return render_template(
-        'carnet/carnet_read.html',carnet=carnet
+        'carnet/carnet_read.html',
+        carnet=carnet,
+        page=page,
+        total_pages=total_pages,
+        total_records=total_records,
     )

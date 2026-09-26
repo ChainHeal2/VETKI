@@ -4,65 +4,119 @@
 
 {% block main %}
 <div class="container-fluid px-0">
-    
-    <!-- ENCABEZADO -->
-    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-4">
+    <header class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4 border-bottom pb-4">
         <div>
+            <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle mb-2">
+                <i class="bi bi-shield-plus me-1"></i>Expediente sanitario
+            </span>
             <h1 class="display-6 fw-normal mb-1">Carnet de Vacunación</h1>
             <p class="mb-0 text-body-secondary">Registro de inmunizaciones del paciente.</p>
         </div>
-        <div>
-            <button onclick="window.print()" class="btn btn-outline-secondary rounded-pill px-3">
-                <i class="bi bi-printer"></i> Imprimir
-            </button>
-        </div>
-    </div>
+        <button onclick="window.print()" class="btn btn-outline-secondary rounded-pill px-4 d-print-none">
+            <i class="bi bi-printer me-1"></i>Imprimir carnet
+        </button>
+    </header>
 
-    <!-- TARJETA DE DATOS (Mascota y Tutor) -->
-    <div class="card bg-body-tertiary border rounded-4 p-4 shadow-sm mb-4">
-        <div class="row align-items-center g-4">
-            
-            <div class="col-12 col-md-4 d-flex align-items-center gap-3">
-                <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-2 flex-shrink-0"
-                    style="width: 60px; height: 60px;">
-                    🐾
+    <section class="card bg-body-tertiary border rounded-4 p-3 p-md-4 p-xl-5 shadow-sm mb-4"
+             aria-labelledby="petInformationTitle">
+        <div class="row g-4 align-items-center">
+            <div class="col-12 col-lg-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-2 flex-shrink-0"
+                         style="width: 72px; height: 72px;">
+                        🐾
+                    </div>
+                    <div class="min-w-0">
+                        <div class="small text-body-secondary mb-1">Paciente</div>
+                        <h2 class="h3 fw-bold text-primary text-break mb-1" id="petInformationTitle">
+                            {{ carnet.pet_name }}
+                        </h2>
+                        <p class="text-body-secondary mb-0">
+                            {{ carnet.species or 'Especie sin registrar' }}
+                            {% if carnet.breed %}&middot; {{ carnet.breed }}{% endif %}
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="h4 mb-1 fw-bold text-primary">{{ carnet.pet_name }}</h3>
-                    <span class="text-body-secondary small">
-                        {{ carnet.species }} &middot; {{ carnet.breed }}
-                    </span>
+            </div>
+
+            <div class="col-12 col-lg-8">
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <div class="h-100 rounded-3 border bg-body p-3">
+                            <div class="small text-body-secondary mb-1">
+                                <i class="bi bi-gender-ambiguous me-1 text-primary"></i>Género
+                            </div>
+                            <div class="fw-semibold">{{ carnet.gender or 'No registrado' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="h-100 rounded-3 border bg-body p-3">
+                            <div class="small text-body-secondary mb-1">
+                                <i class="bi bi-calendar-heart me-1 text-primary"></i>Fecha de nacimiento
+                            </div>
+                            <div class="fw-semibold">{{ carnet.datebirth or 'No registrada' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="h-100 rounded-3 border bg-body p-3">
+                            <div class="small text-body-secondary mb-1">
+                                <i class="bi bi-clipboard2-pulse me-1 text-primary"></i>Estado reproductivo
+                            </div>
+                            <div class="fw-semibold">{{ carnet.reproductive_status or 'No registrado' }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="col-12 col-md-4 text-body-secondary small">
-                <div><strong>Género:</strong> {{ carnet.gender }}</div>
-                <div><strong>F. Nacimiento:</strong> {{ carnet.datebirth }}</div>
-                <div><strong>Estado Reproductivo:</strong> {{ carnet.reproductive_status }}</div>
-            </div>
-
-            <div class="col-12 col-md-4 text-body-secondary small">
-                <div><strong>Tutor:</strong> {{ carnet.tutor_name }}</div>
-                <div><strong>Teléfono:</strong> {{ carnet.tutor_phone }}</div>
-                <div><strong>Dirección:</strong> {{ carnet.tutor_address }}</div>
-            </div>
-
         </div>
-    </div>
+    </section>
 
-    <!-- TABLA DE VACUNAS -->
-    <div class="card border rounded-4 p-4 shadow-sm bg-body">
-        <h4 class="h5 fw-semibold mb-3 text-body">Historial de Vacunas</h4>
-        
+    <section class="card border rounded-4 p-3 p-md-4 shadow-sm mb-4" aria-labelledby="tutorInformationTitle">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="rounded-circle bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center"
+                  style="width: 40px; height: 40px;">
+                <i class="bi bi-person"></i>
+            </span>
+            <div>
+                <h2 class="h5 fw-semibold mb-0" id="tutorInformationTitle">Datos del tutor</h2>
+                <p class="small text-body-secondary mb-0">Información de contacto del responsable.</p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="small text-body-secondary">Nombre</div>
+                <div class="fw-medium text-break">{{ carnet.tutor_name or 'No registrado' }}</div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="small text-body-secondary">Teléfono</div>
+                <div class="fw-medium text-break">{{ carnet.tutor_phone or 'No registrado' }}</div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="small text-body-secondary">Dirección</div>
+                <div class="fw-medium text-break">{{ carnet.tutor_address or 'No registrada' }}</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card border rounded-4 p-3 p-md-4 shadow-sm bg-body" aria-labelledby="vaccinationHistoryTitle">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+            <div>
+                <h2 class="h5 fw-semibold mb-1" id="vaccinationHistoryTitle">Historial de vacunas</h2>
+                <p class="small text-body-secondary mb-0">Dosis registradas para este paciente.</p>
+            </div>
+            <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+                {{ total_records }} registro{% if total_records != 1 %}s{% endif %}
+            </span>
+        </div>
+
         {% if carnet.vaccines %}
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
+                <thead>
+                    <tr class="text-body-secondary small">
                         <th class="py-3">Vacuna</th>
-                        <th class="py-3">Fecha de Aplicación</th>
-                        <th class="py-3">Próximo Refuerzo</th>
-                        <th class="py-3">No. Lote</th>
+                        <th class="py-3">Fecha de aplicación</th>
+                        <th class="py-3">N.º de lote</th>
                         <th class="py-3">Notas</th>
                     </tr>
                 </thead>
@@ -70,21 +124,59 @@
                     {% for vacuna in carnet.vaccines %}
                     <tr>
                         <td class="fw-semibold text-primary">{{ vacuna.name }}</td>
-                        <td>{{ vacuna.application_date }}</td>
-                        <td>{{ vacuna.next_due_date }}</td>
-                        <td><code>{{ vacuna.lot_number }}</code></td>
-                        <td class="text-body-secondary small">{{ vacuna.notes }}</td>
+                        <td class="text-nowrap">
+                            <i class="bi bi-calendar-event text-body-secondary me-1"></i>
+                            {{ vacuna.application_date }}
+                        </td>
+                        <td>
+                            {% if vacuna.lot_number %}<code>{{ vacuna.lot_number }}</code>{% else %}<span class="text-body-secondary">—</span>{% endif %}
+                        </td>
+                        <td class="text-body-secondary small text-break">{{ vacuna.notes or 'Sin notas' }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        {% if total_pages > 1 %}
+        <nav class="mt-4" aria-label="Paginación del historial de vacunas">
+            <ul class="pagination justify-content-center flex-wrap gap-1 mb-0">
+                <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                    {% if page > 1 %}
+                    <a class="page-link rounded-pill px-3"
+                       href="{{ url_for('carnet.carnet_read', pet_id=carnet.pet_id, page=page-1) }}">
+                        Anterior
+                    </a>
+                    {% else %}
+                    <span class="page-link rounded-pill px-3">Anterior</span>
+                    {% endif %}
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link border-0 bg-transparent">Página {{ page }} de {{ total_pages }}</span>
+                </li>
+                <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                    {% if page < total_pages %}
+                    <a class="page-link rounded-pill px-3"
+                       href="{{ url_for('carnet.carnet_read', pet_id=carnet.pet_id, page=page+1) }}">
+                        Siguiente
+                    </a>
+                    {% else %}
+                    <span class="page-link rounded-pill px-3">Siguiente</span>
+                    {% endif %}
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
         {% else %}
-        <div class="text-center py-4">
-            <p class="text-body-secondary mb-0">No hay registros de vacunas para mostrar.</p>
+        <div class="text-center rounded-4 bg-body-tertiary p-4 p-md-5">
+            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-3 mx-auto mb-3"
+                 style="width: 64px; height: 64px;">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <h3 class="h6 fw-semibold">Aún no hay vacunas registradas</h3>
+            <p class="small text-body-secondary mb-0">Cuando se registre una vacuna, aparecerá en este historial.</p>
         </div>
         {% endif %}
-    </div>
-
+    </section>
 </div>
 {% endblock %}

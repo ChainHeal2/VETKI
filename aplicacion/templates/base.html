@@ -56,6 +56,50 @@
                     Sistema de respuesta rápida y gestión diaria.
                 </p>
 
+                <section class="card bg-body-tertiary border-secondary-subtle rounded-4 p-3 p-md-4 mb-4"
+                         aria-labelledby="dashboardPetSearchTitle">
+                    <h2 class="h5 mb-3" id="dashboardPetSearchTitle">Buscar mascota</h2>
+                    <div class="d-flex flex-column flex-md-row gap-2">
+                        <form method="GET" action="{{ url_for('pet.pet_search') }}"
+                              class="d-flex flex-grow-1 gap-2">
+                            <input class="form-control" type="search" name="q"
+                                   placeholder="Escribe un nombre, por ejemplo Ichiro"
+                                   aria-label="Nombre de la mascota" required minlength="2">
+                            <button class="btn btn-primary flex-shrink-0" type="submit">
+                                <i class="bi bi-search me-1"></i>Buscar
+                            </button>
+                        </form>
+                        <button class="btn btn-outline-primary flex-shrink-0" type="button"
+                                data-bs-toggle="modal" data-bs-target="#dashboardQrModal">
+                            <i class="bi bi-qr-code-scan me-1"></i>Buscar por QR
+                        </button>
+                    </div>
+                    <p class="small text-body-secondary mb-0 mt-2">
+                        Busca por nombre o escanea el QR del microchip para abrir sus resultados.
+                    </p>
+                </section>
+
+                <div class="modal fade" id="dashboardQrModal" tabindex="-1"
+                     aria-labelledby="dashboardQrTitle" aria-hidden="true"
+                     data-process-url="{{ url_for('api.process_qr') }}"
+                     data-results-url="{{ url_for('pet.pet_search') }}">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title fs-5" id="dashboardQrTitle">Buscar por código QR</h2>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <div id="dashboardQrReader" class="w-100"></div>
+                                <p id="dashboardQrStatus" class="small text-body-secondary mt-3 mb-0"
+                                   role="status">Apunta la cámara al QR del microchip.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- OPERACIONES DIARIAS -->
                 <div class="row g-4">
                     <div class="col-md-6 col-lg-4">
@@ -173,12 +217,70 @@
 
     <!-- JS BOOTSTRAP NATIVO -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% if session.get('user_id') %}
+    <script src="https://unpkg.com/html5-qrcode" defer></script>
+    {% endif %}
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const toastElList = document.querySelectorAll('.toast');
             toastElList.forEach(toastEl => {
                 const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
                 toast.show();
+            });
+
+            const qrModal = document.getElementById('dashboardQrModal');
+            if (!qrModal) return;
+
+            const qrStatus = document.getElementById('dashboardQrStatus');
+            const qrToken = qrModal.querySelector('input[name="csrf_token"]')?.value || '';
+            let qrScanner;
+
+            qrModal.addEventListener('shown.bs.modal', async () => {
+                if (!window.isSecureContext) {
+                    qrStatus.textContent = 'La cámara requiere HTTPS o localhost.';
+                    return;
+                }
+                if (!window.Html5Qrcode) {
+                    qrStatus.textContent = 'No se pudo cargar el lector QR. Comprueba tu conexión.';
+                    return;
+                }
+
+                qrScanner = new Html5Qrcode('dashboardQrReader');
+                try {
+                    await qrScanner.start(
+                        { facingMode: 'environment' },
+                        { fps: 10, qrbox: { width: 250, height: 250 } },
+                        async decodedText => {
+                            try {
+                                await qrScanner.stop();
+                                qrStatus.textContent = 'Buscando la mascota...';
+                                const response = await fetch(qrModal.dataset.processUrl, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': qrToken
+                                    },
+                                    body: JSON.stringify({ content: decodedText })
+                                });
+                                const result = await response.json();
+                                if (!response.ok) throw new Error(result.error || 'QR inválido.');
+
+                                window.location.href = `${qrModal.dataset.resultsUrl}?microchip=${encodeURIComponent(result.microchip)}`;
+                            } catch (error) {
+                                qrStatus.textContent = error.message || 'No se pudo buscar el microchip.';
+                            }
+                        }
+                    );
+                } catch (error) {
+                    qrStatus.textContent = 'No se pudo acceder a la cámara. Revisa los permisos del navegador.';
+                }
+            });
+
+            qrModal.addEventListener('hidden.bs.modal', async () => {
+                if (!qrScanner) return;
+                try { await qrScanner.stop(); } catch (_) { /* El lector ya se detuvo. */ }
+                qrScanner.clear();
+                qrScanner = null;
             });
         });
     </script>

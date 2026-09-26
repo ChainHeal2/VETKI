@@ -7,477 +7,611 @@
     {% endblock %}
 {% block main %}
 
-<div>
-    <!-- CABECERA DE SECCIÓN -->
-    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-4">
+<main class="container-fluid px-0">
+    <header class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4 border-bottom pb-4">
         <div>
+            <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle mb-2">
+                <i class="bi bi-heart-pulse me-1"></i>Expediente clínico
+            </span>
             <h1 class="display-6 fw-normal mb-1">Archivo de Pacientes</h1>
-            <p class="mb-0 text-body-secondary">Base de datos clínica de VETKI.</p>
+            <p class="mb-0 text-body-secondary">Consulta y administra los expedientes de tus pacientes.</p>
         </div>
-        <a href="{{ url_for('pet.pet_create') }}" class="btn btn-primary rounded-pill px-4 py-2">
-            + Registrar Mascota
+        <a href="{{ url_for('pet.pet_create') }}" class="btn btn-primary rounded-pill px-4 py-2 flex-shrink-0">
+            <i class="bi bi-plus-lg me-1"></i>Registrar mascota
         </a>
-    </div>
+    </header>
 
-    <!-- BARRA DE BÚSQUEDA Y FILTROS -->
-    <div class="row mb-4 g-2 align-items-center">
-        <div class="col-12 col-md-8 col-lg-6">
-            <form method="GET" action="{{ url_for('pet.pet_read') }}" class="d-flex gap-2">
-                <div class="input-group shadow-sm rounded-pill overflow-hidden border">
-                    <span class="input-group-text bg-body-tertiary border-0 text-body-secondary ps-3">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="search" 
-                           name="q" 
-                           class="form-control border-0 bg-body-tertiary shadow-none ps-2" 
-                           placeholder="Buscar por paciente o tutor..." 
-                           value="{{ search_query or '' }}"
-                           autocapitalize="none"
-                           autocomplete="off">
-                    <button type="submit" class="btn btn-primary px-4 fw-medium">Buscar</button>
+    <section class="card bg-body-tertiary border rounded-4 p-3 p-md-4 shadow-sm mb-4"
+             aria-label="Buscar pacientes">
+        <form method="GET" action="{{ url_for('pet.pet_read') }}" role="search">
+            <label for="petSearch" class="form-label fw-semibold">Buscar en el archivo</label>
+            <div class="row g-2">
+                <div class="col-12 col-md">
+                    <div class="input-group">
+                        <span class="input-group-text bg-body border-secondary-subtle">
+                            <i class="bi bi-search text-primary"></i>
+                        </span>
+                        <input type="search" id="petSearch" name="q"
+                               class="form-control bg-body border-secondary-subtle"
+                               placeholder="Nombre de mascota o tutor"
+                               value="{{ search_query or '' }}"
+                               autocapitalize="none" autocomplete="off">
+                    </div>
                 </div>
-                
-                {% if search_query %}
-                    <a href="{{ url_for('pet.pet_read') }}" class="btn btn-outline-secondary rounded-pill px-3 d-flex align-items-center gap-1">
-                        <i class="bi bi-x-circle"></i> Limpiar
+                <div class="col-12 col-md-auto d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4 flex-grow-1">
+                        Buscar
+                    </button>
+                    {% if search_query %}
+                    <a href="{{ url_for('pet.pet_read') }}" class="btn btn-outline-secondary px-3"
+                       aria-label="Limpiar búsqueda" title="Limpiar búsqueda">
+                        <i class="bi bi-x-lg"></i>
                     </a>
-                {% endif %}
-            </form>
-        </div>
-
-        {% if search_query %}
-            <div class="col-12 col-md-auto text-body-secondary small ms-md-2">
-                Resultados para: <strong class="text-primary">"{{ search_query }}"</strong>
+                    {% endif %}
+                </div>
             </div>
-        {% endif %}
+        </form>
+    </section>
+
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+        <div>
+            <h2 class="h5 fw-semibold mb-1">Pacientes</h2>
+            {% if search_query %}
+            <p class="small text-body-secondary mb-0">
+                Coincidencias para <strong class="text-body">“{{ search_query }}”</strong>
+            </p>
+            {% else %}
+            <p class="small text-body-secondary mb-0">Expedientes registrados en tu archivo.</p>
+            {% endif %}
+        </div>
+        <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+            {{ total_records }} paciente{% if total_records != 1 %}s{% endif %}
+        </span>
     </div>
 
-    <!-- GRILLA DE PACIENTES -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+    <div class="row row-cols-1 row-cols-xl-2 g-3">
         {% for mascota in mascotas %}
         <div class="col">
-            <div class="card bg-body-tertiary border rounded-4 h-100 p-4 d-flex flex-column shadow-sm">
-
-                <!-- CABECERA DE TARJETA -->
-                <div class="d-flex align-items-start mb-3">
-                    <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center me-3 fs-4 flex-shrink-0"
-                        style="width: 50px; height: 50px;">
-                        🐾
-                    </div>
-                    <div class="flex-grow-1">
-                        <h4 class="h5 mb-1 fw-semibold text-body">{{ mascota.names.title() }}</h4>
-                        <span class="badge text-bg-primary fw-normal py-1 px-2 mb-2">
-                            <i class="bi bi-calendar-event me-1"></i> {{ mascota.etapa_vida }}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- CUERPO DE DATOS PRINCIPALES -->
-                <div class="d-flex flex-column gap-2 small text-body-secondary mb-4">
-                    <!-- Especie -->
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-tag me-2 text-primary"></i>
-                        <span class="fw-medium text-body me-1">Especie:</span>
-                        <span>{{ mascota.species_name.title() if mascota.species_name else 'Sin registrar' }}</span>
-                    </div>
-
-                    <!-- Raza (Encapsulada con POO) -->
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-circle-square me-2 text-primary"></i>
-                        <span class="fw-medium text-body me-1">Raza:</span>
-                        <span class="{{ mascota.clase_raza_css }} fw-semibold">
-                            {{ mascota.tiene_raza }}
-                        </span>
-                    </div>
-
-                    <!-- Edad -->
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-calendar-heart me-2 text-primary"></i>
-                        <span class="fw-medium text-body me-1">Edad:</span>
-                        <span class="text-body">{{ mascota.age }}</span>
-                    </div>
-
-                    <!-- Tutor -->
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-person me-2 text-primary"></i>
-                        <span class="fw-medium text-body me-1">Tutor:</span>
-                        <span class="text-body">{{ mascota.tutor_name.title() if mascota.tutor_name else 'Sin registrar' }}</span>
-                    </div>
-
-                    <!-- Teléfono interactivo -->
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-telephone me-2 text-primary"></i>
-                        <span class="fw-medium text-body me-1">Teléfono:</span>
-                        {% if mascota.tiene_telefono %}
-                            <a href="tel:{{ mascota.telefono_limpio }}" class="text-primary fw-semibold text-decoration-none">
-                                {{ mascota.tutor_phone }} 📞
-                            </a>
-                        {% else %}
-                            <span class="text-muted">Sin teléfono</span>
-                        {% endif %}
-                    </div>
-
-                    <!-- Alerta de Microchip -->
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-cpu me-2 text-primary"></i>
-                        <span class="fw-medium text-body me-1">Microchip:</span>
-                        <span class="{{ mascota.clase_microchip_css }} fw-semibold">
-                            {{ mascota.alerta_microchip }}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- SECCIÓN INFERIOR Y ACCIONES -->
-                <div class="mt-auto">
-                    <!-- BOTÓN DESPLEGABLE -->
-                    <button class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center mb-3 rounded-3 py-2 px-3 small"
-                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseData{{ mascota.pet_id }}"
-                        aria-expanded="false">
-                        <span>Ver Expediente Completo</span>
-                        <i class="bi bi-chevron-down small"></i>
-                    </button>
-
-                    <!-- CONTENIDO DESPLEGABLE -->
-                    <div class="collapse" id="collapseData{{ mascota.pet_id }}">
-                        <div class="card card-body mb-3 border-0 bg-body rounded-3 p-3">
-                            <!-- Lista de Detalles -->
-                            <ul class="list-unstyled mb-3 small d-flex flex-column gap-2 text-body-secondary">
-                                <li><strong class="text-body">Microchip:</strong> {{ mascota.microchip or 'No registrado' }}</li>
-                                <li><strong class="text-body">Género:</strong> {{ mascota.gender or 'N/D' }}</li>
-                                <li><strong class="text-body">Nacimiento:</strong> {{ mascota.datebirth or 'N/D' }}</li>
-                                <li><strong class="text-body">Estado Reproductivo:</strong> {{ mascota.reproductive_status or 'N/D' }}</li>
-                            </ul>
-
-                            <!-- Acciones Clínicas -->
-                            <div class="d-flex gap-1 pt-2 border-top">
-                                <a href="{{ url_for('medical.medical_create', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-primary w-100 rounded-2" title="Atender">
-                                    🩺 Atender
-                                </a>
-                                <a href="{{ url_for('appointment.appointment_create', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-secondary w-100 rounded-2" title="Agendar">
-                                    📅 Agendar
-                                </a>
-                                <a href="{{ url_for('medical.pet_history', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-info w-100 rounded-2" title="Ficha">
-                                    📋 Ficha
-                                </a>
-                                <button type="button" class="btn btn-sm btn-outline-success w-100 rounded-2"
-                                   data-bs-toggle="modal" data-bs-target="#vaccinationModal"
-                                   data-pet-id="{{ mascota.pet_id }}" data-pet-name="{{ mascota.names }}" title="Vacunas">
-                                    💉 Vacunas
-                                </button>
-                                <a href="{{ url_for('carnet.carnet_read', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-primary w-100 rounded-2" title="Carnet">
-                                    📄 Carnet
-                                </a>
+            <article class="card bg-body-tertiary border rounded-4 h-100 shadow-sm overflow-hidden">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex align-items-start gap-3 mb-3">
+                        <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-3 flex-shrink-0"
+                             style="width: 56px; height: 56px;" aria-hidden="true">🐾</div>
+                        <div class="flex-grow-1 min-w-0">
+                            <h3 class="h5 fw-bold mb-1 text-break">{{ mascota.names.title() }}</h3>
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <span class="text-body-secondary small">
+                                    {{ mascota.species_name.title() if mascota.species_name else 'Especie sin registrar' }}
+                                </span>
+                                <span class="badge rounded-pill bg-primary-subtle text-primary fw-normal">
+                                    {{ mascota.etapa_vida }}
+                                </span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- BOTONES PRINCIPALES (Modificar y Eliminar) -->
-                    <div class="d-flex gap-2">
-                        <a href="{{ url_for('pet.pet_update_form', pet_id=mascota.pet_id) }}"
-                            class="btn btn-sm btn-outline-warning w-50 rounded-2">
-                            Modificar
+                    <div class="row g-2 small mb-3">
+                        <div class="col-12 col-sm-6">
+                            <div class="rounded-3 border bg-body p-3 h-100">
+                                <div class="text-body-secondary mb-1">
+                                    <i class="bi bi-person me-1 text-primary"></i>Tutor
+                                </div>
+                                <div class="fw-medium text-break">
+                                    {{ mascota.tutor_name.title() if mascota.tutor_name else 'Sin registrar' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="rounded-3 border bg-body p-3 h-100">
+                                <div class="text-body-secondary mb-1">
+                                    <i class="bi bi-telephone me-1 text-primary"></i>Teléfono
+                                </div>
+                                {% if mascota.tiene_telefono %}
+                                <a href="tel:{{ mascota.telefono_limpio }}"
+                                   class="fw-medium text-decoration-none">{{ mascota.tutor_phone }}</a>
+                                {% else %}
+                                <span class="text-body-secondary">Sin teléfono</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="rounded-3 border bg-body p-3">
+                                <div class="text-body-secondary mb-1">
+                                    <i class="bi bi-cpu me-1 text-primary"></i>Microchip
+                                </div>
+                                <div class="{{ mascota.clase_microchip_css }} fw-medium text-break">
+                                    {{ mascota.alerta_microchip }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row gap-2">
+                        <a href="{{ url_for('medical.medical_create', pet_id=mascota.pet_id) }}"
+                           class="btn btn-primary rounded-pill px-3 flex-grow-1">
+                            <i class="bi bi-plus-circle me-1"></i>Atender paciente
                         </a>
-                        <a href="{{ url_for('pet.pet_delete', pet_id=mascota.pet_id) }}" 
-                            class="btn btn-sm btn-outline-danger w-50 rounded-2">
-                            Eliminar
-                        </a>
+                        <button class="btn btn-outline-secondary rounded-pill px-3 flex-grow-1"
+                                type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseData{{ mascota.pet_id }}"
+                                aria-expanded="false" aria-controls="collapseData{{ mascota.pet_id }}">
+                            Más información y acciones
+                            <i class="bi bi-chevron-down ms-1"></i>
+                        </button>
+                    </div>
+
+                    <div class="collapse" id="collapseData{{ mascota.pet_id }}">
+                        <div class="border-top mt-3 pt-3">
+                            <h4 class="small text-uppercase text-body-secondary fw-semibold mb-2">Datos del expediente</h4>
+                            <div class="row g-2 small mb-3">
+                                <div class="col-6"><span class="text-body-secondary">Raza:</span>
+                                    <span class="{{ mascota.clase_raza_css }} fw-medium">{{ mascota.tiene_raza }}</span>
+                                </div>
+                                <div class="col-6"><span class="text-body-secondary">Edad:</span>
+                                    <span class="text-body">{{ mascota.age }}</span>
+                                </div>
+                                <div class="col-6"><span class="text-body-secondary">Género:</span>
+                                    <span class="text-body">{{ mascota.gender or 'N/D' }}</span>
+                                </div>
+                                <div class="col-6"><span class="text-body-secondary">Nacimiento:</span>
+                                    <span class="text-body">{{ mascota.datebirth or 'N/D' }}</span>
+                                </div>
+                                <div class="col-12"><span class="text-body-secondary">Estado reproductivo:</span>
+                                    <span class="text-body">{{ mascota.reproductive_status or 'N/D' }}</span>
+                                </div>
+                            </div>
+
+                            <h4 class="small text-uppercase text-body-secondary fw-semibold mb-2">Acciones</h4>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="{{ url_for('appointment.appointment_create', pet_id=mascota.pet_id) }}"
+                                   class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                    <i class="bi bi-calendar-plus me-1"></i>Agendar
+                                </a>
+                                <a href="{{ url_for('medical.pet_history', pet_id=mascota.pet_id) }}"
+                                   class="btn btn-sm btn-outline-info rounded-pill px-3">
+                                    <i class="bi bi-journal-medical me-1"></i>Ficha clínica
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3"
+                                        data-bs-toggle="modal" data-bs-target="#vaccinationModal"
+                                        data-pet-id="{{ mascota.pet_id }}" data-pet-name="{{ mascota.names }}">
+                                    <i class="bi bi-shield-plus me-1"></i>Vacunas
+                                </button>
+                                <a href="{{ url_for('carnet.carnet_read', pet_id=mascota.pet_id) }}"
+                                   class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="bi bi-card-list me-1"></i>Carnet
+                                </a>
+                                <a href="{{ url_for('pet.pet_update_form', pet_id=mascota.pet_id) }}"
+                                   class="btn btn-sm btn-outline-warning rounded-pill px-3">
+                                    <i class="bi bi-pencil me-1"></i>Modificar
+                                </a>
+                                <a href="{{ url_for('pet.pet_delete', pet_id=mascota.pet_id) }}"
+                                   class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                    <i class="bi bi-trash me-1"></i>Eliminar
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-            </div>
+            </article>
         </div>
         {% else %}
-        <!-- ESTADO VACÍO / SIN RESULTADOS -->
-        <div class="col-12 text-center py-5">
-            {% if search_query %}
-                <div class="display-1 text-body-tertiary mb-3">🔍</div>
-                <h5 class="text-body-secondary">No se encontraron pacientes que coincidan con "{{ search_query }}".</h5>
-                <a href="{{ url_for('pet.pet_read') }}" class="btn btn-outline-secondary rounded-pill mt-3 px-4">
-                    Ver todos los pacientes
+        <div class="col-12">
+            <div class="card border rounded-4 bg-body-tertiary text-center p-4 p-md-5">
+                <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-2 mx-auto mb-3"
+                     style="width: 64px; height: 64px;">
+                    <i class="bi bi-search"></i>
+                </div>
+                {% if search_query %}
+                <h3 class="h5">No encontramos pacientes con ese dato</h3>
+                <p class="text-body-secondary mb-3">Prueba con otro nombre de mascota o tutor.</p>
+                <a href="{{ url_for('pet.pet_read') }}" class="btn btn-outline-secondary rounded-pill px-4 align-self-center">
+                    Limpiar búsqueda
                 </a>
-            {% else %}
-                <div class="display-1 text-body-tertiary mb-3">📁</div>
-                <h5 class="text-body-secondary">No hay pacientes registrados aún.</h5>
-                <a href="{{ url_for('pet.pet_create') }}" class="btn btn-primary rounded-pill mt-3">
-                    Crear primer expediente
+                {% else %}
+                <h3 class="h5">Todavía no hay pacientes registrados</h3>
+                <p class="text-body-secondary mb-3">Registra una mascota para crear su expediente clínico.</p>
+                <a href="{{ url_for('pet.pet_create') }}" class="btn btn-primary rounded-pill px-4 align-self-center">
+                    <i class="bi bi-plus-lg me-1"></i>Registrar primera mascota
                 </a>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>
 
-    <!-- NAVEGACIÓN DE PAGINACIÓN -->
     {% if total_pages > 1 %}
-    <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
-        <div class="text-body-secondary small">
-            Página <strong>{{ page }}</strong> de <strong>{{ total_pages }}</strong> ({{ total_records }} mascotas en total)
-        </div>
+    <nav class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top"
+         aria-label="Paginación de pacientes">
+        <span class="small text-body-secondary">
+            Página <strong>{{ page }}</strong> de <strong>{{ total_pages }}</strong>
+            <span class="mx-1">·</span>{{ total_records }} pacientes
+        </span>
         <ul class="pagination mb-0">
             <li class="page-item {% if page <= 1 %}disabled{% endif %}">
-                <a class="page-link rounded-pill px-3 me-1" 
-                   href="{{ url_for('pet.pet_read', page=page-1, q=search_query) }}">
-                    &laquo; Anterior
-                </a>
+                {% if page > 1 %}
+                <a class="page-link rounded-pill px-3 me-1"
+                   href="{{ url_for('pet.pet_read', page=page-1, q=search_query) }}">&laquo; Anterior</a>
+                {% else %}
+                <span class="page-link rounded-pill px-3 me-1">&laquo; Anterior</span>
+                {% endif %}
             </li>
             <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
-                <a class="page-link rounded-pill px-3" 
-                   href="{{ url_for('pet.pet_read', page=page+1, q=search_query) }}">
-                    Siguiente &raquo;
-                </a>
+                {% if page < total_pages %}
+                <a class="page-link rounded-pill px-3"
+                   href="{{ url_for('pet.pet_read', page=page+1, q=search_query) }}">Siguiente &raquo;</a>
+                {% else %}
+                <span class="page-link rounded-pill px-3">Siguiente &raquo;</span>
+                {% endif %}
             </li>
         </ul>
-    </div>
+    </nav>
     {% endif %}
-</div>
+</main>
 
-<!-- MODAL DE VACUNACIÓN -->
+<!-- Modal de vacunación -->
 <div class="modal fade" id="vaccinationModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content bg-dark text-light border-secondary">
-            <div class="modal-header border-secondary pb-0">
-                <div class="w-100">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="modal-title fw-bold">💉 Vacunación: <span id="vaccinationPetName"></span></h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <ul class="nav nav-tabs border-bottom-0" id="vaccineTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active text-light bg-transparent border-secondary border-bottom-0" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-pane" type="button" role="tab">
-                                📋 Historial
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link text-body-secondary bg-transparent border-0" id="new-tab" data-bs-toggle="tab" data-bs-target="#new-pane" type="button" role="tab">
-                                ➕ Registrar Nueva
-                            </button>
-                        </li>
-                    </ul>
-                </div>
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title fw-bold">
+                    💉 Vacunas de <span id="vaccinationPetName"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body p-4">
+
+            <div class="modal-body p-3 p-md-4">
+                <ul class="nav nav-tabs mb-3" id="vaccineTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="history-tab"
+                                data-bs-toggle="tab" data-bs-target="#history-pane"
+                                type="button" role="tab">
+                            Historial
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="new-tab"
+                                data-bs-toggle="tab" data-bs-target="#new-pane"
+                                type="button" role="tab">
+                            Registrar vacuna
+                        </button>
+                    </li>
+                </ul>
+
                 <div class="tab-content" id="vaccineTabContent">
-                    <div class="tab-pane fade show active" id="history-pane" role="tabpanel" tabindex="0">
-                        <div style="max-height: 250px; overflow-y: auto;">
-                            <table class="table table-dark table-hover table-sm align-middle text-nowrap mb-0">
-                                <thead class="sticky-top bg-dark">
-                                    <tr class="text-body-secondary small border-secondary">
-                                        <th class="bg-dark">Vacuna</th>
-                                        <th class="bg-dark">Aplicación</th>
-                                        <th class="bg-dark">Próxima Dosis</th>
-                                        <th class="bg-dark">Lote</th>
+                    <div class="tab-pane fade show active" id="history-pane"
+                         role="tabpanel" tabindex="0">
+                        <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+                            <table class="table table-dark table-hover table-sm align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Vacuna</th>
+                                        <th>Aplicación</th>
+                                        <th>Lote</th>
+                                        <th>Notas</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="vaccinationHistory"></tbody>
                             </table>
+                        </div>
+                        <div id="vaccinationPagination"
+                             class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3"
+                             hidden>
+                            <button class="btn btn-outline-light btn-sm" type="button"
+                                    id="previousVaccinationPage">Anterior</button>
+                            <span class="small text-body-secondary" id="vaccinationPageInfo"></span>
+                            <button class="btn btn-outline-light btn-sm" type="button"
+                                    id="nextVaccinationPage">Siguiente</button>
                         </div>
                     </div>
 
                     <div class="tab-pane fade" id="new-pane" role="tabpanel" tabindex="0">
                         <form id="vaccinationForm">
                             {{ vaccination_form.hidden_tag() }}
-                            <input type="hidden" id="vaccinationPetId">
+                            <input type="hidden" name="vaccination_id" id="vaccinationId">
 
-                            <div class="row g-2">
-                                <div class="col-12">
-                                    <label class="form-label small text-body-secondary mb-1">Nombre de la vacuna</label>
-                                    <input class="form-control form-control-sm bg-body-tertiary text-light border-secondary" 
-                                           name="vaccine_name" placeholder="Ej: Octuple, Rabia..." required maxlength="120">
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small text-body-secondary mb-1">Fecha aplicación</label>
-                                    <input class="form-control form-control-sm bg-body-tertiary text-light border-secondary" 
-                                           type="date" id="appDate" name="application_date" required>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small text-body-secondary mb-1">Intervalo refuerzo</label>
-                                    <select class="form-select form-select-sm bg-body-tertiary text-light border-secondary" id="intervalSelect">
-                                        <option value="none">Sin refuerzo</option>
-                                        <option value="1">En 1 mes</option>
-                                        <option value="6">En 6 meses</option>
-                                        <option value="12" selected>En 1 año (12m)</option>
-                                        <option value="custom">Personalizada</option>
-                                    </select>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label small text-body-secondary mb-1">Próxima dosis agendada</label>
-                                    <input class="form-control form-control-sm bg-body-tertiary text-light border-secondary" 
-                                           type="date" id="nextDueDate" name="next_due_date" readonly>
-                                </div>
-                                <div class="col-6">
-                                    <input class="form-control form-control-sm bg-body-tertiary text-light border-secondary" 
-                                           name="lot_number" placeholder="Lote (opcional)" maxlength="80">
-                                </div>
-                                <div class="col-6">
-                                    <input class="form-control form-control-sm bg-body-tertiary text-light border-secondary" 
-                                           name="veterinarian_notes" placeholder="Notas adicionales" maxlength="4000">
-                                </div>
-                                <div class="col-12 text-end mt-3">
-                                    <button class="btn btn-primary btn-sm px-4" type="submit">Guardar Vacuna</button>
-                                </div>
+                            <div class="mb-3">
+                                <label for="vaccineName" class="form-label">Nombre de la vacuna</label>
+                                <input class="form-control" id="vaccineName" name="vaccine_name"
+                                       placeholder="Ej: Rabia" required maxlength="120">
                             </div>
+
+                            <p class="small text-body-secondary">
+                                La fecha de aplicación se asigna automáticamente al guardar.
+                            </p>
+
+                            <div class="mb-3">
+                                <label for="lotNumber" class="form-label">Lote</label>
+                                <input class="form-control" id="lotNumber" name="lot_number"
+                                       placeholder="Opcional" maxlength="80">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="veterinarianNotes" class="form-label">Notas</label>
+                                <textarea class="form-control" id="veterinarianNotes"
+                                          name="veterinarian_notes" rows="3"
+                                          maxlength="4000"></textarea>
+                            </div>
+
+                            <button class="btn btn-outline-light btn-sm me-2" type="button"
+                                    id="cancelVaccinationEdit" hidden>
+                                Cancelar
+                            </button>
+                            <button class="btn btn-primary" type="submit" id="saveVaccination">
+                                Guardar vacuna
+                            </button>
                         </form>
                     </div>
                 </div>
-                <div id="vaccinationStatus" class="small mt-2" role="status"></div>
+
+                <div id="vaccinationStatus" class="small mt-3" role="status"></div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block footer %}
-{{ super() }}
 <script>
-(function() {
-    function initVaccinationModal() {
-        const modal = document.getElementById("vaccinationModal");
-        if (!modal) return;
+(function () {
+    const modal = document.getElementById("vaccinationModal");
+    if (!modal) return;
 
-        const form = document.getElementById("vaccinationForm");
-        const history = document.getElementById("vaccinationHistory");
-        const status = document.getElementById("vaccinationStatus");
-        const appDateInput = document.getElementById("appDate");
-        const intervalSelect = document.getElementById("intervalSelect");
-        const nextDueDateInput = document.getElementById("nextDueDate");
-        const historyTabTrigger = document.getElementById("history-tab");
-        let petId;
+    const form = document.getElementById("vaccinationForm");
+    const history = document.getElementById("vaccinationHistory");
+    const status = document.getElementById("vaccinationStatus");
+    const vaccinationIdInput = document.getElementById("vaccinationId");
+    const saveButton = document.getElementById("saveVaccination");
+    const cancelButton = document.getElementById("cancelVaccinationEdit");
+    const historyTab = document.getElementById("history-tab");
+    const formTab = document.getElementById("new-tab");
+    const pagination = document.getElementById("vaccinationPagination");
+    const pageInfo = document.getElementById("vaccinationPageInfo");
+    const previousPageButton = document.getElementById("previousVaccinationPage");
+    const nextPageButton = document.getElementById("nextVaccinationPage");
+    const pageSize = 5;
 
-        function calculateNextDate() {
-            const appDateVal = appDateInput.value;
-            const interval = intervalSelect.value;
+    let petId;
+    let vaccinations = [];
+    let currentPage = 1;
 
-            if (!appDateVal || interval === 'none') {
-                nextDueDateInput.value = '';
-                nextDueDateInput.readOnly = true;
-                return;
-            }
+    function setStatus(message, type = "info") {
+        status.className = `small mt-3 text-${type}`;
+        status.textContent = message;
+    }
 
-            if (interval === 'custom') {
-                nextDueDateInput.readOnly = false;
-                return;
-            }
+    function showTab(tab) {
+        if (window.bootstrap && bootstrap.Tab) {
+            bootstrap.Tab.getOrCreateInstance(tab).show();
+        }
+    }
 
-            nextDueDateInput.readOnly = true;
-            const dateObj = new Date(appDateVal + 'T00:00:00');
-            dateObj.setMonth(dateObj.getMonth() + parseInt(interval));
+    function resetForm() {
+        form.reset();
+        vaccinationIdInput.value = "";
+        saveButton.textContent = "Guardar vacuna";
+        cancelButton.hidden = true;
+    }
 
-            const year = dateObj.getFullYear();
-            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-            const day = String(dateObj.getDate()).padStart(2, '0');
+    function addCell(row, value) {
+        const cell = document.createElement("td");
+        cell.textContent = value || "—";
+        row.appendChild(cell);
+    }
 
-            nextDueDateInput.value = `${year}-${month}-${day}`;
+    function renderHistory() {
+        history.replaceChildren();
+
+        const pageCount = Math.max(1, Math.ceil(vaccinations.length / pageSize));
+        currentPage = Math.min(currentPage, pageCount);
+        pagination.hidden = pageCount <= 1;
+        previousPageButton.disabled = currentPage === 1;
+        nextPageButton.disabled = currentPage === pageCount;
+        pageInfo.textContent = `Página ${currentPage} de ${pageCount}`;
+
+        if (vaccinations.length === 0) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.colSpan = 5;
+            cell.className = "text-center py-3";
+            cell.textContent = "Sin registros de vacunación.";
+            row.appendChild(cell);
+            history.appendChild(row);
+            return;
         }
 
-        appDateInput.addEventListener("change", calculateNextDate);
-        intervalSelect.addEventListener("change", calculateNextDate);
+        const startIndex = (currentPage - 1) * pageSize;
+        const pageVaccinations = vaccinations.slice(startIndex, startIndex + pageSize);
 
-        async function loadHistory() {
-            try {
-                const response = await fetch(`/api/vaccinations/${petId}`);
-                const data = await response.json();
-                const list = data.vaccinations || data || [];
+        pageVaccinations.forEach(vaccination => {
+            const row = document.createElement("tr");
+            addCell(row, vaccination.vaccine_name);
+            addCell(row, vaccination.application_date);
+            addCell(row, vaccination.lot_number);
+            addCell(row, vaccination.veterinarian_notes);
 
-                if (response.ok && Array.isArray(list) && list.length > 0) {
-                    history.innerHTML = list.map(v => `
-                        <tr>
-                            <td class="fw-bold">${v.vaccine_name || ''}</td>
-                            <td>${v.application_date || ''}</td>
-                            <td>${v.next_due_date ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle">${v.next_due_date}</span>` : '<span class="text-body-secondary small">Sin refuerzo</span>'}</td>
-                            <td class="text-body-secondary small">${v.lot_number || '-'}</td>
-                        </tr>
-                    `).join("");
-                } else {
-                    history.innerHTML = `<tr><td colspan="4" class="text-center text-body-secondary small py-3">Sin registros de vacunación.</td></tr>`;
-                }
-            } catch (err) {
-                history.innerHTML = `<tr><td colspan="4" class="text-center text-danger small py-3">No se pudo cargar el historial.</td></tr>`;
-            }
-        }
+            const actions = document.createElement("td");
+            actions.className = "text-nowrap";
 
-        modal.addEventListener("show.bs.modal", event => {
-            const button = event.relatedTarget;
-            petId = button.dataset.petId;
-            document.getElementById("vaccinationPetId").value = petId;
-            document.getElementById("vaccinationPetName").textContent = button.dataset.petName || '';
-            
-            appDateInput.valueAsDate = new Date();
-            calculateNextDate();
-            status.textContent = "";
+            const editButton = document.createElement("button");
+            editButton.type = "button";
+            editButton.className = "btn btn-outline-light btn-sm me-1";
+            editButton.dataset.action = "edit";
+            editButton.dataset.id = vaccination.id;
+            editButton.textContent = "Editar";
 
-            if (window.bootstrap && bootstrap.Tab) {
-                const tabInstance = bootstrap.Tab.getOrCreateInstance(historyTabTrigger);
-                tabInstance.show();
-            }
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "btn btn-outline-danger btn-sm";
+            deleteButton.dataset.action = "delete";
+            deleteButton.dataset.id = vaccination.id;
+            deleteButton.textContent = "Eliminar";
 
-            loadHistory();
+            actions.append(editButton, deleteButton);
+            row.appendChild(actions);
+            history.appendChild(row);
         });
+    }
 
-        form.addEventListener("submit", async event => {
-            event.preventDefault();
-            status.className = "small mt-2 text-info";
-            status.textContent = "Guardando...";
-            
-            const csrf = document.querySelector('#vaccinationForm input[name="csrf_token"]')?.value || "";
-            const rawFormData = Object.fromEntries(new FormData(form));
+    async function loadHistory() {
+        try {
+            const response = await fetch(`/api/vaccinations/${petId}`);
+            const data = await response.json();
 
-            const payload = {
-                vaccine_name: rawFormData.vaccine_name ? rawFormData.vaccine_name.trim() : "",
-                application_date: rawFormData.application_date || null,
-                next_due_date: rawFormData.next_due_date || null,
-                lot_number: rawFormData.lot_number ? rawFormData.lot_number.trim() : null,
-                veterinarian_notes: rawFormData.veterinarian_notes ? rawFormData.veterinarian_notes.trim() : null
-            };
-            
+            if (!response.ok) {
+                throw new Error(data.error || "No se pudo cargar el historial.");
+            }
+
+            vaccinations = data.vaccinations || [];
+            renderHistory();
+        } catch (error) {
+            pagination.hidden = true;
+            history.replaceChildren();
+
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.colSpan = 5;
+            cell.className = "text-center text-danger py-3";
+            cell.textContent = error.message;
+            row.appendChild(cell);
+            history.appendChild(row);
+        }
+    }
+
+    previousPageButton.addEventListener("click", () => {
+        if (currentPage > 1) {
+            currentPage -= 1;
+            renderHistory();
+        }
+    });
+
+    nextPageButton.addEventListener("click", () => {
+        const pageCount = Math.ceil(vaccinations.length / pageSize);
+        if (currentPage < pageCount) {
+            currentPage += 1;
+            renderHistory();
+        }
+    });
+
+    modal.addEventListener("show.bs.modal", event => {
+        const button = event.relatedTarget;
+        petId = button.dataset.petId;
+
+        document.getElementById("vaccinationPetName").textContent =
+            button.dataset.petName || "";
+
+        currentPage = 1;
+        resetForm();
+        setStatus("");
+        showTab(historyTab);
+        loadHistory();
+    });
+
+    history.addEventListener("click", async event => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+
+        const vaccinationId = button.dataset.id;
+        const url = `/api/vaccinations/${petId}/${vaccinationId}`;
+
+        if (button.dataset.action === "edit") {
             try {
-                const response = await fetch(`/api/vaccinations/${petId}`, {
-                    method: "POST", 
-                    headers: {
-                        "Content-Type": "application/json", 
-                        "X-CSRFToken": csrf
-                    },
-                    body: JSON.stringify(payload)
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "No se pudo abrir la vacuna.");
+                }
+
+                const vaccination = data.vaccination;
+                form.elements.vaccine_name.value = vaccination.vaccine_name || "";
+                form.elements.lot_number.value = vaccination.lot_number || "";
+                form.elements.veterinarian_notes.value =
+                    vaccination.veterinarian_notes || "";
+
+                vaccinationIdInput.value = vaccination.id;
+                saveButton.textContent = "Actualizar vacuna";
+                cancelButton.hidden = false;
+                setStatus("");
+                showTab(formTab);
+            } catch (error) {
+                setStatus(error.message, "danger");
+            }
+
+            return;
+        }
+
+        if (button.dataset.action === "delete") {
+            if (!window.confirm("¿Quieres eliminar esta vacuna?")) return;
+
+            const csrfToken = form.querySelector('input[name="csrf_token"]')?.value || "";
+
+            try {
+                const response = await fetch(url, {
+                    method: "DELETE",
+                    headers: { "X-CSRFToken": csrfToken }
                 });
-                
-                const data = await response.json();
-                if (response.ok) {
-                    status.className = "small mt-2 text-success fw-medium";
-                    status.textContent = "✓ Vacuna guardada con éxito.";
-                    form.reset();
-                    appDateInput.valueAsDate = new Date();
-                    calculateNextDate();
-                    await loadHistory();
 
-                    setTimeout(() => {
-                        if (window.bootstrap && bootstrap.Tab) {
-                            const tabInstance = bootstrap.Tab.getOrCreateInstance(historyTabTrigger);
-                            tabInstance.show();
-                        }
-                    }, 800);
-                } else {
-                    status.className = "small mt-2 text-danger";
-                    if (data.fields) {
-                        const firstError = Object.values(data.fields)[0];
-                        status.textContent = `Error: ${firstError}`;
-                    } else {
-                        status.textContent = data.error || "No se pudo guardar la vacuna.";
-                    }
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || "No se pudo eliminar la vacuna.");
                 }
-            } catch (err) {
-                status.className = "small mt-2 text-danger";
-                status.textContent = "Error de conexión con el servidor.";
-            }
-        });
-    }
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initVaccinationModal);
-    } else {
-        initVaccinationModal();
-    }
+                setStatus("Vacuna eliminada.", "success");
+                await loadHistory();
+            } catch (error) {
+                setStatus(error.message, "danger");
+            }
+        }
+    });
+
+    cancelButton.addEventListener("click", () => {
+        resetForm();
+        setStatus("");
+    });
+
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const vaccinationId = vaccinationIdInput.value;
+        const csrfToken = form.querySelector('input[name="csrf_token"]')?.value || "";
+        const payload = {
+            vaccine_name: form.elements.vaccine_name.value.trim(),
+            lot_number: form.elements.lot_number.value.trim() || null,
+            veterinarian_notes: form.elements.veterinarian_notes.value.trim() || null
+        };
+
+        const url = vaccinationId
+            ? `/api/vaccinations/${petId}/${vaccinationId}`
+            : `/api/vaccinations/${petId}`;
+
+        try {
+            const response = await fetch(url, {
+                method: vaccinationId ? "PUT" : "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "No se pudo guardar la vacuna.");
+            }
+
+            setStatus(
+                vaccinationId ? "Vacuna actualizada." : "Vacuna guardada.",
+                "success"
+            );
+            resetForm();
+            currentPage = 1;
+            await loadHistory();
+            showTab(historyTab);
+        } catch (error) {
+            setStatus(error.message || "Error de conexión con el servidor.", "danger");
+        }
+    });
 })();
 </script>
 {% endblock %}
