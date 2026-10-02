@@ -1,8 +1,6 @@
-"""Registro de rutas auxiliares de la API y limitación de peticiones."""
-from flask import Blueprint
-from aplicacion.db import get_db
-
-# Instancia global de Flask-Limiter
+""" Este módulo proporciona un limitador de solicitudes para la aplicación Flask. 
+de esta manera, se puede controlar la cantidad de solicitudes que un usuario puede realizar en un período de tiempo determinado,
+lo que ayuda a prevenir abusos y ataques de denegación de servicio (DoS). """
 try:
     from flask_limiter import Limiter
     from flask_limiter.util import get_remote_address
@@ -17,9 +15,3 @@ except ImportError:
             return None
 
     limiter = _NoopLimiter()
-
-bp = Blueprint("api", __name__, url_prefix="/api")
-
-from aplicacion.api_routes import register_routes
-
-register_routes(bp, limiter)

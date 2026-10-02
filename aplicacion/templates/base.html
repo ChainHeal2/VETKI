@@ -10,76 +10,9 @@
     <!-- Bootstrap 5 y Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    
-    <style>
-        :root {
-            --vetki-bg: #0b1020;
-            --vetki-surface: #151d33;
-            --vetki-surface-hover: #1d2947;
-            --vetki-border: rgba(255, 255, 255, .08);
-            --vetki-primary: #4f7cff;
-
-            /* Variables usadas por las plantillas heredadas. */
-            --gemini-card: var(--vetki-surface);
-            --gemini-pink: var(--vetki-primary);
-            --gemini-text-sub: #aab8d6;
-            --gemini-border: var(--vetki-border);
-        }
-
-        body {
-            background-color: var(--vetki-bg);
-            color: #aab8d6;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow-x: hidden;
-        }
-
-        .navbar-vetki {
-            background-color: var(--vetki-surface);
-            border-bottom: 1px solid var(--vetki-border);
-            min-height: 70px;
-        }
-
-        .dashboard-card {
-            background-color: var(--vetki-surface);
-            border: 1px solid var(--vetki-border);
-            border-radius: 12px;
-            transition: all .2s ease-in-out;
-            height: 100%;
-        }
-
-        .dashboard-card:hover {
-            border-color: var(--vetki-primary);
-            transform: translateY(-2px);
-            background-color: var(--vetki-surface-hover);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, .4);
-        }
-
-        .icon-box {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .hero-banner {
-            background: linear-gradient(135deg, rgba(79, 124, 255, .08), transparent);
-            border: 1px solid var(--vetki-border);
-            border-radius: 16px;
-        }
-
-        /* En la portada hay dos tarjetas apiladas por columna: no deben heredar height: 100%. */
-        .landing-features .dashboard-card {
-            height: auto;
-        }
-    </style>
-    {% endblock %}
 </head>
-
+        {%endblock%}
 <body class="d-flex flex-column min-vh-100">
-
     <!-- HEADER / NAVEGACIÓN -->
     <header>
         <nav class="navbar navbar-expand-lg navbar-vetki px-3 px-lg-4">
@@ -168,7 +101,7 @@
 
             <!-- Modal QR -->
             <div class="modal fade" id="dashboardQrModal" tabindex="-1" aria-labelledby="dashboardQrTitle" aria-hidden="true"
-                 data-process-url="{{ url_for('api.process_qr') }}" data-results-url="{{ url_for('pet.pet_search') }}">
+                 data-process-url="{{ url_for('qr.process_qr') }}" data-results-url="{{ url_for('pet.pet_search') }}">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-secondary border-opacity-25 bg-dark shadow-lg">
                         <div class="modal-header border-secondary border-opacity-25">

@@ -1,0 +1,62 @@
+        :root {
+            --vetki-bg: #0b1020;
+            --vetki-surface: #151d33;
+            --vetki-surface-hover: #1d2947;
+            --vetki-border: rgba(255, 255, 255, .08);
+            --vetki-primary: #4f7cff;
+
+            /* Variables usadas por las plantillas heredadas. */
+            --gemini-card: var(--vetki-surface);
+            --gemini-pink: var(--vetki-primary);
+            --gemini-text-sub: #aab8d6;
+            --gemini-border: var(--vetki-border);
+        }
+
+        body {
+            background-color: var(--vetki-bg);
+            color: #aab8d6;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .navbar-vetki {
+            background-color: var(--vetki-surface);
+            border-bottom: 1px solid var(--vetki-border);
+            min-height: 70px;
+        }
+
+        .dashboard-card {
+            background-color: var(--vetki-surface);
+            border: 1px solid var(--vetki-border);
+            border-radius: 12px;
+            transition: all .2s ease-in-out;
+            height: 100%;
+        }
+
+        .dashboard-card:hover {
+            border-color: var(--vetki-primary);
+            transform: translateY(-2px);
+            background-color: var(--vetki-surface-hover);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .4);
+        }
+
+        .icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(79, 124, 255, .08), transparent);
+            border: 1px solid var(--vetki-border);
+            border-radius: 16px;
+        }
+
+        /* En la portada hay dos tarjetas apiladas por columna: no deben heredar height: 100%. */
+        .landing-features .dashboard-card {
+            height: auto;
+        }

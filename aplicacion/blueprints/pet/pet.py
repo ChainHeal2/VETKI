@@ -2,19 +2,17 @@
 CRUD-MASCOTA
 """
 from flask import (Blueprint,flash,render_template,url_for,redirect,request, session)
-from aplicacion.auth.auth import login_required
-from aplicacion.pet.pet_model import PetModel
+from aplicacion.blueprints.pet.pet_model import PetModel
 from aplicacion.db import get_db
 from aplicacion.forms.pet.pet_form import PetForm
 from aplicacion.forms.vaccination.vaccination_form import VaccinationForm
-import math
+from math import ceil
 
-from aplicacion.utils import sanitizar
+from aplicacion.services.utils import sanitizar
 
 bp = Blueprint('pet',__name__,url_prefix='/pet')
 
 @bp.route("/pet_create", methods = ['GET','POST'])
-@login_required
 def pet_create():
     """Crea una nueva pet"""
     pet_form = PetForm()
@@ -68,7 +66,6 @@ def pet_create():
     return render_template('pet/pet_create.html', pet_form=pet_form)
 
 @bp.route("/pet_read", methods=['GET'])
-@login_required
 def pet_read():
     """Lista de mascotas con soporte para búsqueda y paginación optimizada"""
     db, c = get_db()
@@ -98,7 +95,7 @@ def pet_read():
     # 2. Acceso correcto al diccionario para RealDictCursor
     res_count = c.fetchone()
     total_records = res_count['total'] if res_count else 0
-    total_pages = math.ceil(total_records / per_page) or 1
+    total_pages = ceil(total_records / per_page) or 1
 
     # 3. Consulta de datos optimizada
     if search_query:
@@ -142,7 +139,6 @@ def pet_read():
     )
 
 @bp.route("/pet_search", methods=["GET"])
-@login_required
 def pet_search():
     """Busca mascotas propias por nombre o por el microchip leído desde un QR."""
     user_id = session.get("user_id")
@@ -170,7 +166,7 @@ def pet_search():
     if microchip or search_query:
         count_result = cursor.fetchone()
         total_records = count_result["total"] if count_result else 0
-    total_pages = max(math.ceil(total_records / per_page), 1)
+    total_pages = max(ceil(total_records / per_page), 1)
     page = min(page, total_pages)
     offset = (page - 1) * per_page
 
@@ -208,7 +204,6 @@ def pet_search():
     )
 
 @bp.route("/pet_update_form/<int:pet_id>", methods = ['GET','POST'])
-@login_required
 def pet_update_form(pet_id):
     """Modifica pets
         Dividido en 3 bloques
@@ -294,7 +289,6 @@ def pet_update_form(pet_id):
     )
 
 @bp.route("/pet_delete/<int:pet_id>",methods = ['GET','POST'])
-@login_required
 def pet_delete(pet_id):
     """Elimina PET"""
     error = None

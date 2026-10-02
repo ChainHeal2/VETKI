@@ -2,11 +2,10 @@
 CRUD-EXPEDIENTES CLINICOS
 """
 from flask import (Blueprint,flash,render_template,url_for,redirect,request, session)
-from aplicacion.auth.auth import login_required
 from aplicacion.db import get_db
 from aplicacion.forms.medical_records.medical_form import MedicalRecordForm
-from aplicacion.medical.medical_model import MedicalRecordModel
-from aplicacion.pet.pet_model import PetModel
+from aplicacion.blueprints.medical.medical_model import MedicalRecordModel
+from aplicacion.blueprints.pet.pet_model import PetModel
 import math
 
 bp = Blueprint('medical',__name__,url_prefix='/medical')
@@ -59,7 +58,6 @@ def medical_create(pet_id):
     return render_template('medical_records/medical_create.html',medical_record_form = medical_record_form,mascota = pet_data)
 
 @bp.route("/medical_read", methods=['GET'])
-@login_required
 def medical_read():
     """Lista de expedientes clínicos con soporte para búsqueda y paginación"""
     db, c = get_db()

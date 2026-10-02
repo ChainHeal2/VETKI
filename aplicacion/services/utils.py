@@ -12,8 +12,3 @@ def sanitizar(datos_dict):
         else:
             resultado[clave] = valor
     return resultado
-
-
-#datos ={'pet_species_name': 'canina', 'pet_names': 'fdasfds', 'pet_race': 'RAZA', 'pet_datebirth': None, 'pet_microchip': None, 'pet_gender': None, 'pet_color': '1312af', 'pet_rstatus': None, 'pet_tutor_name': '12312', 'pet_tutor_address': None, 'pet_tutor_phone': None, 'submit': True, 'csrf_token': 'ImJiYzk0ZWRjNzU3ZDE2MThlNTVmYjAwY2ZjMGU4ODNjNzk5MWJkOGQi.aphlvw.XkpN414bY-0Rb8GSRZPB4goMhvM'}
-#print(sanitizar(datos))
-

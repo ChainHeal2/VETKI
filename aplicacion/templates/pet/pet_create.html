@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 { fps: 10, qrbox: { width: 250, height: 250 } },
                 async (decodedText) => {
                     await scanner.stop();
-                    const response = await fetch("{{ url_for('api.process_qr') }}", {
+                    const response = await fetch("{{ url_for('qr.process_qr') }}", {
                         method: "POST",
                         headers: { "Content-Type": "application/json", "X-CSRFToken": token || "" },
                         body: JSON.stringify({ content: decodedText })

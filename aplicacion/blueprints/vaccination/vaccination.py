@@ -5,10 +5,9 @@ from flask_wtf.csrf import validate_csrf
 from werkzeug.datastructures import MultiDict
 from wtforms.validators import ValidationError
 
-from aplicacion.auth.auth import login_required
 from aplicacion.db import get_db
 from aplicacion.forms.vaccination.vaccination_form import VaccinationForm
-from aplicacion.vaccination.vaccination_model import VaccinationModel
+from aplicacion.blueprints.vaccination.vaccination_model import VaccinationModel
 
 bp = Blueprint("vaccination", __name__, url_prefix="/api/vaccinations")
 
@@ -81,7 +80,6 @@ def _vaccination_data(form):
 
 
 @bp.get("/<int:pet_id>")
-@login_required
 def vaccination_read(pet_id):
     """Lista las vacunas de una mascota que pertenece al usuario."""
     error = _pet_access_error(pet_id)
@@ -92,7 +90,6 @@ def vaccination_read(pet_id):
 
 
 @bp.post("/<int:pet_id>")
-@login_required
 def vaccination_create(pet_id):
     """Valida y registra una vacuna para la mascota indicada."""
     error = _csrf_error()
@@ -118,7 +115,6 @@ def vaccination_create(pet_id):
 
 
 @bp.get("/<int:pet_id>/<int:vaccination_id>")
-@login_required
 def vaccination_read_one(pet_id, vaccination_id):
     """Devuelve los datos de una vacuna específica."""
     error = _pet_access_error(pet_id)
@@ -132,7 +128,6 @@ def vaccination_read_one(pet_id, vaccination_id):
 
 
 @bp.route("/<int:pet_id>/<int:vaccination_id>", methods=["PUT", "PATCH"])
-@login_required
 def vaccination_update(pet_id, vaccination_id):
     """Actualiza todos o algunos campos de una vacuna."""
     error = _csrf_error()
@@ -168,7 +163,6 @@ def vaccination_update(pet_id, vaccination_id):
 
 
 @bp.delete("/<int:pet_id>/<int:vaccination_id>")
-@login_required
 def vaccination_delete(pet_id, vaccination_id):
     """Elimina una vacuna de la mascota indicada."""
     error = _csrf_error()

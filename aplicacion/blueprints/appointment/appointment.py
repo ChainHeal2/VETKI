@@ -4,8 +4,8 @@ CRUD APPOINTMENT
 from aplicacion.forms.appointment.appointment_form import AppointmentForm
 # pyrefly: ignore [missing-import]
 from flask import (Blueprint,flash,render_template, session,url_for,redirect,request)
-from aplicacion.appointment.appointment_model import AppointmentModel
-from aplicacion.pet.pet_model import PetModel
+from aplicacion.blueprints.appointment.appointment_model import AppointmentModel
+from aplicacion.blueprints.pet.pet_model import PetModel
 from aplicacion.db import get_db
 from aplicacion.services.google_calendar import CalendarService
 import math

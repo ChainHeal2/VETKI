@@ -41,40 +41,41 @@ def create_app():
     db.init_app(app)
 
     # Blueprints
-    from aplicacion.index import index
+    from aplicacion.blueprints.index import index
     app.register_blueprint(index.bp)
 
-    from aplicacion.pet import pet
+    from aplicacion.blueprints.pet import pet
     app.register_blueprint(pet.bp)
 
-    from aplicacion.appointment import appointment
+    from aplicacion.blueprints.appointment import appointment
     app.register_blueprint(appointment.bp)
 
-    from aplicacion.user import user
+    from aplicacion.blueprints.user import user
     app.register_blueprint(user.bp)
 
-    from aplicacion.auth import auth
+    from aplicacion.blueprints.auth import auth
     app.register_blueprint(auth.bp)
 
-    from aplicacion.medical import medical
+    from aplicacion.blueprints.medical import medical
     app.register_blueprint(medical.bp)
 
-    from aplicacion.analytic import analytic
+    from aplicacion.blueprints.analytic import analytic
     app.register_blueprint(analytic.bp)
 
-    from aplicacion.google_login.google_login import google_bp
+    from aplicacion.blueprints.google_login.google_login import google_bp
     app.register_blueprint(google_bp, url_prefix="/login")
 
-    from aplicacion.carnet_vacuna import carnet
+    from aplicacion.blueprints.carnet_vacuna import carnet
     app.register_blueprint(carnet.bp)
 
-    from aplicacion.vaccination import vaccination
+    from aplicacion.blueprints.vaccination import vaccination
     app.register_blueprint(vaccination.bp)
-
-    # API Blueprint y limitador desde aplicacion.api
-    from aplicacion.api import bp as api_bp, limiter as api_limiter
-
-    app.register_blueprint(api_bp)
+    
+    from aplicacion.limiter import limiter as api_limiter
+    
+    from aplicacion.blueprints.api_routes import qr
+    app.register_blueprint(qr.bp)
+    
     api_limiter.init_app(app)
 
     return app

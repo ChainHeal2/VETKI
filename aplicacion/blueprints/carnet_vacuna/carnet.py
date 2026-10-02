@@ -3,7 +3,7 @@ CARNET DE VACUNACION-VETKI
 """
 from flask import (Blueprint,flash,render_template, session,url_for,redirect,request)
 from aplicacion.db import get_db
-from aplicacion.carnet_vacuna.CarnetModel import CarnetModel
+from aplicacion.blueprints.carnet_vacuna.CarnetModel import CarnetModel
 
 bp = Blueprint('carnet',__name__,)
 
