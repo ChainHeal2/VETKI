@@ -15,13 +15,13 @@ def create_app():
     app = Flask(__name__)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
     app.config.from_mapping(
-        SECRET_KEY=os.environ.get("FLASK_SECRET_KEY"),
-        DATABASE_HOST=os.environ.get("FLASK_DATABASE_HOST"),
-        DATABASE_PORT=os.environ.get("FLASK_DATABASE_PORT", 5432),
-        DATABASE_USER=os.environ.get("FLASK_DATABASE_USER"),
-        DATABASE_PASSWORD=os.environ.get("FLASK_DATABASE_PASSWORD"),
-        DATABASE=os.environ.get("FLASK_DATABASE"),
-        COOKIE_SECURE=os.environ.get("FLASK_COOKIE_SECURE"),
+        SECRET_KEY=os.environ.get("SECRET_KEY"),
+        DATABASE_HOST=os.environ.get("DATABASE_HOST"),
+        DATABASE_PORT=os.environ.get("DATABASE_PORT", 5432),
+        DATABASE_USER=os.environ.get("DATABASE_USER"),
+        DATABASE_PASSWORD=os.environ.get("DATABASE_PASSWORD"),
+        DATABASE=os.environ.get("DATABASE"),
+        COOKIE_SECURE=os.environ.get("COOKIE_SECURE"),
     )
     app.config["SQLALCHEMY_DATABASE_URI"] = URL.create(
         drivername="postgresql+psycopg2",
