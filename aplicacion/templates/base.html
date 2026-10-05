@@ -2,7 +2,6 @@
 <html lang="es" data-bs-theme="dark">
 
 <head>
-    {% block head %}
     <title>{% block title %}VETKI | Sistema de Gestión Veterinaria{% endblock %}</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -10,18 +9,20 @@
     <!-- Bootstrap 5 y Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    
+    {% block head %}{% endblock %}
 </head>
-        {%endblock%}
-<body class="d-flex flex-column min-vh-100">
+    
+<body class="d-flex flex-column min-vh-100 bg-body">
     <!-- HEADER / NAVEGACIÓN -->
     <header>
-        <nav class="navbar navbar-expand-lg navbar-vetki px-3 px-lg-4">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom border-secondary border-opacity-25 px-3 px-lg-4">
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold d-flex align-items-center gap-2 m-0" href="{{ url_for('index.index') }}">
                     <div class="bg-primary text-white rounded-2 d-flex align-items-center justify-content-center shadow-sm" style="width: 36px; height: 36px;">
                         <i class="bi bi-hospital fs-5"></i>
                     </div>
-                    <span class="text-white fs-4 tracking-tight">VET<span class="text-primary">KI</span></span>
+                    <span class="text-white fs-4">VET<span class="text-primary">KI</span></span>
                 </a>
 
                 <button class="navbar-toggler border-0 shadow-none text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navVetki" aria-controls="navVetki" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +64,7 @@
             <div class="row align-items-center mb-4">
                 <div class="col-12 col-md-8">
                     <h1 class="h3 fw-bold text-white mb-1">Panel Clínico Central</h1>
-                    <p class="small mb-0">Control de pacientes, agendas médicas y analíticas del sistema.</p>
+                    <p class="small text-muted mb-0">Control de pacientes, agendas médicas y analíticas del sistema.</p>
                 </div>
                 <div class="col-12 col-md-4 text-md-end mt-2 mt-md-0">
                     <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">
@@ -73,11 +74,11 @@
             </div>
 
             <!-- Módulo de Búsqueda -->
-            <div class="hero-banner p-4 mb-4">
+            <div class="bg-body-secondary border border-secondary border-opacity-25 rounded-4 p-4 mb-4 shadow-sm">
                 <div class="row align-items-center gy-3">
                     <div class="col-xl-4">
                         <h2 class="h5 text-white fw-bold mb-1">Búsqueda Global</h2>
-                        <p class="small mb-0">Localice expedientes por nombre o tutor.</p>
+                        <p class="small text-muted mb-0">Localice expedientes por nombre o tutor.</p>
                     </div>
                     <div class="col-xl-8">
                         <div class="d-flex flex-column flex-sm-row gap-2">
@@ -120,65 +121,65 @@
             </div>
 
             <!-- Cuadrícula de Accesos (Módulos) -->
-            <h3 class="h6 fw-bold text-uppercase text-secondary mb-3 tracking-wider">Módulos Operativos</h3>
+            <h3 class="h6 fw-bold text-uppercase text-secondary mb-3">Módulos Operativos</h3>
             <div class="row g-3">
                 
                 <div class="col-12 col-md-6 col-xl-4">
                     <a href="{{ url_for('pet.pet_create') }}" class="text-decoration-none d-block h-100">
-                        <div class="dashboard-card p-4">
-                            <div class="icon-box bg-primary bg-opacity-10 text-primary mb-3">
+                        <div class="bg-body-secondary border border-secondary border-opacity-25 rounded-4 p-4 h-100 shadow-sm transition-hover">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 bg-primary bg-opacity-10 text-primary mb-3" style="width: 48px; height: 48px;">
                                 <i class="bi bi-clipboard2-pulse fs-5"></i>
                             </div>
                             <h4 class="h5 text-white fw-bold mb-2">Ingreso de Paciente</h4>
-                            <p class="small mb-0">Apertura de nuevo expediente clínico y datos filiatorios.</p>
+                            <p class="small text-muted mb-0">Apertura de nuevo expediente clínico y datos filiatorios.</p>
                         </div>
                     </a>
                 </div>
 
                 <div class="col-12 col-md-6 col-xl-4">
                     <a href="{{ url_for('pet.pet_read') }}" class="text-decoration-none d-block h-100">
-                        <div class="dashboard-card p-4">
-                            <div class="icon-box text-info mb-3" style="background-color: rgba(13, 202, 240, 0.1);">
+                        <div class="bg-body-secondary border border-secondary border-opacity-25 rounded-4 p-4 h-100 shadow-sm">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 text-info mb-3" style="width: 48px; height: 48px; background-color: rgba(13, 202, 240, 0.1);">
                                 <i class="bi bi-folder2-open fs-5"></i>
                             </div>
                             <h4 class="h5 text-white fw-bold mb-2">Base de Pacientes</h4>
-                            <p class="small mb-0">Acceso al registro general, modificación e historiales.</p>
+                            <p class="small text-muted mb-0">Acceso al registro general, modificación e historiales.</p>
                         </div>
                     </a>
                 </div>
 
                 <div class="col-12 col-md-6 col-xl-4">
                     <a href="{{ url_for('appointment.appointment_read') }}" class="text-decoration-none d-block h-100">
-                        <div class="dashboard-card p-4">
-                            <div class="icon-box text-warning mb-3" style="background-color: rgba(255, 193, 7, 0.1);">
+                        <div class="bg-body-secondary border border-secondary border-opacity-25 rounded-4 p-4 h-100 shadow-sm">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 text-warning mb-3" style="width: 48px; height: 48px; background-color: rgba(255, 193, 7, 0.1);">
                                 <i class="bi bi-calendar-week fs-5"></i>
                             </div>
                             <h4 class="h5 text-white fw-bold mb-2">Agenda Clínica</h4>
-                            <p class="small mb-0">Gestión de turnos, consultas programadas y controles.</p>
+                            <p class="small text-muted mb-0">Gestión de turnos, consultas programadas y controles.</p>
                         </div>
                     </a>
                 </div>
 
                 <div class="col-12 col-md-6 col-xl-4">
                     <a href="{{ url_for('medical.medical_read') }}" class="text-decoration-none d-block h-100">
-                        <div class="dashboard-card p-4">
-                            <div class="icon-box text-danger mb-3" style="background-color: rgba(220, 53, 69, 0.1);">
+                        <div class="bg-body-secondary border border-secondary border-opacity-25 rounded-4 p-4 h-100 shadow-sm">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 text-danger mb-3" style="width: 48px; height: 48px; background-color: rgba(220, 53, 69, 0.1);">
                                 <i class="bi bi-heart-pulse fs-5"></i>
                             </div>
                             <h4 class="h5 text-white fw-bold mb-2">Fichas Clínicas</h4>
-                            <p class="small mb-0">Registro de atenciones, diagnósticos y tratamientos evolutivos.</p>
+                            <p class="small text-muted mb-0">Registro de atenciones, diagnósticos y tratamientos evolutivos.</p>
                         </div>
                     </a>
                 </div>
                 
                 <div class="col-12 col-md-6 col-xl-4">
                     <a href="{{ url_for('analytic.analytics_dashboard') }}" class="text-decoration-none d-block h-100">
-                        <div class="dashboard-card p-4">
-                            <div class="icon-box text-success mb-3" style="background-color: rgba(25, 135, 84, 0.1);">
+                        <div class="bg-body-secondary border border-secondary border-opacity-25 rounded-4 p-4 h-100 shadow-sm">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 text-success mb-3" style="width: 48px; height: 48px; background-color: rgba(25, 135, 84, 0.1);">
                                 <i class="bi bi-activity fs-5"></i>
                             </div>
                             <h4 class="h5 text-white fw-bold mb-2">Reportes Clínicos</h4>
-                            <p class="small mb-0">Estadísticas de atención, epidemiología y rendimiento general.</p>
+                            <p class="small text-muted mb-0">Estadísticas de atención, epidemiología y rendimiento general.</p>
                         </div>
                     </a>
                 </div>
@@ -186,12 +187,12 @@
                 {% if session.get('user_role') == 'admin' %}
                 <div class="col-12 col-md-6 col-xl-4">
                     <a href="{{ url_for('user.user_create') }}" class="text-decoration-none d-block h-100">
-                        <div class="dashboard-card p-4 border-primary border-opacity-50">
-                            <div class="icon-box text-primary bg-primary bg-opacity-10 mb-3">
+                        <div class="bg-body-secondary border border-primary border-opacity-50 rounded-4 p-4 h-100 shadow-sm">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-3 text-primary bg-primary bg-opacity-10 mb-3" style="width: 48px; height: 48px;">
                                 <i class="bi bi-person-badge fs-5"></i>
                             </div>
                             <h4 class="h5 text-white fw-bold mb-2">Administración del Staff</h4>
-                            <p class="small mb-0">Alta de nuevos veterinarios y personal autorizado.</p>
+                            <p class="small text-muted mb-0">Alta de nuevos veterinarios y personal autorizado.</p>
                         </div>
                     </a>
                 </div>
@@ -210,7 +211,7 @@
                     <h1 class="display-5 fw-bold text-white mb-3 lh-sm">
                         El estándar clínico para tu <span class="text-primary">centro veterinario</span>
                     </h1>
-                    <p class="lead mb-4">
+                    <p class="lead text-muted mb-4">
                         VETKI centraliza historias clínicas, agenda de turnos y procesos administrativos en una plataforma segura y moderna.
                     </p>
                     <div>
@@ -220,30 +221,30 @@
                     </div>
                 </div>
                 
-                <div class="landing-features col-lg-6">
+                <div class="col-lg-6">
                     <div class="row g-3">
                         <div class="col-sm-6">
-                            <div class="dashboard-card p-4 text-center mb-3">
+                            <div class="bg-body-secondary border border-secondary border-opacity-25 rounded-4 p-4 text-center mb-3 shadow-sm">
                                 <i class="bi bi-journal-medical text-primary fs-2 mb-2"></i>
                                 <h5 class="text-white fs-6 fw-bold">Fichas Digitales</h5>
-                                <p class="small mb-0">Historiales detallados y control de vacunas.</p>
+                                <p class="small text-muted mb-0">Historiales detallados y control de vacunas.</p>
                             </div>
-                            <div class="dashboard-card p-4 text-center">
+                            <div class="bg-body-secondary border border-secondary border-opacity-25 rounded-4 p-4 text-center shadow-sm">
                                 <i class="bi bi-upc-scan text-info fs-2 mb-2"></i>
                                 <h5 class="text-white fs-6 fw-bold">Escáner QR</h5>
-                                <p class="small mb-0">Búsqueda rápida por microchip o etiqueta.</p>
+                                <p class="small text-muted mb-0">Búsqueda rápida por microchip o etiqueta.</p>
                             </div>
                         </div>
                         <div class="col-sm-6 mt-sm-4">
-                            <div class="dashboard-card p-4 text-center mb-3">
+                            <div class="bg-body-secondary border border-secondary border-opacity-25 rounded-4 p-4 text-center mb-3 shadow-sm">
                                 <i class="bi bi-calendar-week text-warning fs-2 mb-2"></i>
                                 <h5 class="text-white fs-6 fw-bold">Agenda Central</h5>
-                                <p class="small mb-0">Control de turnos sin cruces de horarios.</p>
+                                <p class="small text-muted mb-0">Control de turnos sin cruces de horarios.</p>
                             </div>
-                            <div class="dashboard-card p-4 text-center">
+                            <div class="bg-body-secondary border border-secondary border-opacity-25 rounded-4 p-4 text-center shadow-sm">
                                 <i class="bi bi-shield-lock text-success fs-2 mb-2"></i>
                                 <h5 class="text-white fs-6 fw-bold">Alta Seguridad</h5>
-                                <p class="small mb-0">Encriptación de registros médicos sensibles.</p>
+                                <p class="small text-muted mb-0">Encriptación de registros médicos sensibles.</p>
                             </div>
                         </div>
                     </div>
@@ -277,26 +278,26 @@
     </main>
 
     <!-- FOOTER -->
-<footer class="py-4 border-top border-secondary border-opacity-10" style="background-color: var(--vetki-surface);">
-    {% block footer %}
-    <div class="container text-center text-md-start d-md-flex justify-content-between align-items-center">
-        <p class="small mb-2 mb-md-0">&copy; 2026 VETKI &middot; Plataforma de Gestión Clínica Veterinaria</p>
-        
-        <ul class="list-inline mb-2 mb-md-0 small">
-            <li class="list-inline-item">
-                <a href="{{ url_for('index.privacidad') }}" class="text-decoration-none text-muted me-3">Privacidad</a>
-            </li>
-            <li class="list-inline-item">
-                <a href="{{ url_for('index.terminos') }}" class="text-decoration-none text-muted">Términos</a>
-            </li>
-        </ul>
+    <footer class="py-4 border-top border-secondary border-opacity-25 bg-body-tertiary">
+        {% block footer %}
+        <div class="container text-center text-md-start d-md-flex justify-content-between align-items-center">
+            <p class="small text-muted mb-2 mb-md-0">&copy; 2026 VETKI &middot; Plataforma de Gestión Clínica Veterinaria</p>
+            
+            <ul class="list-inline mb-2 mb-md-0 small">
+                <li class="list-inline-item">
+                    <a href="{{ url_for('index.privacidad') }}" class="text-decoration-none text-muted me-3">Privacidad</a>
+                </li>
+                <li class="list-inline-item">
+                    <a href="{{ url_for('index.terminos') }}" class="text-decoration-none text-muted">Términos</a>
+                </li>
+            </ul>
 
-        <div class="small text-success">
-            <i class="bi bi-hdd-network me-1"></i> Servidor Operativo
+            <div class="small text-success">
+                <i class="bi bi-hdd-network me-1"></i> Servidor Operativo
+            </div>
         </div>
-    </div>
-    {% endblock %}
-</footer>
+        {% endblock %}
+    </footer>
 
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
