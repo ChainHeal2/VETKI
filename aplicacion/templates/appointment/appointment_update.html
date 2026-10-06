@@ -1,79 +1,160 @@
 {% extends 'base.html' %}
 
-{% block title %}VETKI | Reprogramar Cita{% endblock %}
+{% block title %}VETKI | Editar Cita #{{ appointment_data.appointment_id }}{% endblock %}
 
 {% block main %}
-<div class="container-narrow py-2 mx-auto" style="max-width: 680px;">
-    
+<div class="container py-4">
     <!-- Encabezado -->
-    <div class="mb-4 text-center">
-        <span class="badge text-bg-primary rounded-pill px-3 py-2 mb-2">Modificación de Agendamiento</span>
-        <h1 class="display-6 fw-bold mb-1">Reprogramar Cita</h1>
-        <p class="text-body-secondary small">Seleccione la nueva fecha y hora para la atención del paciente.</p>
+    <div class="mb-4 border-bottom pb-3">
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <h1 class="display-6 fw-normal mb-1">Modificar Cita Médica</h1>
+                <p class="text-body-secondary mb-0">
+                    ID de Cita: <span class="badge text-bg-secondary">#{{ appointment_data.appointment_id }}</span>
+                </p>
+            </div>
+            <a href="{{ url_for('appointment.appointment_read')}}" 
+               class="btn btn-outline-secondary btn-sm rounded-pill">
+                ← Volver al Listado
+            </a>
+        </div>
     </div>
 
-    <!-- Tarjeta Principal del Formulario -->
-    <div class="card bg-body-tertiary border rounded-4 shadow-sm overflow-hidden">
-        <!-- Cabecera Informativa del Paciente -->
-        <div class="card-header bg-body border-bottom p-4">
-            <div class="d-flex align-items-center gap-3">
-                <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fs-3" style="width: 54px; height: 54px;">
-                    🐾
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% set alert_type = 'success' if category == 'success' else ('danger' if category == 'danger' else 'warning') %}
+                <div class="alert alert-{{ alert_type }} alert-dismissible fade show mb-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                 </div>
-                <div>
-                    <small class="text-body-secondary text-uppercase fw-semibold tracking-wide">Paciente Citado</small>
-                    <h4 class="mb-0 fw-bold text-primary">{{ pet_data.pet_names.title() or 'Sin Nombre' }}</h4>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row g-4 justify-content-center">
+        
+        <!-- Tarjeta de Resumen del Paciente (Solo Lectura) -->
+        <div class="col-12 col-lg-4">
+            <div class="card bg-body-tertiary border rounded-4 p-4 shadow-sm h-100">
+                <h5 class="fw-bold text-primary mb-3 pb-2 border-bottom">Información del Paciente</h5>
+                
+                <div class="d-flex align-items-center mb-3">
+                    <span class="fs-1 me-3">🐾</span>
+                    <div>
+                        <h4 class="mb-0 fw-bold">{{ pet_data.pet_names if pet_data else 'Mascota' }}</h4>
+                        <small class="text-body-secondary">ID de Paciente: #{{ pet_data.pet_id if pet_data else '--' }}</small>
+                    </div>
                 </div>
-                <div>
-                    <small class="text-body-secondary text-uppercase fw-semibold tracking-wide">Nombre del tutor</small>
-                    <h4 class="mb-0 fw-bold text-primary">{{ pet_data.pet_tutor_name.title() or 'Sin Nombre' }}</h4>
+
+                <div class="mb-3">
+                    <small class="text-body-secondary d-block">Tutor Responsable:</small>
+                    <strong class="text-body">{{ pet_data.pet_tutor_name if pet_data and pet_data.pet_tutor_name else '--' }}</strong>
+                </div>
+
+                <div class="alert alert-info rounded-3 mt-auto mb-0 small">
+                    ℹ️ Los datos del paciente no se pueden modificar desde este formulario.
                 </div>
             </div>
         </div>
 
-        <!-- Cuerpo del Formulario -->
-        <div class="card-body p-4 p-md-5">
-            <form method="POST" action="" class="d-flex flex-column gap-4">
-                {{ appointment_update.hidden_tag() }} 
+        <!-- Formulario de Edición de Cita -->
+        <div class="col-12 col-lg-8">
+            <div class="card bg-body-tertiary border rounded-4 p-4 shadow-sm">
+                <h5 class="fw-bold mb-3 pb-2 border-bottom">Detalles del Agendamiento</h5>
+                
+                <form action="" method="POST" class="needs-validation" novalidate>
+                    <!-- Token CSFR de WTForms -->
+                    {{ appointment_update.hidden_tag() }}
 
-                <!-- Selección de Nueva Fecha -->
-                <div>
-                    <div class="form-floating">
-                        {{ appointment_update.date(class="form-control border-primary-subtle", id="appointment_date", type="datetime-local", required=True) }}
-                        <label for="appointment_date" class="text-primary fw-medium">
-                            <i class="bi bi-calendar-event me-1"></i>Nueva Fecha y Hora Re-programada
-                        </label>
+                    <!-- Motivo de la Cita -->
+                    <div class="mb-3">
+                        <label for="reason" class="form-label fw-medium">Motivo de la Cita / Consulta</label>
+                        {% if appointment_update.reason is defined %}
+                            {{ appointment_update.reason(
+                                class="form-control " + ("is-invalid" if appointment_update.reason.errors else ""),
+                                id="reason",
+                                placeholder="Ej. Control de vacunación, Revisión médica..."
+                            ) }}
+                        {% else %}
+                            <input type="text" name="reason" id="reason" class="form-control" 
+                                   value="{{ appointment_data.appointment_reason or '' }}" required>
+                        {% endif %}
+
+                        {% if appointment_update.reason is defined and appointment_update.reason.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for err in appointment_update.reason.errors %}
+                                    <span>{{ err }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
 
-                    {% if appointment_update.date.errors %}
-                        <div class="alert alert-danger d-flex align-items-center gap-2 mt-2 py-2 px-3 mb-0 rounded-3 small">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                            <span>{{ appointment_update.date.errors[0] }}</span>
+                    <div class="row">
+                        <!-- Fecha y Hora de Inicio -->
+                        <div class="col-12 col-md-6 mb-3">
+                            <label for="date" class="form-label fw-medium">Fecha y Hora de Inicio</label>
+                            {% if appointment_update.date is defined %}
+                                {{ appointment_update.date(
+                                    class="form-control " + ("is-invalid" if appointment_update.date.errors else ""),
+                                    id="date",
+                                    type="datetime-local",
+                                    required=True
+                                ) }}
+                            {% else %}
+                                <input type="datetime-local" name="date" id="date" class="form-control" required>
+                            {% endif %}
+
+                            {% if appointment_update.date is defined and appointment_update.date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for err in appointment_update.date.errors %}
+                                        <span>{{ err }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
-                    {% endif %}
-                </div>
 
-                <hr class="my-2 border-secondary-subtle">
+                        <!-- Fecha y Hora de Término (Opcional) -->
+                        <div class="col-12 col-md-6 mb-4">
+                            <label for="end_date" class="form-label fw-medium">
+                                Fecha y Hora de Término <small class="text-body-secondary fw-normal">(Opcional)</small>
+                            </label>
+                            {% if appointment_update.end_date is defined %}
+                                {{ appointment_update.end_date(
+                                    class="form-control " + ("is-invalid" if appointment_update.end_date.errors else ""),
+                                    id="end_date",
+                                    type="datetime-local"
+                                ) }}
 
-                <!-- Botones de Acción -->
-                <div class="d-flex flex-column-reverse flex-sm-row align-items-center justify-content-end gap-2 pt-2">
-                    <a href="{{ url_for('appointment.appointment_read') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2 w-100 w-sm-auto text-center text-decoration-none">
-                        Cancelar
-                    </a>
-                    
-                    {% if appointment_update.submit is defined %}
-                        {{ appointment_update.submit(class="btn btn-primary rounded-pill px-5 py-2 fw-semibold w-100 w-sm-auto", value="Guardar Reprogramación") }}
-                    {% else %}
-                        <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-semibold w-100 w-sm-auto">
-                            Guardar Reprogramación
+                                {% if appointment_update.end_date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for err in appointment_update.end_date.errors %}
+                                            <span>{{ err }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <input type="datetime-local" name="end_date" id="end_date" class="form-control">
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a href="{{ url_for('appointment.appointment_read')}}" 
+                           class="btn btn-outline-secondary rounded-pill px-4">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-medium">
+                            Guardar Cambios 💾
                         </button>
-                    {% endif %}
-                </div>
+                    </div>
 
-            </form>
+                </form>
+            </div>
         </div>
 
     </div>
-
 </div>
 {% endblock %}

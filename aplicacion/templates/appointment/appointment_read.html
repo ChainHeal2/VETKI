@@ -1,145 +1,261 @@
 {% extends 'base.html' %}
 
-{% block title %}VETKI | Agenda de Pacientes{% endblock %}
+{% block title %}VETKI | Agenda de Citas{% endblock %}
+
+{% block head %}
+<!-- FullCalendar v6 JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+<style>
+    /* --- VARIABLES Y CONFIGURACIÓN BASE --- */
+    :root {
+        --fc-border-color: rgba(0, 0, 0, 0.08);
+        --fc-today-bg-color: rgba(13, 110, 253, 0.05);
+    }
+
+    #calendar {
+        max-width: 100%;
+        margin: 0 auto;
+        min-height: 500px;
+        font-family: inherit;
+    }
+
+    /* --- RESPONSIVE TOOLBAR (HEADER) --- */
+    .fc .fc-toolbar {
+        flex-wrap: wrap !important;
+        gap: 0.75rem !important;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1.15rem !important;
+        font-weight: 700;
+        color: var(--bs-body-color);
+        text-transform: capitalize;
+    }
+
+    /* Ajustes específicos para pantallas medianas/grandes */
+    @media (min-width: 768px) {
+        .fc .fc-toolbar-title {
+            font-size: 1.4rem !important;
+        }
+        #calendar {
+            min-height: 720px;
+        }
+    }
+
+    /* Estilos para Botones de FullCalendar */
+    .fc .fc-button-primary {
+        background-color: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+        color: #212529 !important;
+        font-weight: 500;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+        padding: 5px 10px;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+    }
+
+    @media (min-width: 768px) {
+        .fc .fc-button-primary {
+            padding: 6px 14px;
+            font-size: 0.95rem;
+        }
+    }
+
+    .fc .fc-button-primary:hover {
+        background-color: #e9ecef !important;
+        color: #0d6efd !important;
+    }
+
+    .fc .fc-button-primary:not(:disabled).fc-button-active, 
+    .fc .fc-button-primary:not(:disabled):active {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: #ffffff !important;
+    }
+
+    /* Encabezados de Días (Mes/Semana) */
+    .fc .fc-col-header-cell-cushion {
+        padding: 6px 0;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #6c757d;
+        text-decoration: none !important;
+    }
+
+    @media (min-width: 768px) {
+        .fc .fc-col-header-cell-cushion {
+            padding: 10px 0;
+            font-size: 0.85rem;
+        }
+    }
+
+    /* Números de Días */
+    .fc .fc-daygrid-day-number {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--bs-body-color);
+        text-decoration: none !important;
+        padding: 4px 6px !important;
+    }
+
+    /* Día Actual Resaltado */
+    .fc .fc-day-today {
+        background-color: rgba(13, 110, 253, 0.04) !important;
+    }
+    
+    .fc .fc-day-today .fc-daygrid-day-number {
+        background-color: #0d6efd;
+        color: #ffffff !important;
+        border-radius: 50%;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        padding: 0 !important;
+        margin: 2px;
+    }
+
+    /* --- ESTILO DE EVENTOS Y TARJETAS --- */
+    .fc-event {
+        border: none !important;
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
+        border-radius: 6px !important;
+        padding: 2px 5px !important;
+        margin: 1px 2px !important;
+        box-shadow: 0 1px 3px rgba(13, 110, 253, 0.2);
+        cursor: pointer;
+    }
+
+    .fc-event-title {
+        font-size: 0.78rem !important;
+        font-weight: 600 !important;
+        color: #ffffff !important;
+        white-space: normal !important;
+    }
+
+    .fc-event-time {
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    /* Optimizaciones para Vista Lista en Celulares */
+    .fc-list-event-title a {
+        text-decoration: none !important;
+        font-weight: 600;
+        color: var(--bs-body-color);
+    }
+    
+    .fc-list-day-text, .fc-list-day-side-text {
+        text-decoration: none !important;
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
 
 {% block main %}
-<div>
-
-    <!-- Encabezado -->
-    <div class="d-flex justify-content-between align-items-end mb-5 border-bottom pb-4">
+<div class="container-fluid px-2 px-md-4 py-3 py-md-4">
+    <!-- Encabezado Responsive -->
+    <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between mb-3 mb-md-4 pb-3 border-bottom gap-3">
         <div>
-            <h1 class="display-6 fw-normal mb-1">Agenda Médica</h1>
-            <p class="mb-0 text-body-secondary">Próximos agendamientos de VETKI.</p>
+            <h1 class="h3 h2-md fw-bold text-body-emphasis mb-1">📅 Agenda de Citas</h1>
+            <p class="text-body-secondary small mb-0">Gestión de pacientes y consultas médicas.</p>
         </div>
-        <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill px-4 py-2">
-           📅 Agendar Mascota
-        </a>
+        <div class="w-100 w-sm-auto">
+            <a href="{{ url_for('pet.pet_read') }}" 
+               class="btn btn-primary btn-md btn-lg-md rounded-pill px-4 shadow-sm fw-medium w-100 d-inline-flex align-items-center justify-content-center gap-2">
+                <span>➕</span> Agendar Nueva Cita
+            </a>
+        </div>
     </div>
 
-    <!-- BARRA DE BÚSQUEDA Y FILTROS -->
-    <div class="row mb-4 g-3 align-items-center">
-        <div class="col-12 col-md-8 col-lg-7">
-            <form method="GET" action="{{ url_for('appointment.appointment_read') }}" class="d-flex gap-2">
-                <div class="input-group shadow-sm rounded-pill border overflow-hidden">
-                    <span class="input-group-text bg-body-tertiary border-0 text-body-secondary ps-3">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="search" 
-                           name="q" 
-                           class="form-control border-0 bg-body-tertiary shadow-none ps-2" 
-                           placeholder="Buscar por paciente o tutor..." 
-                           value="{{ search_query or '' }}"
-                           autocapitalize="none"
-                           autocomplete="off">
-                    <button type="submit" class="btn btn-primary px-4 fw-medium border-0">
-                        Buscar
-                    </button>
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% set alert_type = 'success' if category == 'success' else ('danger' if category == 'danger' else 'warning') %}
+                <div class="alert alert-{{ alert_type }} alert-dismissible fade show mb-3 mb-md-4 rounded-3 shadow-sm py-2 px-3 small" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                 </div>
-                
-                {% if search_query %}
-                    <a href="{{ url_for('appointment.appointment_read') }}" class="btn btn-outline-secondary rounded-pill px-3 d-flex align-items-center gap-1 flex-shrink-0">
-                        <i class="bi bi-x-circle"></i> Limpiar
-                    </a>
-                {% endif %}
-            </form>
-        </div>
-
-        {% if search_query %}
-            <div class="col-12 col-md-auto text-body-secondary small ms-md-auto">
-                Resultados para: <strong class="text-primary">"{{ search_query }}"</strong>
-            </div>
+            {% endfor %}
         {% endif %}
+    {% endwith %}
+
+    <!-- Contenedor del Calendario con TarjetaAdaptable -->
+    <div class="card bg-body-tertiary border-0 rounded-4 p-2 p-md-4 shadow-sm">
+        <div id="calendar"></div>
     </div>
-
-    <!-- Lista de Citas -->
-    <div class="row g-4">
-        {% for cita in citas %}
-        <div class="col-12 col-xl-6">
-            <div class="card bg-body-tertiary border rounded-4 p-4 d-flex flex-row align-items-center gap-3">
-                
-                <!-- Date Box -->
-                <div class="bg-primary-subtle text-primary border border-primary-subtle rounded-4 p-3 text-center d-flex flex-column justify-content-center flex-shrink-0" style="min-width: 80px;">
-                    <span class="display-6 fw-bold lh-1 mb-1">{{ cita.date.strftime('%d') if cita.date else '--' }}</span>
-                    <span class="small text-uppercase fw-semibold tracking-wider">{{ cita.date.strftime('%b') if cita.date else '--' }}</span>
-                </div>
-
-                <!-- Info de la cita -->
-                <div class="flex-grow-1">
-                    <span class="badge text-bg-secondary fw-normal mb-2 px-3">
-                        Cita Confirmada
-                    </span>
-                    <h4 class="h5 mb-1 fw-semibold text-body">Paciente: {{ cita.pet_names }}</h4>
-                    <div class="text-body-secondary small">
-                        <span><i class="bi bi-hash"></i> Cita ID: {{ cita.id }}</span>
-                        <span class="mx-1">•</span>
-                        <span>Expediente: #{{ cita.pet_id }}</span>
-                    </div>
-                </div>
-
-                <!-- Opciones -->
-                <div class="d-flex flex-column align-items-end gap-2 ms-auto">
-                    <a href="{{ url_for('medical.pet_history', pet_id=cita.pet_id) }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                        Ver Expediente
-                    </a>
-                    
-                    <div class="d-flex gap-2">
-                        <a href="{{ url_for('appointment.appointment_update', appointment_id=cita.id) }}" class="btn btn-outline-warning btn-sm rounded-2">
-                            Modificar
-                        </a>
-                        
-                        <a href="{{ url_for('appointment.appointment_delete', appointment_id=cita.id) }}" class="btn btn-outline-danger btn-sm rounded-2" onclick="return confirm('¿Confirma que desea eliminar esta cita del sistema?');">
-                            Eliminar
-                        </a>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        {% else %}
-        <!-- ESTADO VACÍO -->
-        <div class="col-12 text-center py-5">
-            {% if search_query %}
-                <div class="display-1 text-body-tertiary mb-3">🔍</div>
-                <h5 class="text-body-secondary">No se encontraron citas que coincidan con "{{ search_query }}".</h5>
-                <a href="{{ url_for('appointment.appointment_read') }}" class="btn btn-outline-secondary rounded-pill mt-3 px-4">
-                    Ver todas las citas
-                </a>
-            {% else %}
-                <div class="display-1 text-body-tertiary mb-3">📅</div>
-                <h5 class="text-body-secondary">Tu agenda está libre</h5>
-                <a href="{{ url_for('pet.pet_read') }}" class="btn btn-primary rounded-pill mt-3">
-                    Agendar primer paciente
-                </a>
-            {% endif %}
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- NAVEGACIÓN DE PAGINACIÓN -->
-    {% if total_pages is defined and total_pages > 1 %}
-    <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
-        <div class="text-body-secondary small">
-            Página <strong>{{ page }}</strong> de <strong>{{ total_pages }}</strong> ({{ total_records }} citas en total)
-        </div>
-        <ul class="pagination mb-0">
-            <!-- Botón Anterior -->
-            <li class="page-item {% if page <= 1 %}disabled{% endif %}">
-                <a class="page-link rounded-pill px-3 me-1" 
-                   href="{{ url_for('appointment.appointment_read', page=page-1, q=search_query) }}">
-                    &laquo; Anterior
-                </a>
-            </li>
-
-            <!-- Botón Siguiente -->
-            <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
-                <a class="page-link rounded-pill px-3" 
-                   href="{{ url_for('appointment.appointment_read', page=page+1, q=search_query) }}">
-                    Siguiente &raquo;
-                </a>
-            </li>
-        </ul>
-    </div>
-    {% endif %}
-
 </div>
+
+<!-- Script con Detección Automática de Pantalla -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+
+    // Detectamos el ancho inicial de la pantalla
+    var isMobile = window.innerWidth < 768;
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        // En celulares iniciamos en vista Lista para legibilidad perfecta; en escritorio en Mes
+        initialView: isMobile ? 'listWeek' : 'dayGridMonth',
+        locale: 'es',
+        firstDay: 1,
+        timeZone: 'local',
+        height: 'auto',
+        
+        // Formato dinámico del Header según dispositivo
+        headerToolbar: isMobile ? {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'listWeek,dayGridMonth'
+        } : {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+        },
+        
+        buttonText: {
+            today:    'Hoy',
+            month:    'Mes',
+            week:     'Semana',
+            day:      'Día',
+            list:     'Agenda'
+        },
+        
+        // Endpoint JSON
+        events: '/appointments_list',
+        
+        // Redirección al tocar una cita
+        eventClick: function(info) {
+            if (info.event.url) {
+                window.location.href = info.event.url;
+                info.jsEvent.preventDefault();
+            }
+        },
+
+        // Tooltip con detalles al mantener/pasar cursor
+        eventDidMount: function(info) {
+            var tutor = info.event.extendedProps.tutor ? 'Tutor: ' + info.event.extendedProps.tutor : '';
+            var reason = info.event.extendedProps.reason ? ' | Motivo: ' + info.event.extendedProps.reason : '';
+            info.el.setAttribute('title', tutor + reason);
+        }
+    });
+
+    calendar.render();
+
+    // Re-adaptar la vista dinámicamente si el usuario gira la pantalla del móvil
+    window.addEventListener('resize', function() {
+        var currentIsMobile = window.innerWidth < 768;
+        if (currentIsMobile !== isMobile) {
+            isMobile = currentIsMobile;
+            calendar.changeView(isMobile ? 'listWeek' : 'dayGridMonth');
+        }
+    });
+});
+</script>
 {% endblock %}

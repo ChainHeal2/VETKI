@@ -18,5 +18,5 @@ class AppointmentForm(FlaskForm):
             '%Y-%m-%d %H:%M',       # Formato PC con espacio
             '%Y-%m-%d %H:%M:%S'     # Formato PC con espacio y segundos
         ])
-    g_id = StringField('ID de Google Calendar', validators=[Optional()])
+    reason = StringField('Motivo de la cita', validators=[Optional(), solo_letras])
     submit = SubmitField('Guardar Datos')

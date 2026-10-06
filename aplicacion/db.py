@@ -24,6 +24,7 @@ migrate = Migrate(
     compare_type=True,
     include_schemas=True,
     include_name=_include_migration_name,
+    version_table_schema="vetki",#añadido para que las migraciones se guarden en el esquema vetki
 )
 
 def get_db():

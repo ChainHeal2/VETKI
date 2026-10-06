@@ -19,7 +19,7 @@ from sqlalchemy import (
 metadata = MetaData(schema="vetki")
 
 
-Table(
+user_data=Table(
     "user_data",
     metadata,
     Column("user_id", Integer, primary_key=True, autoincrement=True),
@@ -32,7 +32,7 @@ Table(
     UniqueConstraint("user_google_id", name="user_data_user_google_id_key"),
 )
 
-Table(
+pet_data=Table(
     "pet_data",
     metadata,
     Column("pet_id", Integer, primary_key=True, autoincrement=True),
@@ -54,11 +54,14 @@ Table(
     Column("pet_tutor_phone", String(15)),
 )
 
-Table(
+appointments=Table(
     "appointments",
     metadata,
     Column("appointment_id", Integer, primary_key=True, autoincrement=True),
-    Column("appointment_google_event_id", String(255)),
+    
+    # 1. Agregamos el motivo/título de la cita (ej. "Control", "Vacunación")
+    Column("appointment_reason", String(255), nullable=True),
+    
     Column(
         "pet_id",
         Integer,
@@ -68,11 +71,16 @@ Table(
             ondelete="CASCADE",
         ),
     ),
+    # 2. Fecha y hora de inicio de la cita
     Column("appointment_date", DateTime(timezone=False), nullable=False),
+    
+    # 3. Fecha y hora de fin (súper útil para el bloque de tiempo en el calendario visual)
+    Column("appointment_end_date", DateTime(timezone=False), nullable=True),
+    
     Column("created_at", DateTime(timezone=True), server_default=text("NOW()")),
 )
 
-Table(
+medical_records=Table(
     "medical_records",
     metadata,
     Column("medical_record_id", Integer, primary_key=True, autoincrement=True),
@@ -119,7 +127,7 @@ Table(
     Column("created_at", DateTime(timezone=False), server_default=text("CURRENT_TIMESTAMP")),
 )
 
-Table(
+vaccinations=Table(
     "vaccinations",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
