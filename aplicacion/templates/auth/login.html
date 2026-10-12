@@ -3,53 +3,111 @@
 {% block title %}VETKI | Iniciar Sesión{% endblock %}
 
 {% block main %}
-<div class="position-relative w-100 py-4">
+<div class="position-relative w-100 py-3 py-md-4">
     <!-- Enlace Volver -->
-    <a href="{{ url_for('index.index') }}" class="text-decoration-none fw-semibold position-absolute top-0 start-0 z-3">
-        &larr; Volver al Portal
-    </a>
+    <div class="mb-3">
+        <a href="{{ url_for('index.index') }}" class="text-decoration-none text-secondary small fw-medium d-inline-flex align-items-center gap-1 hover-link">
+            <i class="bi bi-arrow-left"></i> Volver al Portal
+        </a>
+    </div>
 
     <!-- Card de Login -->
-    <div class="card bg-dark text-light border-secondary rounded-5 p-4 p-md-5 mx-auto shadow-lg" style="max-width: 450px;">
-        <div class="card-body p-0 text-center">
+    <div class="card bg-dark text-light border-secondary border-opacity-50 rounded-4 p-4 p-md-5 mx-auto shadow-lg" style="max-width: 460px;">
+        <div class="card-body p-0">
             
             <!-- Encabezado -->
-            <div class="mb-4">
-                <h1 class="h3 fw-bold mb-1">VETKI 🐾</h1>
-                <p class="text-secondary small mb-0">Mando Clínico Central</p>
+            <div class="text-center mb-4">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 52px; height: 52px;">
+                    <i class="bi bi-shield-lock fs-4"></i>
+                </div>
+                <h1 class="h4 fw-bold text-white mb-1">Mando Clínico VETKI</h1>
+                <p class="text-secondary small mb-0">Ingresa tus credenciales para acceder</p>
             </div>
 
             <!-- Flashed Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             {% for categoria, mensaje in messages %}
-            <div class="alert alert-{{ 'danger' if categoria == 'danger' or categoria == 'error' else 'success' }} px-3 py-2 text-center rounded-3 mb-4 small">
+            <div class="alert alert-{{ 'danger' if categoria in ['danger', 'error'] else ('success' if categoria == 'success' else 'info') }} alert-dismissible fade show px-3 py-2 text-center rounded-3 mb-4 small border-0" role="alert">
                 {{ mensaje }}
+                <button type="button" class="btn-close btn-close-white small p-2" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             {% endfor %}
             {% endif %}
             {% endwith %}
 
-            <!-- Botón de Google con clases de Bootstrap -->
-            <div class="d-grid my-4">
+            <!-- Formulario Nativo de Login -->
+            <form method="POST" action="{{ url_for('auth.user_login') }}" id="loginForm" class="mb-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-floating mb-3">
+                    <input type="email" class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none" 
+                           id="email" name="email" placeholder="correo@vetki.cl" required autocomplete="email">
+                    <label for="email" class="text-secondary">Correo Electrónico</label>
+                </div>
+
+                <div class="form-floating mb-4">
+                    <input type="password" class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none" 
+                           id="password" name="password" placeholder="Contraseña" required autocomplete="current-password">
+                    <label for="password" class="text-secondary">Contraseña</label>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" id="btnLoginSubmit" class="btn btn-primary rounded-pill py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                        <span>Ingresar al Sistema</span>
+                        <i class="bi bi-box-arrow-in-right"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Separador -->
+            <div class="d-flex align-items-center my-3">
+                <hr class="flex-grow-1 border-secondary border-opacity-25 m-0">
+                <span class="px-3 text-secondary small text-uppercase" style="font-size: 0.75rem;">o continuar con</span>
+                <hr class="flex-grow-1 border-secondary border-opacity-25 m-0">
+            </div>
+
+            <!-- Botón de Google OAuth -->
+            <div class="d-grid mb-4">
                 <a href="{{ url_for('google.login') }}" 
-                   class="btn btn-outline-light rounded-pill py-3 px-4 d-flex align-items-center justify-content-center gap-2 border-secondary shadow-sm">
-                    <svg width="20" height="20" viewBox="0 0 48 48">
+                   class="btn btn-outline-light rounded-pill py-2 px-4 d-flex align-items-center justify-content-center gap-2 border-secondary border-opacity-50 shadow-sm text-decoration-none">
+                    <svg width="18" height="18" viewBox="0 0 48 48">
                         <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
                         <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
                         <path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.0 24.0 0 0 0 0 21.56l7.98-6.19z" />
                         <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
                     </svg>
-                    <span class="fw-medium">Iniciar Sesión con Google</span>
+                    <span class="small fw-medium">Google Workspace</span>
+                </a>
+            </div>
+
+            <!-- Redirección a Registro -->
+            <div class="text-center pt-2 border-top border-secondary border-opacity-25">
+                <p class="text-secondary small mb-2">¿Aún no tienes cuenta registrada?</p>
+                <a href="{{ url_for('auth.user_register') }}" class="btn btn-outline-primary btn-sm rounded-pill px-4 fw-medium text-decoration-none">
+                    <i class="bi bi-person-plus me-1"></i>Crear Cuenta de Personal
                 </a>
             </div>
 
             <!-- Footer -->
-            <div class="mt-4">
-                <small class="text-secondary opacity-75">&copy; 2026 VETKI MEDICAL AI</small>
+            <div class="mt-4 text-center">
+                <small class="text-secondary opacity-75" style="font-size: 0.75rem;">&copy; 2026 VETKI MEDICAL AI &middot; Acceso Seguro</small>
             </div>
 
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('btnLoginSubmit');
+        if (form && submitBtn) {
+            form.addEventListener('submit', () => {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Validando...';
+            });
+        }
+    });
+</script>
 {% endblock %}

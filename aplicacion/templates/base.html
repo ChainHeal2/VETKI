@@ -30,8 +30,8 @@
                 </button>
 
                 <div class="collapse navbar-collapse justify-content-end" id="navVetki">
-                    <ul class="navbar-nav align-items-lg-center gap-3 mt-3 mt-lg-0">
-                        {% if session.get('user_id') or session.get('google_id') or session.get('user_name') %}
+                    <ul class="navbar-nav align-items-lg-center gap-2 mt-3 mt-lg-0">
+                        {% if session.get('user_id') %}
                         <li class="nav-item">
                             <div class="d-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-black border border-secondary border-opacity-25">
                                 <i class="bi bi-person-circle text-primary"></i>
@@ -41,6 +41,17 @@
                         <li class="nav-item">
                             <a class="btn btn-outline-danger btn-sm px-3 rounded-pill" href="{{ url_for('auth.user_logout') }}">
                                 <i class="bi bi-power me-1"></i>Cerrar Sesión
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light btn-sm px-3 rounded-pill w-100" href="{{ url_for('auth.user_login') }}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary btn-sm px-3 rounded-pill w-100 fw-medium shadow-sm" href="{{ url_for('auth.user_register') }}">
+                                <i class="bi bi-person-plus me-1"></i>Registrarse
                             </a>
                         </li>
                         {% endif %}
@@ -55,7 +66,7 @@
         <div class="container">
             {% block main %}
             
-            {% if session.get('user_id') or session.get('google_id') %}
+            {% if session.get('user_id') %}
             <!-- ======================================================= -->
             <!-- DASHBOARD PRIVADO (AUTENTICADO)                         -->
             <!-- ======================================================= -->
@@ -214,9 +225,12 @@
                     <p class="lead text-muted mb-4">
                         VETKI centraliza historias clínicas, agenda de turnos y procesos administrativos en una plataforma segura y moderna.
                     </p>
-                    <div>
-                        <a href="{{ url_for('auth.user_login') }}" class="btn btn-primary btn-lg px-5 py-3 fw-bold shadow-sm">
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
+                        <a href="{{ url_for('auth.user_login') }}" class="btn btn-primary btn-lg px-4 py-3 fw-bold shadow-sm rounded-pill">
                             Ingresar al Sistema <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                        <a href="{{ url_for('auth.user_register') }}" class="btn btn-outline-light btn-lg px-4 py-3 fw-medium shadow-sm rounded-pill">
+                            Crear Cuenta <i class="bi bi-person-plus ms-2"></i>
                         </a>
                     </div>
                 </div>

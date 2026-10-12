@@ -9,7 +9,6 @@ Aca nos encargamos de la integridad de los datos
 """
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Length, Regexp, Email
 from wtforms.validators import DataRequired, Length, Regexp, Email, Optional
 from aplicacion.functions.functions_wtf import limpiar_string
 
