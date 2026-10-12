@@ -3,172 +3,26 @@
 {% block title %}VETKI | Agenda de Citas{% endblock %}
 
 {% block head %}
-<!-- FullCalendar v6 JS -->
+<!-- FullCalendar v6 JS y Estilos Modulares -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-
-<style>
-    /* --- VARIABLES Y CONFIGURACIÓN BASE --- */
-    :root {
-        --fc-border-color: rgba(0, 0, 0, 0.08);
-        --fc-today-bg-color: rgba(13, 110, 253, 0.05);
-    }
-
-    #calendar {
-        max-width: 100%;
-        margin: 0 auto;
-        min-height: 500px;
-        font-family: inherit;
-    }
-
-    /* --- RESPONSIVE TOOLBAR (HEADER) --- */
-    .fc .fc-toolbar {
-        flex-wrap: wrap !important;
-        gap: 0.75rem !important;
-    }
-
-    .fc .fc-toolbar-title {
-        font-size: 1.15rem !important;
-        font-weight: 700;
-        color: var(--bs-body-color);
-        text-transform: capitalize;
-    }
-
-    /* Ajustes específicos para pantallas medianas/grandes */
-    @media (min-width: 768px) {
-        .fc .fc-toolbar-title {
-            font-size: 1.4rem !important;
-        }
-        #calendar {
-            min-height: 720px;
-        }
-    }
-
-    /* Estilos para Botones de FullCalendar */
-    .fc .fc-button-primary {
-        background-color: #f8f9fa !important;
-        border: 1px solid #dee2e6 !important;
-        color: #212529 !important;
-        font-weight: 500;
-        border-radius: 8px !important;
-        box-shadow: none !important;
-        padding: 5px 10px;
-        font-size: 0.85rem;
-        transition: all 0.2s ease;
-    }
-
-    @media (min-width: 768px) {
-        .fc .fc-button-primary {
-            padding: 6px 14px;
-            font-size: 0.95rem;
-        }
-    }
-
-    .fc .fc-button-primary:hover {
-        background-color: #e9ecef !important;
-        color: #0d6efd !important;
-    }
-
-    .fc .fc-button-primary:not(:disabled).fc-button-active, 
-    .fc .fc-button-primary:not(:disabled):active {
-        background-color: #0d6efd !important;
-        border-color: #0d6efd !important;
-        color: #ffffff !important;
-    }
-
-    /* Encabezados de Días (Mes/Semana) */
-    .fc .fc-col-header-cell-cushion {
-        padding: 6px 0;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #6c757d;
-        text-decoration: none !important;
-    }
-
-    @media (min-width: 768px) {
-        .fc .fc-col-header-cell-cushion {
-            padding: 10px 0;
-            font-size: 0.85rem;
-        }
-    }
-
-    /* Números de Días */
-    .fc .fc-daygrid-day-number {
-        font-weight: 600;
-        font-size: 0.85rem;
-        color: var(--bs-body-color);
-        text-decoration: none !important;
-        padding: 4px 6px !important;
-    }
-
-    /* Día Actual Resaltado */
-    .fc .fc-day-today {
-        background-color: rgba(13, 110, 253, 0.04) !important;
-    }
-    
-    .fc .fc-day-today .fc-daygrid-day-number {
-        background-color: #0d6efd;
-        color: #ffffff !important;
-        border-radius: 50%;
-        display: inline-block;
-        width: 24px;
-        height: 24px;
-        line-height: 24px;
-        text-align: center;
-        padding: 0 !important;
-        margin: 2px;
-    }
-
-    /* --- ESTILO DE EVENTOS Y TARJETAS --- */
-    .fc-event {
-        border: none !important;
-        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
-        border-radius: 6px !important;
-        padding: 2px 5px !important;
-        margin: 1px 2px !important;
-        box-shadow: 0 1px 3px rgba(13, 110, 253, 0.2);
-        cursor: pointer;
-    }
-
-    .fc-event-title {
-        font-size: 0.78rem !important;
-        font-weight: 600 !important;
-        color: #ffffff !important;
-        white-space: normal !important;
-    }
-
-    .fc-event-time {
-        font-size: 0.72rem !important;
-        font-weight: 700 !important;
-        color: rgba(255, 255, 255, 0.9) !important;
-    }
-
-    /* Optimizaciones para Vista Lista en Celulares */
-    .fc-list-event-title a {
-        text-decoration: none !important;
-        font-weight: 600;
-        color: var(--bs-body-color);
-    }
-    
-    .fc-list-day-text, .fc-list-day-side-text {
-        text-decoration: none !important;
-        font-weight: 700;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
+<script src="{{ url_for('static', filename='js/calendar.js') }}" defer></script>
 {% endblock %}
 
 {% block main %}
 <div class="container-fluid px-2 px-md-4 py-3 py-md-4">
     <!-- Encabezado Responsive -->
-    <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between mb-3 mb-md-4 pb-3 border-bottom gap-3">
+    <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between mb-3 mb-md-4 pb-3 border-bottom border-secondary border-opacity-25 gap-3">
         <div>
-            <h1 class="h3 h2-md fw-bold text-body-emphasis mb-1">📅 Agenda de Citas</h1>
-            <p class="text-body-secondary small mb-0">Gestión de pacientes y consultas médicas.</p>
+            <h1 class="h3 h2-md fw-bold text-white mb-1">
+                <i class="bi bi-calendar-week text-primary me-2"></i>Agenda de Citas
+            </h1>
+            <p class="text-body-secondary small mb-0">Gestión de pacientes y consultas médicas veterinarias.</p>
         </div>
         <div class="w-100 w-sm-auto">
             <a href="{{ url_for('pet.pet_read') }}" 
-               class="btn btn-primary btn-md btn-lg-md rounded-pill px-4 shadow-sm fw-medium w-100 d-inline-flex align-items-center justify-content-center gap-2">
-                <span>➕</span> Agendar Nueva Cita
+               class="btn btn-primary rounded-pill px-4 shadow-sm fw-medium w-100 d-inline-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-plus-circle"></i> Agendar Nueva Cita
             </a>
         </div>
     </div>
@@ -178,7 +32,7 @@
         {% if messages %}
             {% for category, message in messages %}
                 {% set alert_type = 'success' if category == 'success' else ('danger' if category == 'danger' else 'warning') %}
-                <div class="alert alert-{{ alert_type }} alert-dismissible fade show mb-3 mb-md-4 rounded-3 shadow-sm py-2 px-3 small" role="alert">
+                <div class="alert alert-{{ alert_type }} alert-dismissible fade show mb-3 mb-md-4 rounded-3 shadow-sm py-2 px-3 small border-0" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                 </div>
@@ -186,76 +40,9 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Contenedor del Calendario con TarjetaAdaptable -->
+    <!-- Contenedor del Calendario Adaptable -->
     <div class="card bg-body-tertiary border-0 rounded-4 p-2 p-md-4 shadow-sm">
         <div id="calendar"></div>
     </div>
 </div>
-
-<!-- Script con Detección Automática de Pantalla -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-
-    // Detectamos el ancho inicial de la pantalla
-    var isMobile = window.innerWidth < 768;
-
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        // En celulares iniciamos en vista Lista para legibilidad perfecta; en escritorio en Mes
-        initialView: isMobile ? 'listWeek' : 'dayGridMonth',
-        locale: 'es',
-        firstDay: 1,
-        timeZone: 'local',
-        height: 'auto',
-        
-        // Formato dinámico del Header según dispositivo
-        headerToolbar: isMobile ? {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'listWeek,dayGridMonth'
-        } : {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-        },
-        
-        buttonText: {
-            today:    'Hoy',
-            month:    'Mes',
-            week:     'Semana',
-            day:      'Día',
-            list:     'Agenda'
-        },
-        
-        // Endpoint JSON
-        events: '/appointments_list',
-        
-        // Redirección al tocar una cita
-        eventClick: function(info) {
-            if (info.event.url) {
-                window.location.href = info.event.url;
-                info.jsEvent.preventDefault();
-            }
-        },
-
-        // Tooltip con detalles al mantener/pasar cursor
-        eventDidMount: function(info) {
-            var tutor = info.event.extendedProps.tutor ? 'Tutor: ' + info.event.extendedProps.tutor : '';
-            var reason = info.event.extendedProps.reason ? ' | Motivo: ' + info.event.extendedProps.reason : '';
-            info.el.setAttribute('title', tutor + reason);
-        }
-    });
-
-    calendar.render();
-
-    // Re-adaptar la vista dinámicamente si el usuario gira la pantalla del móvil
-    window.addEventListener('resize', function() {
-        var currentIsMobile = window.innerWidth < 768;
-        if (currentIsMobile !== isMobile) {
-            isMobile = currentIsMobile;
-            calendar.changeView(isMobile ? 'listWeek' : 'dayGridMonth');
-        }
-    });
-});
-</script>
 {% endblock %}

@@ -1,0 +1,151 @@
+/**
+ * VETKI - Estilos Modulares para FullCalendar v6
+ * Optimizado para Bootstrap 5 y Mobile-First
+ */
+
+:root {
+    --fc-border-color: rgba(255, 255, 255, 0.08);
+    --fc-today-bg-color: rgba(13, 110, 253, 0.1);
+}
+
+#calendar {
+    max-width: 100%;
+    margin: 0 auto;
+    min-height: 500px;
+    font-family: inherit;
+}
+
+/* Responsive Toolbar */
+.fc .fc-toolbar {
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+}
+
+.fc .fc-toolbar-title {
+    font-size: 1.15rem !important;
+    font-weight: 700;
+    color: var(--bs-body-color);
+    text-transform: capitalize;
+}
+
+@media (min-width: 768px) {
+    .fc .fc-toolbar-title {
+        font-size: 1.4rem !important;
+    }
+    #calendar {
+        min-height: 720px;
+    }
+}
+
+/* Botones de FullCalendar */
+.fc .fc-button-primary {
+    background-color: var(--bs-body-bg) !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-body-color) !important;
+    font-weight: 500;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+@media (min-width: 768px) {
+    .fc .fc-button-primary {
+        padding: 6px 14px;
+        font-size: 0.95rem;
+    }
+}
+
+.fc .fc-button-primary:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #0d6efd !important;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active, 
+.fc .fc-button-primary:not(:disabled):active {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #ffffff !important;
+}
+
+/* Encabezados de Días */
+.fc .fc-col-header-cell-cushion {
+    padding: 6px 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #6c757d;
+    text-decoration: none !important;
+}
+
+@media (min-width: 768px) {
+    .fc .fc-col-header-cell-cushion {
+        padding: 10px 0;
+        font-size: 0.85rem;
+    }
+}
+
+/* Números de Días */
+.fc .fc-daygrid-day-number {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--bs-body-color);
+    text-decoration: none !important;
+    padding: 4px 6px !important;
+}
+
+/* Día Actual Resaltado */
+.fc .fc-day-today {
+    background-color: rgba(13, 110, 253, 0.08) !important;
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+    background-color: #0d6efd;
+    color: #ffffff !important;
+    border-radius: 50%;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    padding: 0 !important;
+    margin: 2px;
+}
+
+/* Tarjetas de Eventos */
+.fc-event {
+    border: none !important;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
+    border-radius: 6px !important;
+    padding: 2px 5px !important;
+    margin: 1px 2px !important;
+    box-shadow: 0 1px 3px rgba(13, 110, 253, 0.2);
+    cursor: pointer;
+}
+
+.fc-event-title {
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    white-space: normal !important;
+}
+
+.fc-event-time {
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Optimizaciones para Vista Lista en Móviles */
+.fc-list-event-title a {
+    text-decoration: none !important;
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
+.fc-list-day-text, .fc-list-day-side-text {
+    text-decoration: none !important;
+    font-weight: 700;
+}
+

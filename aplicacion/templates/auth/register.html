@@ -126,17 +126,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('registerForm');
-        const submitBtn = document.getElementById('btnRegisterSubmit');
-        if (form && submitBtn) {
-            form.addEventListener('submit', () => {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Creando cuenta...';
-            });
-        }
-    });
-</script>
 {% endblock %}

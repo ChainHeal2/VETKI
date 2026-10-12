@@ -1,23 +1,22 @@
 {% extends 'base.html' %}
 
-{% block title %}VETKI | Nuevo Usuario {% endblock %}
+{% block title %}VETKI | Nuevo Usuario{% endblock %}
 
 {% block main %}
-<div class="animate-slide">
+<div class="py-2">
 
-    <div class="mb-5 border-bottom pb-4" style="border-color: var(--gemini-border) !important;">
-        <h1 class="display-6 fw-normal mb-1">Registrar Usuario</h1>
-        <p class="mb-0" style="color: var(--gemini-text-sub);">Añade un nuevo miembro al sistema VETKI.</p>
+    <div class="mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+        <h1 class="display-6 fw-normal text-white mb-1">Registrar Usuario de Staff</h1>
+        <p class="mb-0 text-body-secondary">Añade un nuevo médico o miembro autorizado al sistema VETKI.</p>
     </div>
 
-    <!-- action="" para hacer POST a la ruta actual -->
     <form method="POST" class="row g-4 px-lg-2">
         {{ user_form.hidden_tag() }}
 
         <div class="col-md-6">
             <div class="form-floating">
-                {{ user_form.user_names(class="form-control", id="user_names", placeholder="Nombres") }}
-                <label for="user_names">Nombres</label>
+                {{ user_form.user_names(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="user_names", placeholder="Nombres") }}
+                <label for="user_names" class="text-secondary">Nombres Completos</label>
                 {% if user_form.user_names.errors %}
                 <span class="text-danger small mt-1 d-block">{{ user_form.user_names.errors[0] }}</span>
                 {% endif %}
@@ -26,8 +25,8 @@
 
         <div class="col-md-6">
             <div class="form-floating">
-                {{ user_form.user_rut(class="form-control", id="user_rut", placeholder="RUT") }}
-                <label for="user_rut">RUT (Opcional)</label>
+                {{ user_form.user_rut(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="user_rut", placeholder="RUT") }}
+                <label for="user_rut" class="text-secondary">RUT (Opcional)</label>
                 {% if user_form.user_rut.errors %}
                 <span class="text-danger small mt-1 d-block">{{ user_form.user_rut.errors[0] }}</span>
                 {% endif %}
@@ -36,8 +35,8 @@
 
         <div class="col-md-6">
             <div class="form-floating">
-                {{ user_form.user_email(class="form-control", id="user_email", placeholder="Correo Electrónico") }}
-                <label for="user_email">Correo Electrónico de Acceso</label>
+                {{ user_form.user_email(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="user_email", placeholder="Correo Electrónico") }}
+                <label for="user_email" class="text-secondary">Correo Electrónico de Acceso</label>
                 {% if user_form.user_email.errors %}
                 <span class="text-danger small mt-1 d-block">{{ user_form.user_email.errors[0] }}</span>
                 {% endif %}
@@ -46,8 +45,8 @@
 
         <div class="col-md-6">
             <div class="form-floating">
-                {{ user_form.user_password(class="form-control", id="user_password", placeholder="Contraseña") }}
-                <label for="user_password">Contraseña temporal</label>
+                {{ user_form.user_password(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="user_password", placeholder="Contraseña") }}
+                <label for="user_password" class="text-secondary">Contraseña Temporal</label>
                 {% if user_form.user_password.errors %}
                 <span class="text-danger small mt-1 d-block">{{ user_form.user_password.errors[0] }}</span>
                 {% endif %}
@@ -55,11 +54,11 @@
         </div>
 
         <div class="col-12 mt-5">
-            <div class="d-flex justify-content-end align-items-center gap-3">
-                <a href="{{ url_for('index.index') }}"
-                    class="text-decoration-none small fw-medium text-secondary me-3">Volver al Dashboard</a>
-                {{ user_form.submit(class="btn-gemini btn-pink", style="width: auto; padding: 0.8rem 3rem;",
-                value="Crear Cuenta") }}
+            <div class="d-flex flex-column flex-sm-row justify-content-end align-items-center gap-3">
+                <a href="{{ url_for('user.user_read') }}" class="btn btn-outline-secondary rounded-pill px-4 w-100 w-sm-auto text-decoration-none">
+                    Cancelar
+                </a>
+                {{ user_form.submit(class="btn btn-primary rounded-pill px-5 py-2 fw-medium shadow-sm w-100 w-sm-auto", value="Crear Cuenta") }}
             </div>
         </div>
     </form>

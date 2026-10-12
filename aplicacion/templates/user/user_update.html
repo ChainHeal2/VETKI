@@ -3,21 +3,20 @@
 {% block title %}VETKI | Modificar Usuario{% endblock %}
 
 {% block main %}
-<div class="animate-slide">
+<div class="py-2">
 
-    <div class="mb-5 border-bottom pb-4" style="border-color: var(--gemini-border) !important;">
-        <h1 class="display-6 fw-normal mb-1">Actualizar Usuario</h1>
-        <p class="mb-0" style="color: var(--gemini-text-sub);">Modificando los datos de la cuenta seleccionada.</p>
+    <div class="mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+        <h1 class="display-6 fw-normal text-white mb-1">Actualizar Usuario</h1>
+        <p class="mb-0 text-body-secondary">Modificando los datos del miembro seleccionado.</p>
     </div>
 
-    <!-- action="" para hacer POST a la ruta actual -->
     <form method="POST" class="row g-4 px-lg-2">
         {{ user_update.hidden_tag() }}
 
         <div class="col-md-6">
             <div class="form-floating">
-                {{ user_update.user_names(class="form-control", id="user_names", placeholder="Nombres") }}
-                <label for="user_names">Nombres</label>
+                {{ user_update.user_names(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="user_names", placeholder="Nombres") }}
+                <label for="user_names" class="text-secondary">Nombres Completos</label>
                 {% if user_update.user_names.errors %}
                 <span class="text-danger small mt-1 d-block">{{ user_update.user_names.errors[0] }}</span>
                 {% endif %}
@@ -26,8 +25,8 @@
 
         <div class="col-md-6">
             <div class="form-floating">
-                {{ user_update.user_rut(class="form-control", id="user_rut", placeholder="RUT") }}
-                <label for="user_rut">RUT (Opcional)</label>
+                {{ user_update.user_rut(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="user_rut", placeholder="RUT") }}
+                <label for="user_rut" class="text-secondary">RUT (Opcional)</label>
                 {% if user_update.user_rut.errors %}
                 <span class="text-danger small mt-1 d-block">{{ user_update.user_rut.errors[0] }}</span>
                 {% endif %}
@@ -36,20 +35,18 @@
 
         <div class="col-md-6">
             <div class="form-floating">
-                {{ user_update.user_email(class="form-control", id="user_email", placeholder="Correo Electrónico") }}
-                <label for="user_email">Correo Electrónico de Acceso</label>
+                {{ user_update.user_email(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="user_email", placeholder="Correo Electrónico") }}
+                <label for="user_email" class="text-secondary">Correo Electrónico de Acceso</label>
                 {% if user_update.user_email.errors %}
                 <span class="text-danger small mt-1 d-block">{{ user_update.user_email.errors[0] }}</span>
                 {% endif %}
             </div>
         </div>
 
-        <!-- Opcional si se requiere actualizar contraseña desde acá -->
         <div class="col-md-6">
             <div class="form-floating">
-                {{ user_update.user_password(class="form-control", id="user_password", placeholder="Nueva Contraseña")
-                }}
-                <label for="user_password">Nueva Contraseña (Opcional)</label>
+                {{ user_update.user_password(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="user_password", placeholder="Nueva Contraseña") }}
+                <label for="user_password" class="text-secondary">Nueva Contraseña (Opcional)</label>
                 {% if user_update.user_password.errors %}
                 <span class="text-danger small mt-1 d-block">{{ user_update.user_password.errors[0] }}</span>
                 {% endif %}
@@ -57,11 +54,11 @@
         </div>
 
         <div class="col-12 mt-5">
-            <div class="d-flex justify-content-end align-items-center gap-3">
-                <a href="{{ url_for('user.user_read') }}" class="btn-gemini btn-outline me-2"
-                    style="text-decoration: none;">Cancelar Modificación</a>
-                {{ user_update.submit(class="btn-gemini btn-pink", style="width: auto; padding: 0.8rem 3rem;",
-                value="Guardar Cambios") }}
+            <div class="d-flex flex-column flex-sm-row justify-content-end align-items-center gap-3">
+                <a href="{{ url_for('user.user_read') }}" class="btn btn-outline-secondary rounded-pill px-4 w-100 w-sm-auto text-decoration-none">
+                    Cancelar
+                </a>
+                {{ user_update.submit(class="btn btn-primary rounded-pill px-5 py-2 fw-medium shadow-sm w-100 w-sm-auto", value="Guardar Cambios") }}
             </div>
         </div>
     </form>

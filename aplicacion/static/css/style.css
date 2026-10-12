@@ -1,0 +1,44 @@
+/**
+ * VETKI - Estilos Globales y Optimizaciones del Tema
+ * Bootstrap 5.3+ Dark Mode
+ */
+
+:root {
+    --vetki-primary: #0d6efd;
+    --vetki-border-subtle: rgba(255, 255, 255, 0.1);
+}
+
+/* Transiciones suaves en enlaces y botones */
+.transition-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.transition-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Enlaces sutiles de retorno o acción */
+.hover-link {
+    transition: color 0.15s ease-in-out;
+}
+
+.hover-link:hover {
+    color: var(--bs-light) !important;
+}
+
+/* Formularios y Inputs Flotantes en Modo Oscuro */
+.form-floating > .form-control:focus,
+.form-floating > .form-select:focus {
+    border-color: var(--vetki-primary);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Adaptabilidad para tablas en pantallas móviles */
+@media (max-width: 767.98px) {
+    .btn-responsive-stack {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+

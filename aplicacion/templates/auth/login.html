@@ -97,17 +97,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('loginForm');
-        const submitBtn = document.getElementById('btnLoginSubmit');
-        if (form && submitBtn) {
-            form.addEventListener('submit', () => {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Validando...';
-            });
-        }
-    });
-</script>
 {% endblock %}

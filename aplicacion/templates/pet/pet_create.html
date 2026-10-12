@@ -3,203 +3,142 @@
 {% block title %}VETKI | Nuevo Paciente{% endblock %}
 
 {% block main %}
-<div class="animate-slide">
+<div class="py-2">
 
-    <div class="mb-5 border-bottom pb-4" style="border-color: var(--gemini-border) !important;">
-        <h1 class="display-6 fw-normal mb-1">Ingreso de Paciente</h1>
-        <p class="mb-0" style="color: var(--gemini-text-sub);">Complete el expediente clínico para la base de datos.</p>
+    <div class="mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+        <h1 class="display-6 fw-normal text-white mb-1">Ingreso de Paciente</h1>
+        <p class="mb-0 text-body-secondary">Complete el expediente clínico para la base de datos de VETKI.</p>
     </div>
 
     <form method="POST" class="row g-4 px-lg-2">
         {{ pet_form.hidden_tag() }}
 
         <div class="col-12 mb-2">
-            <h3 class="h5 fw-normal text-secondary mb-1">
-                <i class="bi bi-paw-fill me-2"></i>Datos de la Mascota
+            <h3 class="h5 fw-normal text-white mb-1">
+                <i class="bi bi-paw-fill text-primary me-2"></i>Datos de la Mascota
             </h3>
-            <hr class="mt-2 mb-0" style="color: var(--gemini-border); opacity: 0.5;">
+            <hr class="mt-2 mb-0 border-secondary border-opacity-25">
         </div>
 
         <div class="col-md-7">
             <div class="form-floating">
-                {{ pet_form.pet_names(class="form-control", id="pet_names", placeholder="Nombre") }}
-                <label for="pet_names">Nombre del Paciente</label>
+                {{ pet_form.pet_names(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_names", placeholder="Nombre") }}
+                <label for="pet_names" class="text-secondary">Nombre del Paciente</label>
             </div>
         </div>
 
         <div class="col-md-5">
             <div class="form-floating">
-                {{ pet_form.pet_species_name(class="form-select", id="pet_species_name", placeholder="Especie") }}
-                <label for="pet_species_name">Especie</label>
+                {{ pet_form.pet_species_name(class="form-select bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_species_name", placeholder="Especie") }}
+                <label for="pet_species_name" class="text-secondary">Especie</label>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="form-floating">
-                {{ pet_form.pet_race(class="form-control", id="pet_race", placeholder="Raza") }}
-                <label for="pet_race">Raza / Cruce</label>
+                {{ pet_form.pet_race(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_race", placeholder="Raza") }}
+                <label for="pet_race" class="text-secondary">Raza / Cruce</label>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="form-floating">
-                {{ pet_form.pet_color(class="form-control", id="pet_color", placeholder="Color") }}
-                <label for="pet_color">Color</label>
+                {{ pet_form.pet_gender(class="form-select bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_gender", placeholder="Sexo") }}
+                <label for="pet_gender" class="text-secondary">Sexo</label>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="form-floating">
-                <select name="pet_gender" class="form-select" id="pet_gender">
-                    <option value="" disabled selected>Seleccione...</option>
-                    <option value="Macho">Macho</option>
-                    <option value="Hembra">Hembra</option>
-                </select>
-                <label for="pet_gender">Género Biológico</label>
+                {{ pet_form.pet_color(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_color", placeholder="Color") }}
+                <label for="pet_color" class="text-secondary">Color / Señas</label>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="form-floating">
-                {{ pet_form.pet_datebirth(class="form-control", id="pet_datebirth", type="date") }}
-                <label for="pet_datebirth">Fecha de Nacimiento</label>
+                {{ pet_form.pet_datebirth(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_datebirth", placeholder="Fecha de Nacimiento", type="date") }}
+                <label for="pet_datebirth" class="text-secondary">Fecha de Nacimiento</label>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="form-floating">
-                {{ pet_form.pet_microchip(class="form-control", id="pet_microchip", placeholder="Microchip") }}
-                <label for="pet_microchip">N° Microchip (Opcional)</label>
+                {{ pet_form.pet_reproductive_status(class="form-select bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_reproductive_status", placeholder="Estado Reproductivo") }}
+                <label for="pet_reproductive_status" class="text-secondary">Estado Reproductivo</label>
             </div>
-            <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal"
-                data-bs-target="#qrScannerModal">
-                <i class="bi bi-qr-code-scan me-1"></i> Escanear microchip
-            </button>
         </div>
 
         <div class="col-md-4">
-            <div class="form-floating">
-                <select name="pet_rstatus" class="form-select" id="pet_rstatus">
-                    <option value="" disabled selected>Seleccione...</option>
-                    <option value="Activo">Activo</option>
-                    <option value="Castrado">Castrado</option>
-                    <option value="Esterilizada">Esterilizada</option>
-                </select>
-                <label for="pet_rstatus">Estado Reproductivo</label>
+            <div class="input-group">
+                <div class="form-floating flex-grow-1">
+                    {{ pet_form.pet_microchip(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_microchip", placeholder="Microchip") }}
+                    <label for="pet_microchip" class="text-secondary">N° Microchip (Opcional)</label>
+                </div>
+                <button class="btn btn-outline-secondary d-flex align-items-center px-3" type="button"
+                    data-bs-toggle="modal" data-bs-target="#qrScannerModal" title="Escanear con Cámara">
+                    <i class="bi bi-qr-code-scan"></i>
+                </button>
             </div>
         </div>
-
 
         <div class="col-12 mt-5 mb-2">
-            <h3 class="h5 fw-normal text-secondary mb-1">
-                <i class="bi bi-person-bounding-box me-2"></i>Datos del Tutor
+            <h3 class="h5 fw-normal text-white mb-1">
+                <i class="bi bi-person-bounding-box text-primary me-2"></i>Datos del Tutor
             </h3>
-            <hr class="mt-2 mb-0" style="color: var(--gemini-border); opacity: 0.5;">
+            <hr class="mt-2 mb-0 border-secondary border-opacity-25">
         </div>
 
         <div class="col-md-4">
             <div class="form-floating">
-                {{ pet_form.pet_tutor_name(class="form-control", id="pet_tutor_name", placeholder="Nombre del tutor") }}
-                <label for="pet_tutor_name">Nombre del tutor</label>
+                {{ pet_form.pet_tutor_name(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_tutor_name", placeholder="Nombre del tutor") }}
+                <label for="pet_tutor_name" class="text-secondary">Nombre del tutor</label>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="form-floating">
-                {{ pet_form.pet_tutor_phone(class="form-control", id="pet_tutor_phone", placeholder="Telefono del
-                tutor") }}
-                <label for="pet_tutor_phone">Telefono del tutor</label>
+                {{ pet_form.pet_tutor_phone(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_tutor_phone", placeholder="Teléfono del tutor") }}
+                <label for="pet_tutor_phone" class="text-secondary">Teléfono del tutor</label>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="form-floating">
-                {{ pet_form.pet_tutor_address(class="form-control", id="pet_tutor_address", placeholder="Direccion del
-                tutor") }}
-                <label for="pet_tutor_address">Direccion del tutor</label>
+                {{ pet_form.pet_tutor_address(class="form-control bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_tutor_address", placeholder="Dirección del tutor") }}
+                <label for="pet_tutor_address" class="text-secondary">Dirección del tutor</label>
             </div>
         </div>
-
 
         <div class="col-12 mt-5">
-            <div class="d-flex justify-content-end align-items-center gap-3">
-                <a href="{{url_for('index.index')}}"
-                    class="text-decoration-none small fw-medium text-secondary me-3">Descartar</a>
-                {{ pet_form.submit(class="btn-gemini btn-pink", style="width: auto; padding: 0.8rem 3rem;",
-                value="Registrar Paciente") }}
+            <div class="d-flex flex-column flex-sm-row justify-content-end align-items-center gap-3">
+                <a href="{{ url_for('index.index') }}" class="btn btn-outline-secondary rounded-pill px-4 w-100 w-sm-auto text-decoration-none">
+                    Descartar
+                </a>
+                {{ pet_form.submit(class="btn btn-primary rounded-pill px-5 py-2 fw-medium shadow-sm w-100 w-sm-auto", value="Registrar Paciente") }}
             </div>
         </div>
     </form>
 </div>
 
-<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerLabel" aria-hidden="true">
+<!-- Modal Escáner QR Microchip -->
+<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerLabel" aria-hidden="true"
+     data-process-url="{{ url_for('qr.process_qr') }}">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title fs-5" id="qrScannerLabel">Escanear código QR</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <div class="modal-content border-secondary border-opacity-25 bg-dark text-light shadow-lg">
+            <div class="modal-header border-secondary border-opacity-25">
+                <h2 class="modal-title fs-5 fw-bold text-white" id="qrScannerLabel">
+                    <i class="bi bi-upc-scan me-2 text-primary"></i>Escanear Microchip / QR
+                </h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body">
-                <div id="qr-reader" class="w-100"></div>
-                <p id="qr-status" class="small text-body-secondary mt-3 mb-0" role="status">
+            <div class="modal-body text-center p-4">
+                <div id="qr-reader" class="w-100 rounded-3 overflow-hidden border border-secondary border-opacity-25 bg-black"></div>
+                <p id="qr-status" class="small text-secondary mt-3 mb-0" role="status">
                     Apunta la cámara trasera al código del microchip.
                 </p>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block footer %}
-{{ super() }}
-<script src="https://unpkg.com/html5-qrcode" defer></script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const modal = document.getElementById("qrScannerModal");
-    const status = document.getElementById("qr-status");
-    const input = document.getElementById("pet_microchip");
-    const token = document.querySelector('input[name="csrf_token"]')?.value;
-    let scanner;
-
-    modal.addEventListener("shown.bs.modal", async () => {
-        if (!window.isSecureContext) {
-            status.textContent = "La cámara requiere HTTPS (o localhost). Abre el sistema en un entorno seguro.";
-            return;
-        }
-        if (!window.Html5Qrcode) {
-            status.textContent = "No se pudo cargar el lector QR. Comprueba tu conexión.";
-            return;
-        }
-        scanner = new Html5Qrcode("qr-reader");
-        try {
-            await scanner.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                async (decodedText) => {
-                    await scanner.stop();
-                    const response = await fetch("{{ url_for('qr.process_qr') }}", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", "X-CSRFToken": token || "" },
-                        body: JSON.stringify({ content: decodedText })
-                    });
-                    const result = await response.json();
-                    if (!response.ok) throw new Error(result.error || "QR inválido");
-                    input.value = result.microchip;
-                    status.textContent = "Microchip cargado correctamente.";
-                    bootstrap.Modal.getInstance(modal).hide();
-                }
-            );
-        } catch (error) {
-            status.textContent = "No se pudo acceder a la cámara. Revisa el permiso del navegador y usa HTTPS.";
-        }
-    });
-    modal.addEventListener("hidden.bs.modal", async () => {
-        if (scanner) {
-            try { await scanner.stop(); } catch (_) { /* ya detenido */ }
-            scanner.clear();
-            scanner = null;
-        }
-    });
-});
-</script>
 {% endblock %}
