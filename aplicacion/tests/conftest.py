@@ -23,6 +23,7 @@ def app():
     app = create_app()
     app.config.update({
         "TESTING": True,
+        "SECRET_KEY": "test-secret-key-for-pytest",
         "WTF_CSRF_ENABLED": False,#solo para casos de prueba
         "RATELIMIT_STORAGE_URI": "memory://",
     })

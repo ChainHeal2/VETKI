@@ -321,5 +321,6 @@
     <script src="https://unpkg.com/html5-qrcode" defer></script>
     <script src="{{ url_for('static', filename='js/qr-scanner.js') }}" defer></script>
     {% endif %}
+    {% block scripts %}{% endblock %}
 </body>
 </html>

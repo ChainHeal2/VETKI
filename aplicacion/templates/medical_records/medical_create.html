@@ -5,11 +5,50 @@
 {% block main %}
 <div>
 
-    <!-- Encabezado -->
-    <div class="mb-4 border-bottom pb-4">
-        <h1 class="display-6 fw-normal mb-1">Nuevo Expediente Clínico</h1>
-        <p class="mb-0 text-body-secondary">Gestione el historial médico organizando la información por pestañas.</p>
+    <!-- Encabezado con datos del paciente -->
+    <div class="mb-4 border-bottom pb-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+        <div>
+            <h1 class="display-6 fw-normal mb-1">Nuevo Expediente Clínico</h1>
+            <p class="mb-0 text-body-secondary">
+                Paciente: <strong class="text-white">{{ mascota.pet_names if mascota else 'Sin especificar' }}</strong> 
+                {% if mascota and mascota.pet_species_name %}&middot; <span class="badge bg-secondary">{{ mascota.pet_species_name }}</span>{% endif %}
+            </p>
+        </div>
     </div>
+
+    <!-- TARJETA DE DICTADO POR VOZ (IA CLINICAL VOICE INTAKE) -->
+    <div class="card border border-primary border-opacity-25 bg-body-tertiary rounded-4 p-3 mb-4 shadow-sm" id="voiceIntakeCard">
+        <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                    <i class="bi bi-mic-fill fs-4"></i>
+                </div>
+                <div>
+                    <h2 class="h6 text-white fw-bold mb-1 d-flex align-items-center gap-2">
+                        Dictado Clínico Inteligente
+                        <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 small">IA Whisper + GPT</span>
+                    </h2>
+                    <p class="small text-muted mb-0" id="voiceStatusText">Presiona el micrófono para iniciar el dictado clínico.</p>
+                </div>
+            </div>
+            
+            <div class="d-flex align-items-center justify-content-between justify-content-sm-end gap-3">
+                <span class="font-monospace fw-bold text-light bg-black px-3 py-1 rounded-pill border border-secondary border-opacity-25" id="recordingTimer">00:00</span>
+                <button type="button" class="btn btn-primary rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 shadow-sm" 
+                        id="btnVoiceRecord" data-pet-id="{{ mascota.pet_id if mascota else '' }}">
+                    <i class="bi bi-mic-fill fs-5"></i>
+                    <span>Dictar por Voz</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTÓN FLOTANTE MÓVIL (FAB) -->
+    <button type="button" class="btn btn-primary voice-record-fab shadow-lg d-sm-none" 
+            id="btnVoiceRecordFab" data-pet-id="{{ mascota.pet_id if mascota else '' }}" 
+            title="Dictar por voz">
+        <i class="bi bi-mic-fill fs-4"></i>
+    </button>
 
     <!-- Formulario Principal -->
     <form method="POST" class="px-lg-2">
@@ -144,4 +183,8 @@
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/voice-intake.js') }}" defer></script>
 {% endblock %}

@@ -70,6 +70,9 @@ def create_app():
 
     from aplicacion.blueprints.vaccination import vaccination
     app.register_blueprint(vaccination.bp)
+
+    from aplicacion.blueprints.voice_intake import routes as voice_intake
+    app.register_blueprint(voice_intake.bp)
     
     from aplicacion.limiter import limiter as api_limiter
     
