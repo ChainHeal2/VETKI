@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    <!-- TARJETA DE DICTADO POR VOZ (IA CLINICAL VOICE INTAKE) -->
+    <!-- TARJETA DE DICTADO POR VOZ -->
     <div class="card border border-primary border-opacity-25 bg-body-tertiary rounded-4 p-3 mb-4 shadow-sm" id="voiceIntakeCard">
         <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
             <div class="d-flex align-items-center gap-3">
@@ -25,8 +25,8 @@
                 </div>
                 <div>
                     <h2 class="h6 text-white fw-bold mb-1 d-flex align-items-center gap-2">
-                        Dictado Clínico Inteligente
-                        <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 small">IA Whisper + GPT</span>
+                        Dictado por voz
+                        <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 small">Transcripción</span>
                     </h2>
                     <p class="small text-muted mb-0" id="voiceStatusText">Presiona el micrófono para iniciar el dictado clínico.</p>
                 </div>
@@ -43,6 +43,20 @@
         </div>
     </div>
 
+    <div class="mb-4">
+        <label for="voiceTranscription" class="form-label small fw-medium text-primary">Transcripción del dictado</label>
+        <textarea id="voiceTranscription" class="form-control" rows="4"
+                  placeholder="La transcripción aparecerá aquí para que puedas revisarla y editarla."></textarea>
+        <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-2 mt-2">
+            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btnDistributeTranscription">
+                <i class="bi bi-list-check me-1"></i>Distribuir en campos
+            </button>
+            <span class="small text-body-secondary" id="distributionStatus" aria-live="polite">
+                Di cada dato precedido por su nombre, por ejemplo: “peso ocho kilos, temperatura treinta y ocho coma cinco”.
+            </span>
+        </div>
+    </div>
+
     <!-- BOTÓN FLOTANTE MÓVIL (FAB) -->
     <button type="button" class="btn btn-primary voice-record-fab shadow-lg d-sm-none" 
             id="btnVoiceRecordFab" data-pet-id="{{ mascota.pet_id if mascota else '' }}" 
@@ -51,8 +65,22 @@
     </button>
 
     <!-- Formulario Principal -->
-    <form method="POST" class="px-lg-2">
+    <form method="POST" class="px-lg-2" novalidate>
         {{ medical_record_form.hidden_tag() }} 
+
+        {% if medical_record_form.errors %}
+        <div class="alert alert-danger" role="alert" aria-live="assertive">
+            <h2 class="h6 fw-bold">No se pudo guardar el expediente</h2>
+            <p class="mb-2">Corrige estos campos y vuelve a intentarlo:</p>
+            <ul class="mb-0">
+                {% for field_name, field_errors in medical_record_form.errors.items() %}
+                    {% for error in field_errors %}
+                    <li><strong>{{ medical_record_form[field_name].label.text }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
 
         <!-- MENÚ DE PESTAÑAS (TABS BOOTSTRAP) -->
         <ul class="nav nav-pills mb-4 gap-2" id="medicalRecordTabs" role="tablist">

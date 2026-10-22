@@ -46,3 +46,5 @@ urllib3==2.6.3
 URLObject==3.0.0
 Werkzeug==3.1.8
 WTForms==3.2.1
+vosk==0.3.45
+vosk==0.3.45

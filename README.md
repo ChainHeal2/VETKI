@@ -36,3 +36,26 @@ flask --app index db upgrade
 
 Las vistas PostgreSQL no se detectan automáticamente al generar revisiones; si una
 vista cambia, agrega su actualización manualmente a la migración correspondiente.
+
+## Dictado por voz local
+
+La grabación se captura en el navegador con `MediaRecorder`. Flask transcribe el audio
+localmente con Vosk; no se necesita `OPENAI_API_KEY` ni se envía audio a una API externa.
+En Debian instala FFmpeg y las dependencias de Python:
+
+```bash
+sudo apt install ffmpeg
+pip install -r requirements.txt
+```
+
+Descarga una vez el modelo pequeño de español de Vosk desde su sitio oficial y extrae
+la carpeta `vosk-model-small-es-0.42` dentro de `models/` en la raíz del proyecto:
+
+```bash
+mkdir -p models
+wget https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip -O /tmp/vosk-model-small-es-0.42.zip
+unzip -q /tmp/vosk-model-small-es-0.42.zip -d models
+```
+
+La aplicación carga el modelo la primera vez que se solicita una transcripción. El
+directorio `models/` está excluido de Git porque contiene archivos grandes.

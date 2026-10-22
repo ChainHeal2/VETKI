@@ -1,7 +1,7 @@
 """
 CRUD-EXPEDIENTES CLINICOS
 """
-from flask import (Blueprint,flash,render_template,url_for,redirect,request, session)
+from flask import (Blueprint, current_app, flash, render_template, url_for, redirect, request, session)
 from aplicacion.db import get_db
 from aplicacion.forms.medical_records.medical_form import MedicalRecordForm
 from aplicacion.blueprints.medical.medical_model import MedicalRecordModel
@@ -50,11 +50,16 @@ def medical_create(pet_id):
                 medical_record_pet_id,medical_record_user_id,medical_record_appointment_id)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 """
-        cursor.execute(sql,data)
-        flash("Expediente clinico creado correctamente", "success")
-        db.commit()
-        return redirect(url_for('medical.medical_read'))
-    print(medical_record_form.errors)
+        try:
+            cursor.execute(sql, data)
+            db.commit()
+        except Exception:
+            db.rollback()
+            current_app.logger.exception("No se pudo guardar el expediente clínico")
+            flash("Ocurrió un error al guardar el expediente. Revisa los datos e inténtalo nuevamente.", "error")
+        else:
+            flash("Expediente clínico creado correctamente", "success")
+            return redirect(url_for('medical.medical_read'))
     return render_template('medical_records/medical_create.html',medical_record_form = medical_record_form,mascota = pet_data)
 
 @bp.route("/medical_read", methods=['GET'])

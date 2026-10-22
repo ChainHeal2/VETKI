@@ -1,439 +1,348 @@
-/**
- * VETKI - Asistente de Dictado Clínico por Voz e Inteligencia Artificial
- *
- * Captura audio con MediaRecorder API, envía al endpoint /api/clinical-voice-intake
- * y mapea la respuesta estructurada a los campos del formulario con feedback visual.
- */
-
+/** Graba en el navegador y muestra la transcripción local devuelta por Flask. */
 document.addEventListener('DOMContentLoaded', () => {
-    const voiceCard = document.getElementById('voiceIntakeCard');
     const recordBtn = document.getElementById('btnVoiceRecord');
     const fabBtn = document.getElementById('btnVoiceRecordFab');
-    const voiceStatusText = document.getElementById('voiceStatusText');
-    const recordingTimer = document.getElementById('recordingTimer');
+    const statusText = document.getElementById('voiceStatusText');
+    const timer = document.getElementById('recordingTimer');
+    const transcriptionField = document.getElementById('voiceTranscription');
+    const distributeButton = document.getElementById('btnDistributeTranscription');
+    const distributionStatus = document.getElementById('distributionStatus');
+    if (!recordBtn && !fabBtn) return;
 
-    if (!recordBtn && !fabBtn) {
-        return;
-    }
-
-    // Identificador de la mascota para el endpoint
     const petId = (recordBtn && recordBtn.dataset.petId) || (fabBtn && fabBtn.dataset.petId);
-
-    // Variables de estado del grabador
-    let mediaRecorder = null;
-    let audioChunks = [];
+    const recordButtons = [recordBtn, fabBtn].filter(Boolean);
+    let recorder = null;
+    let audioStream = null;
+    let chunks = [];
     let isRecording = false;
     let timerInterval = null;
     let secondsElapsed = 0;
-    let audioStream = null;
 
-    // Elementos del DOM del formulario
-    const formFields = {
-        weight: document.getElementById('medical_record_weight'),
-        temperature: document.getElementById('medical_record_temperature'),
-        diagnosis: document.getElementById('medical_record_diagnosis'),
-        history: document.getElementById('medical_record_history'),
-        signals: document.getElementById('medical_record_signals'),
-        treatment: document.getElementById('medical_record_treatment')
-    };
-
-    /**
-     * Muestra notificación Toast flotante
-     */
-    function showNotification(message, type = 'info') {
-        const toastContainer = document.querySelector('.toast-container');
-        if (!toastContainer) {
+    function notify(message, isError = false) {
+        const container = document.querySelector('.toast-container');
+        if (!container || !window.bootstrap?.Toast) {
             alert(message);
             return;
         }
-
-        const bgClass = type === 'success' ? 'text-bg-success' : (type === 'danger' ? 'text-bg-danger' : 'text-bg-primary');
-        const iconClass = type === 'success' ? 'bi-check-circle' : (type === 'danger' ? 'bi-exclamation-triangle' : 'bi-info-circle');
-
-        const toastEl = document.createElement('div');
-        toastEl.className = `toast align-items-center ${bgClass} border-0 shadow-lg mb-2`;
-        toastEl.setAttribute('role', 'alert');
-        toastEl.setAttribute('aria-live', 'assertive');
-        toastEl.setAttribute('aria-atomic', 'true');
-
-        toastEl.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body d-flex align-items-center gap-2 fw-medium">
-                    <i class="bi ${iconClass} fs-5"></i>
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
-            </div>
-        `;
-
-        toastContainer.appendChild(toastEl);
-        const toastInstance = new bootstrap.Toast(toastEl, { delay: 5000 });
-        toastInstance.show();
-
-        toastEl.addEventListener('hidden.bs.toast', () => {
-            toastEl.remove();
-        });
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center ${isError ? 'text-bg-danger' : 'text-bg-success'} border-0 shadow-lg mb-2`;
+        toast.setAttribute('role', 'alert');
+        const row = document.createElement('div');
+        row.className = 'd-flex';
+        const body = document.createElement('div');
+        body.className = 'toast-body';
+        body.textContent = message;
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'btn-close btn-close-white me-2 m-auto';
+        close.dataset.bsDismiss = 'toast';
+        close.setAttribute('aria-label', 'Cerrar');
+        row.append(body, close);
+        toast.appendChild(row);
+        container.appendChild(toast);
+        new bootstrap.Toast(toast, { delay: 5000 }).show();
+        toast.addEventListener('hidden.bs.toast', () => toast.remove());
     }
 
-    /**
-     * Obtiene el token CSRF disponible en el formulario o meta tags
-     */
-    function getCsrfToken() {
-        const csrfInput = document.querySelector('input[name="csrf_token"]');
-        if (csrfInput && csrfInput.value) {
-            return csrfInput.value;
-        }
-        const metaCsrf = document.querySelector('meta[name="csrf-token"]');
-        if (metaCsrf && metaCsrf.content) {
-            return metaCsrf.content;
-        }
-        return '';
-    }
-
-    /**
-     * Actualiza la interfaz según el estado de la grabación
-     */
-    function updateUIState(state) {
-        if (state === 'idle') {
-            isRecording = false;
-            clearInterval(timerInterval);
-            secondsElapsed = 0;
-            if (recordingTimer) recordingTimer.textContent = '00:00';
-
-            // Botón principal
-            if (recordBtn) {
-                recordBtn.disabled = false;
-                recordBtn.className = 'btn btn-primary rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 shadow-sm';
-                recordBtn.innerHTML = '<i class="bi bi-mic-fill fs-5"></i> <span>Dictar por Voz</span>';
-            }
-
-            // Botón FAB
-            if (fabBtn) {
-                fabBtn.disabled = false;
-                fabBtn.className = 'btn btn-primary voice-record-fab shadow-lg';
-                fabBtn.innerHTML = '<i class="bi bi-mic-fill fs-4"></i>';
-            }
-
-            if (voiceStatusText) {
-                voiceStatusText.textContent = 'Presiona el micrófono para iniciar el dictado clínico.';
-                voiceStatusText.className = 'small text-muted mb-0';
-            }
-        } else if (state === 'recording') {
-            isRecording = true;
-            secondsElapsed = 0;
-            if (recordingTimer) recordingTimer.textContent = '00:00';
-            timerInterval = setInterval(() => {
-                secondsElapsed++;
-                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
-                const secs = String(secondsElapsed % 60).padStart(2, '0');
-                if (recordingTimer) recordingTimer.textContent = `${mins}:${secs}`;
-            }, 1000);
-
-            // Botón principal
-            if (recordBtn) {
-                recordBtn.disabled = false;
-                recordBtn.className = 'btn btn-danger voice-recording-active rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 shadow-sm';
-                recordBtn.innerHTML = '<i class="bi bi-stop-circle-fill fs-5"></i> <span>Detener y Procesar</span>';
-            }
-
-            // Botón FAB
-            if (fabBtn) {
-                fabBtn.disabled = false;
-                fabBtn.className = 'btn btn-danger voice-record-fab voice-recording-active shadow-lg';
-                fabBtn.innerHTML = '<i class="bi bi-stop-circle-fill fs-4"></i>';
-            }
-
-            if (voiceStatusText) {
-                voiceStatusText.textContent = 'Escuchando... Menciona peso, constantes, diagnóstico y recetas.';
-                voiceStatusText.className = 'small text-danger fw-bold mb-0';
-            }
-        } else if (state === 'processing') {
-            isRecording = false;
-            clearInterval(timerInterval);
-
-            // Botón principal
-            if (recordBtn) {
-                recordBtn.disabled = true;
-                recordBtn.className = 'btn btn-secondary rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 shadow-sm';
-                recordBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> <span>Procesando con IA...</span>';
-            }
-
-            // Botón FAB
-            if (fabBtn) {
-                fabBtn.disabled = true;
-                fabBtn.className = 'btn btn-secondary voice-record-fab shadow-lg';
-                fabBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
-            }
-
-            if (voiceStatusText) {
-                voiceStatusText.textContent = 'La IA está estructurando la información clínica...';
-                voiceStatusText.className = 'small text-info fw-bold mb-0';
-            }
-        }
-    }
-
-    /**
-     * Aplica el efecto de resaltado visual al campo rellenado por la IA
-     */
-    function highlightField(inputElement) {
-        if (!inputElement) return;
-
-        inputElement.classList.remove('ai-field-updated');
-        void inputElement.offsetWidth; // Trigger reflow
-        inputElement.classList.add('ai-field-updated');
-
-        // Si el campo está en una pestaña no activa, alertar con un badge en el tab
-        const parentTabPane = inputElement.closest('.tab-pane');
-        if (parentTabPane && !parentTabPane.classList.contains('active')) {
-            const tabId = parentTabPane.getAttribute('id');
-            const tabBtn = document.querySelector(`[data-bs-target="#${tabId}"]`);
-            if (tabBtn && !tabBtn.querySelector('.tab-ai-badge')) {
-                const badge = document.createElement('span');
-                badge.className = 'tab-ai-badge';
-                badge.title = 'Datos actualizados por IA';
-                tabBtn.appendChild(badge);
-            }
-        }
-    }
-
-    /**
-     * Rellena los inputs del formulario clínico con la respuesta estructurada de la IA
-     */
-    function populateFormFields(data) {
-        let fieldsUpdatedCount = 0;
-
-        // 1. Constantes vitales (patient_updates)
-        const patientUpdates = data.patient_updates || {};
-        if (patientUpdates.weight_kg !== null && patientUpdates.weight_kg !== undefined) {
-            if (formFields.weight) {
-                formFields.weight.value = patientUpdates.weight_kg;
-                highlightField(formFields.weight);
-                fieldsUpdatedCount++;
-            }
+    function numberFromSpanishWords(value) {
+        const words = value.toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/[.,;:!?]/g, ' ')
+            .trim().split(/\s+/);
+        const numberWords = {
+            cero: 0, un: 1, uno: 1, una: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5,
+            seis: 6, siete: 7, ocho: 8, nueve: 9, diez: 10, once: 11, doce: 12,
+            trece: 13, catorce: 14, quince: 15, dieciseis: 16, diecisiete: 17,
+            dieciocho: 18, diecinueve: 19, veinte: 20, veintiuno: 21, veintiun: 21,
+            veintidos: 22, veintitres: 23, veinticuatro: 24, veinticinco: 25,
+            veintiseis: 26, veintisiete: 27, veintiocho: 28, veintinueve: 29,
+            treinta: 30, cuarenta: 40, cincuenta: 50, sesenta: 60, setenta: 70,
+            ochenta: 80, noventa: 90, cien: 100, ciento: 100, doscientos: 200,
+            trescientos: 300, cuatrocientos: 400, quinientos: 500, seiscientos: 600,
+            setecientos: 700, ochocientos: 800, novecientos: 900
+        };
+        let start = 0;
+        while (['es', 'son', 'de', 'en', 'a', 'aproximadamente', 'aprox', 'esta'].includes(words[start])) start++;
+        let negative = false;
+        if (words[start] === 'menos') {
+            negative = true;
+            start++;
         }
 
-        if (patientUpdates.temperature_c !== null && patientUpdates.temperature_c !== undefined) {
-            if (formFields.temperature) {
-                formFields.temperature.value = patientUpdates.temperature_c;
-                highlightField(formFields.temperature);
-                fieldsUpdatedCount++;
-            }
-        }
-
-        // 2. Registro clínico (clinical_record)
-        const clinicalRecord = data.clinical_record || {};
-        if (clinicalRecord.diagnosis) {
-            if (formFields.diagnosis) {
-                formFields.diagnosis.value = clinicalRecord.diagnosis;
-                highlightField(formFields.diagnosis);
-                fieldsUpdatedCount++;
-            }
-        }
-
-        if (clinicalRecord.observations) {
-            // Si el campo de historia está vacío, o agregamos observaciones al historial
-            if (formFields.history && !formFields.history.value.trim()) {
-                formFields.history.value = clinicalRecord.observations;
-                highlightField(formFields.history);
-                fieldsUpdatedCount++;
-            } else if (formFields.signals) {
-                formFields.signals.value = clinicalRecord.observations;
-                highlightField(formFields.signals);
-                fieldsUpdatedCount++;
-            }
-        }
-
-        // 3. Prescripciones / Fármacos recetados (prescriptions)
-        const prescriptions = data.prescriptions || [];
-        if (prescriptions.length > 0 && formFields.treatment) {
-            const prescriptionLines = prescriptions.map((rx) => {
-                const parts = [];
-                if (rx.dosage) parts.push(`Dosis: ${rx.dosage}`);
-                if (rx.frequency) parts.push(`Frecuencia: ${rx.frequency}`);
-                if (rx.duration) parts.push(`Duración: ${rx.duration}`);
-                return `• ${rx.drug_name}: ${parts.join(', ')}`;
-            });
-
-            const currentTreatment = formFields.treatment.value.trim();
-            const formattedRxText = prescriptionLines.join('\n');
-
-            if (currentTreatment) {
-                formFields.treatment.value = `${currentTreatment}\n\nPrescripción (IA):\n${formattedRxText}`;
+        let current = 0;
+        let total = 0;
+        let consumed = 0;
+        for (let i = start; i < words.length; i++) {
+            const word = words[i];
+            if (word === 'y') continue;
+            if (word === 'mil') {
+                total += (current || 1) * 1000;
+                current = 0;
+            } else if (Object.hasOwn(numberWords, word)) {
+                current += numberWords[word];
             } else {
-                formFields.treatment.value = `Prescripción:\n${formattedRxText}`;
+                break;
             }
-            highlightField(formFields.treatment);
-            fieldsUpdatedCount++;
+            consumed = i - start + 1;
         }
-
-        return fieldsUpdatedCount;
+        if (!consumed) return null;
+        const integer = total + current;
+        const nextIndex = start + consumed;
+        if (['coma', 'punto'].includes(words[nextIndex])) {
+            const decimalDigits = [];
+            for (let i = nextIndex + 1; i < words.length; i++) {
+                const word = words[i];
+                if (word === 'y') continue;
+                if (!Object.hasOwn(numberWords, word)) break;
+                decimalDigits.push(String(numberWords[word]));
+            }
+            if (decimalDigits.length) return `${negative ? '-' : ''}${integer}.${decimalDigits.join('')}`;
+        }
+        return `${negative ? '-' : ''}${integer}`;
     }
 
-    /**
-     * Envía el audio grabado al backend /api/clinical-voice-intake
-     */
-    async function sendAudioToBackend(audioBlob, mimeType) {
-        updateUIState('processing');
-
-        try {
-            const formData = new FormData();
-            
-            // Determinar extensión según el tipo mime
-            let filename = 'dictado.webm';
-            if (mimeType.includes('mp4')) {
-                filename = 'dictado.mp4';
-            } else if (mimeType.includes('ogg')) {
-                filename = 'dictado.ogg';
-            } else if (mimeType.includes('wav')) {
-                filename = 'dictado.wav';
-            }
-
-            formData.append('audio', audioBlob, filename);
-            if (petId) {
-                formData.append('pet_id', petId);
-            }
-
-            const csrfToken = getCsrfToken();
-            const headers = {};
-            if (csrfToken) {
-                headers['X-CSRFToken'] = csrfToken;
-                headers['X-CSRF-Token'] = csrfToken;
-            }
-
-            const response = await fetch('/api/clinical-voice-intake', {
-                method: 'POST',
-                headers: headers,
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                const errorMsg = data.error || 'Error al procesar el dictado con IA.';
-                showNotification(errorMsg, 'danger');
-                updateUIState('idle');
-                return;
-            }
-
-            // Éxito: autocompletar campos
-            const updatedCount = populateFormFields(data);
-            showNotification(`¡Dictado procesado! Se autocompletaron ${updatedCount} campos. Revisa y edita según sea necesario.`, 'success');
-
-        } catch (error) {
-            console.error('Error al enviar audio al servidor:', error);
-            showNotification('Ocurrió un problema de conexión al enviar el audio.', 'danger');
-        } finally {
-            updateUIState('idle');
-        }
+    function extractNumericValue(value) {
+        const digits = value.match(/-?\d+(?:[.,]\d+)?/);
+        if (digits) return digits[0].replace(',', '.');
+        return numberFromSpanishWords(value);
     }
 
-    /**
-     * Inicia la captura de audio por micrófono
-     */
-    async function startRecording() {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            showNotification('Tu navegador móvil no tiene soporte para grabación de audio.', 'danger');
+    function distributeTranscription() {
+        const text = transcriptionField?.value.trim();
+        if (!text) {
+            if (distributionStatus) distributionStatus.textContent = 'Primero dicta o escribe la transcripción.';
             return;
         }
 
-        try {
-            audioChunks = [];
-            audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const fieldsByKeyword = [
+            { pattern: 'frecuencia\\s+card[ií]aca|ritmo\\s+card[ií]aco|pulso', id: 'medical_record_heart', numeric: true, name: 'frecuencia cardíaca' },
+            { pattern: 'frecuencia\\s+respiratoria|respiraci[oó]n', id: 'medical_record_respiratory', numeric: true, name: 'frecuencia respiratoria' },
+            { pattern: 'tiempo\\s+de\\s+llenado\\s+capilar|llenado\\s+capilar|capilar', id: 'medical_record_capillary', numeric: true, name: 'llenado capilar' },
+            { pattern: 'presi[oó]n\\s+arterial|presi[oó]n', id: 'medical_record_arterial', numeric: true, name: 'presión arterial' },
+            { pattern: 'temperatura', id: 'medical_record_temperature', numeric: true, name: 'temperatura' },
+            { pattern: 'hidrataci[oó]n|agua', id: 'medical_record_water', numeric: true, name: 'hidratación' },
+            { pattern: 'peso', id: 'medical_record_weight', numeric: true, name: 'peso' },
+            { pattern: 'anamnesis|historia\\s+cl[ií]nica', id: 'medical_record_history', name: 'anamnesis' },
+            { pattern: 'signos\\s+cl[ií]nicos|signos', id: 'medical_record_signals', name: 'signos clínicos' },
+            { pattern: 'diagn[oó]stico', id: 'medical_record_diagnosis', name: 'diagnóstico' },
+            { pattern: 'tratamiento|indicaciones', id: 'medical_record_treatment', name: 'tratamiento' },
+            { pattern: 'motivo', id: 'medical_record_reason', reason: true, name: 'motivo' }
+        ];
+        const keywordPattern = new RegExp(`\\b(${fieldsByKeyword.map((field) => field.pattern).join('|')})\\b\\s*(?:(?:es|de)\\s*)?[:,-]?\\s*`, 'gi');
+        const matches = [...text.matchAll(keywordPattern)];
+        if (!matches.length) {
+            if (distributionStatus) distributionStatus.textContent = 'No encontré palabras clave. Prueba: “peso ocho, temperatura treinta y ocho coma cinco, frecuencia cardíaca noventa”.';
+            return;
+        }
 
-            // Identificar formato soportado por el navegador
-            let options = {};
-            if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-                options = { mimeType: 'audio/webm;codecs=opus' };
-            } else if (MediaRecorder.isTypeSupported('audio/webm')) {
-                options = { mimeType: 'audio/webm' };
-            } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                options = { mimeType: 'audio/mp4' };
-            } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
-                options = { mimeType: 'audio/ogg' };
+        let filled = 0;
+        const skipped = [];
+        matches.forEach((match, index) => {
+            const keyword = match[1].toLowerCase();
+            const field = fieldsByKeyword.find((candidate) => new RegExp(`^(?:${candidate.pattern})$`, 'i').test(keyword));
+            if (!field) return;
+            const start = match.index + match[0].length;
+            const end = index + 1 < matches.length ? matches[index + 1].index : text.length;
+            const value = text.slice(start, end).trim().replace(/^[,;:.\s-]+|[,;:.\s-]+$/g, '');
+            const input = document.getElementById(field.id);
+            if (!input || !value) return;
+            if (input.value.trim()) {
+                skipped.push(field.name);
+                return;
             }
 
-            mediaRecorder = new MediaRecorder(audioStream, options);
-
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data && event.data.size > 0) {
-                    audioChunks.push(event.data);
-                }
-            };
-
-            mediaRecorder.onstop = () => {
-                const mimeType = mediaRecorder.mimeType || 'audio/webm';
-                const audioBlob = new Blob(audioChunks, { type: mimeType });
-
-                // Detener todas las pistas de audio para liberar el hardware del micrófono
-                if (audioStream) {
-                    audioStream.getTracks().forEach((track) => track.stop());
-                }
-
-                if (audioBlob.size === 0) {
-                    showNotification('No se detectó audio grabado. Intenta nuevamente.', 'danger');
-                    updateUIState('idle');
+            if (field.numeric) {
+                // El formulario guarda estos datos como un solo valor numérico; una presión como 120/80 requiere otro diseño de campo.
+                if (/\d+(?:[.,]\d+)?\s*\/\s*\d/.test(value)) {
+                    skipped.push(`${field.name} (formato no compatible)`);
                     return;
                 }
+                const numericValue = extractNumericValue(value);
+                if (!numericValue) {
+                    skipped.push(`${field.name} (no reconocí el número)`);
+                    return;
+                }
+                input.value = numericValue;
+            } else if (field.reason) {
+                const reason = value.toLowerCase();
+                const option = [...input.options].find((item) => item.value && reason.includes(item.textContent.trim().toLowerCase()));
+                if (!option) {
+                    skipped.push('motivo (indica preventiva, control o urgencia)');
+                    return;
+                }
+                input.value = option.value;
+            } else {
+                input.value = value;
+            }
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            filled++;
+        });
 
-                sendAudioToBackend(audioBlob, mimeType);
+        const summary = filled ? `Se completaron ${filled} campo${filled === 1 ? '' : 's'}.` : 'No se completaron campos.';
+        const skippedMessage = skipped.length ? ` Revisa manualmente: ${[...new Set(skipped)].join(', ')}.` : '';
+        if (distributionStatus) distributionStatus.textContent = `${summary}${skippedMessage} Verifica los valores antes de guardar.`;
+    }
+
+    function updateButtons(recording, processing = false) {
+        isRecording = recording;
+        recordButtons.forEach((button) => {
+            button.disabled = processing;
+            button.className = button.id === 'btnVoiceRecord'
+                ? `btn btn-${recording ? 'danger' : processing ? 'secondary' : 'primary'} ${recording ? 'voice-recording-active ' : ''}rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 shadow-sm`
+                : `btn btn-${recording ? 'danger' : processing ? 'secondary' : 'primary'} voice-record-fab ${recording ? 'voice-recording-active ' : ''}shadow-lg`;
+            button.innerHTML = processing
+                ? '<span class="spinner-border spinner-border-sm" role="status"></span>'
+                : recording
+                    ? '<i class="bi bi-stop-circle-fill fs-5"></i> <span>Detener dictado</span>'
+                    : '<i class="bi bi-mic-fill fs-5"></i> <span>Dictar por Voz</span>';
+            if (button.id === 'btnVoiceRecordFab' && !processing) {
+                button.innerHTML = recording
+                    ? '<i class="bi bi-stop-circle-fill fs-4"></i>'
+                    : '<i class="bi bi-mic-fill fs-4"></i>';
+            }
+        });
+
+        if (statusText) {
+            statusText.textContent = processing
+                ? 'Transcribiendo audio en el servidor local...'
+                : recording
+                    ? 'Grabando... habla con claridad y detén el dictado al terminar.'
+                    : 'Presiona el micrófono para iniciar el dictado.';
+            statusText.className = processing
+                ? 'small text-info fw-bold mb-0'
+                : recording
+                    ? 'small text-danger fw-bold mb-0'
+                    : 'small text-muted mb-0';
+        }
+    }
+
+    function updateTimer() {
+        secondsElapsed++;
+        const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+        const secs = String(secondsElapsed % 60).padStart(2, '0');
+        if (timer) timer.textContent = `${mins}:${secs}`;
+    }
+
+    function getCsrfToken() {
+        const input = document.querySelector('input[name="csrf_token"], input[name$="-csrf_token"]');
+        return input?.value || document.querySelector('meta[name="csrf-token"]')?.content || '';
+    }
+
+    async function sendAudio(blob, mimeType) {
+        updateButtons(false, true);
+        const extension = mimeType.includes('mp4') ? 'mp4'
+            : mimeType.includes('ogg') ? 'ogg'
+                : mimeType.includes('wav') ? 'wav' : 'webm';
+        const formData = new FormData();
+        formData.append('audio', blob, `dictado.${extension}`);
+        formData.append('pet_id', petId || '');
+
+        try {
+            const token = getCsrfToken();
+            const response = await fetch('/api/clinical-voice-intake', {
+                method: 'POST',
+                headers: token ? { 'X-CSRFToken': token } : {},
+                body: formData
+            });
+            const responseText = await response.text();
+            let data = {};
+            try {
+                data = responseText ? JSON.parse(responseText) : {};
+            } catch {
+                throw new Error(`El servidor respondió HTTP ${response.status}, pero no devolvió JSON.`);
+            }
+            if (!response.ok) {
+                throw new Error(data.error || data.message || `El servidor respondió HTTP ${response.status}.`);
+            }
+            if (typeof data.transcription !== 'string') {
+                throw new Error('El servidor no devolvió el texto transcrito.');
+            }
+            if (transcriptionField) {
+                const previous = transcriptionField.value.trim();
+                transcriptionField.value = previous
+                    ? `${previous}\n${data.transcription}`
+                    : data.transcription;
+            }
+            notify('Transcripción lista. Revísala y edítala si hace falta.');
+        } catch (error) {
+            console.error('Error al transcribir el audio:', error);
+            notify(error.message || 'No se pudo transcribir el audio.', true);
+        } finally {
+            updateButtons(false);
+        }
+    }
+
+    async function startRecording() {
+        if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+            notify('Este navegador no permite grabar audio desde esta página.', true);
+            return;
+        }
+        try {
+            audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            chunks = [];
+            const mimeTypes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/ogg', 'audio/mp4'];
+            const mimeType = mimeTypes.find((type) => MediaRecorder.isTypeSupported(type));
+            recorder = mimeType
+                ? new MediaRecorder(audioStream, { mimeType })
+                : new MediaRecorder(audioStream);
+
+            recorder.ondataavailable = (event) => {
+                if (event.data?.size) chunks.push(event.data);
+            };
+            recorder.onerror = (event) => {
+                console.error('Error de MediaRecorder:', event.error);
+                notify('Ocurrió un error al grabar el audio.', true);
+            };
+            recorder.onstop = () => {
+                const actualMimeType = recorder.mimeType || 'audio/webm';
+                const blob = new Blob(chunks, { type: actualMimeType });
+                audioStream?.getTracks().forEach((track) => track.stop());
+                audioStream = null;
+                if (!blob.size) {
+                    notify('No se detectó audio. Intenta nuevamente.', true);
+                    updateButtons(false);
+                    return;
+                }
+                sendAudio(blob, actualMimeType);
             };
 
-            mediaRecorder.start(250); // Recolectar fragmentos cada 250ms
-            updateUIState('recording');
-
-        } catch (err) {
-            console.error('Error de acceso al micrófono:', err);
-            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                showNotification('Permiso de micrófono denegado. Por favor, habilítalo en la configuración de tu navegador.', 'danger');
-            } else {
-                showNotification('No se pudo acceder al micrófono del dispositivo.', 'danger');
-            }
-            updateUIState('idle');
+            recorder.start(250);
+            secondsElapsed = 0;
+            if (timer) timer.textContent = '00:00';
+            timerInterval = setInterval(updateTimer, 1000);
+            updateButtons(true);
+        } catch (error) {
+            console.error('No se pudo iniciar la grabación:', error);
+            audioStream?.getTracks().forEach((track) => track.stop());
+            audioStream = null;
+            notify(error.name === 'NotAllowedError'
+                ? 'Permite el acceso al micrófono en tu navegador e inténtalo de nuevo.'
+                : 'No se pudo acceder al micrófono.', true);
+            updateButtons(false);
         }
     }
 
-    /**
-     * Detiene la captura de audio
-     */
     function stopRecording() {
-        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-            mediaRecorder.stop();
-        }
+        if (recorder?.state === 'recording') recorder.stop();
+        clearInterval(timerInterval);
+        timerInterval = null;
+        updateButtons(false, true);
     }
 
-    /**
-     * Alternar estado de grabación al interactuar con los botones
-     */
-    function toggleRecording() {
-        if (!isRecording) {
-            startRecording();
-        } else {
-            stopRecording();
-        }
-    }
-
-    if (recordBtn) {
-        recordBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleRecording();
-        });
-    }
-
-    if (fabBtn) {
-        fabBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleRecording();
-        });
-    }
-
-    // Limpieza de badge de novedad al hacer clic en pestañas
-    document.querySelectorAll('#medicalRecordTabs button[data-bs-toggle="pill"]').forEach((tabBtn) => {
-        tabBtn.addEventListener('shown.bs.tab', () => {
-            const badge = tabBtn.querySelector('.tab-ai-badge');
-            if (badge) {
-                badge.remove();
-            }
+    recordButtons.forEach((button) => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (isRecording) stopRecording();
+            else startRecording();
         });
     });
-});
 
+    distributeButton?.addEventListener('click', distributeTranscription);
+
+    window.addEventListener('pagehide', () => {
+        if (recorder?.state === 'recording') recorder.stop();
+        audioStream?.getTracks().forEach((track) => track.stop());
+        clearInterval(timerInterval);
+    });
+});

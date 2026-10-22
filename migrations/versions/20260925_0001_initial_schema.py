@@ -14,7 +14,7 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("CREATE SCHEMA vetki")
+    op.execute("CREATE SCHEMA IF NOT EXISTS vetki")
 
     op.create_table(
         "user_data",
