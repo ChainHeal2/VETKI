@@ -71,8 +71,6 @@ def transcribe_audio(audio_file) -> str:
             check=False,
             timeout=60,
         )
-    except FileNotFoundError as exc:
-        raise TranscriptionError("FFmpeg no está instalado. En Debian instálalo con: sudo apt install ffmpeg") from exc
     except subprocess.TimeoutExpired as exc:
         raise TranscriptionError("Se agotó el tiempo al convertir el audio.") from exc
 
@@ -80,7 +78,6 @@ def transcribe_audio(audio_file) -> str:
         detail = decoded.stderr.decode("utf-8", errors="replace").strip()
         logger.warning("FFmpeg no pudo decodificar el audio: %s", detail)
         raise TranscriptionError("No se pudo leer el formato de audio recibido.")
-
     try:
         from vosk import KaldiRecognizer
     except ImportError as exc:
