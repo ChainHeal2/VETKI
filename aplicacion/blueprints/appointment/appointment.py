@@ -9,6 +9,7 @@ from aplicacion.blueprints.pet.pet_model import PetModel
 from aplicacion.db import get_db,orm_db
 from aplicacion.schema import appointments,pet_data
 from sqlalchemy import insert,select,update
+from datetime import datetime
 
 import math
 
@@ -114,6 +115,62 @@ def appointments_list():
         })
 
     return jsonify(events)
+
+@bp.route("/appointment_move/<int:appointment_id>", methods=["POST"])
+def appointment_move(appointment_id):
+    """Guarda el nuevo horario de una cita movida desde el calendario."""
+    user_id = session.get("user_id")
+    if user_id is None:
+        return jsonify(error="Debes iniciar sesión para mover una cita."), 401
+
+    payload = request.get_json(silent=True) or {}
+    try:
+        new_start = datetime.fromisoformat(payload.get("start", ""))
+    except (TypeError, ValueError):
+        return jsonify(error="La nueva fecha de la cita no es válida."), 400
+
+    if new_start <= datetime.now():
+        return jsonify(error="La cita debe quedar en una fecha futura."), 400
+
+    # Solo se puede mover una cita asociada a una mascota del usuario actual.
+    appointment = orm_db.session.execute(
+        select(
+            appointments.c.pet_id,
+            appointments.c.appointment_date,
+            appointments.c.appointment_end_date,
+        )
+        .select_from(
+            appointments.join(
+                pet_data, appointments.c.pet_id == pet_data.c.pet_id
+            )
+        )
+        .where(
+            appointments.c.appointment_id == appointment_id,
+            pet_data.c.pet_user_id == user_id,
+        )
+    ).mappings().first()
+
+    if appointment is None:
+        return jsonify(error="La cita no existe o no tienes permiso para moverla."), 404
+
+    # Mantiene la hora y duración de la cita al moverla a otro día.
+    time_delta = new_start - appointment["appointment_date"]
+    values = {"appointment_date": new_start}
+    if appointment["appointment_end_date"] is not None:
+        values["appointment_end_date"] = appointment["appointment_end_date"] + time_delta
+
+    try:
+        orm_db.session.execute(
+            update(appointments)
+            .where(appointments.c.appointment_id == appointment_id)
+            .values(**values)
+        )
+        orm_db.session.commit()
+    except Exception:
+        orm_db.session.rollback()
+        return jsonify(error="No se pudo guardar el nuevo horario."), 500
+
+    return jsonify(message="Horario de la cita actualizado correctamente.")
 
 @bp.route("/appointment_update/<int:appointment_id>", methods=['GET','POST'])
 def appointment_update(appointment_id):
