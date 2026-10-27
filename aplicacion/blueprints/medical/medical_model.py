@@ -25,6 +25,7 @@ class MedicalRecordModel:
         self.pet_id = data.get('medical_record_pet_id')
         self.user_id = data.get('medical_record_user_id')
         self.appointment_id = data.get('medical_record_appointment_id')
+        self.price = data.get('medical_record_price')
         #datos de mascota
         self.names = data.get('pet_names')
         self.species= data.get('pet_species_name')
