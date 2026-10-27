@@ -75,8 +75,31 @@
             <article class="card bg-body-tertiary border rounded-4 h-100 shadow-sm overflow-hidden">
                 <div class="card-body p-3 p-md-4">
                     <div class="d-flex align-items-start gap-3 mb-3">
-                        <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-3 flex-shrink-0"
-                             style="width: 56px; height: 56px;" aria-hidden="true">🐾</div>
+                        <div class="position-relative flex-shrink-0">
+                            <input class="visually-hidden pet-photo-input" type="file"
+                                   id="petPhoto{{ mascota.pet_id }}" accept="image/*" capture="environment">
+                            <button class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-3 border-0 p-0"
+                                    style="width: 56px; height: 56px; overflow: hidden;"
+                                    type="button" data-pet-photo-trigger="petPhoto{{ mascota.pet_id }}"
+                                    data-upload-url="{{ url_for('pet.pet_photo_upload', pet_id=mascota.pet_id) }}"
+                                    data-pet-name="{{ mascota.names }}"
+                                    aria-label="{% if mascota.has_photo %}Ver fotografía de {{ mascota.names }}{% else %}Tomar o elegir fotografía de {{ mascota.names }}{% endif %}"
+                                    title="{% if mascota.has_photo %}Ver fotografía{% else %}Tomar o elegir fotografía{% endif %}">
+                                <span class="pet-photo-placeholder" aria-hidden="true">🐾</span>
+                                <img class="pet-photo-preview w-100 h-100" alt=""
+                                     data-saved="{{ 'true' if mascota.has_photo else 'false' }}"
+                                     {% if mascota.has_photo %}src="{{ url_for('pet.pet_photo', pet_id=mascota.pet_id) }}"{% endif %}
+                                     style="object-fit: cover; display: {{ 'block' if mascota.has_photo else 'none' }};">
+                            </button>
+                            <button class="btn btn-primary btn-sm rounded-circle position-absolute bottom-0 end-0 p-0"
+                                    type="button" data-pet-photo-camera="petPhoto{{ mascota.pet_id }}"
+                                    aria-label="Cambiar fotografía de {{ mascota.names }}"
+                                    title="Cambiar fotografía" style="width: 24px; height: 24px;"
+                                    {% if not mascota.has_photo %}hidden{% endif %}>
+                                <i class="bi bi-camera-fill" aria-hidden="true"></i>
+                            </button>
+                            <span class="small text-body-secondary d-block pet-photo-status" role="status" hidden></span>
+                        </div>
                         <div class="flex-grow-1 min-w-0">
                             <h3 class="h5 fw-bold mb-1 text-break">{{ mascota.names.title() }}</h3>
                             <div class="d-flex flex-wrap align-items-center gap-2">
@@ -364,5 +387,23 @@
     </div>
 </div>
 
+<div class="modal fade" id="petPhotoPreviewModal" tabindex="-1"
+     aria-labelledby="petPhotoPreviewTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark border-secondary">
+            <div class="modal-header border-secondary">
+                <h2 class="modal-title fs-5" id="petPhotoPreviewTitle">Fotografía del paciente</h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body text-center p-2 p-md-3">
+                <img id="petPhotoPreviewImage" class="img-fluid rounded-3"
+                     alt="Fotografía del paciente" style="max-height: 75vh;">
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="{{ url_for('static', filename='js/vaccinations.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/pet-photo-camera.js') }}" defer></script>
 {% endblock %}

@@ -9,6 +9,7 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     Integer,
+    LargeBinary,
     MetaData,
     String,
     Table,
@@ -54,6 +55,7 @@ pet_data=Table(
     Column("pet_tutor_name", String(50)),
     Column("pet_tutor_address", String(50)),
     Column("pet_tutor_phone", String(15)),
+    Column("pet_photo", LargeBinary),
 )
 
 appointments=Table(

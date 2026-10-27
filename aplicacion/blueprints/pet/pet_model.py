@@ -20,6 +20,7 @@ class PetModel:
         self.tutor_name = data.get('pet_tutor_name')
         self.tutor_address = data.get('pet_tutor_address')
         self.tutor_phone = data.get('pet_tutor_phone')
+        self.has_photo = bool(data.get('has_photo'))
 
     @property
     def etapa_vida(self):

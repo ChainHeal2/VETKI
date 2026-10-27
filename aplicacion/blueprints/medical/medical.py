@@ -102,7 +102,11 @@ def medical_create(pet_id):
     # el prefix es para diferenciar los campos del formulario en caso de tener varios formularios en la misma plantilla y nos ahorra escribir nombres largos en el HTML
     # los datos con prefix se veran de esta forma en el HTML: medical_record-fieldname
     db,cursor = get_db()
-    cursor.execute('select * from pet_data where pet_id =%s',(pet_id,))
+    cursor.execute(
+        """SELECT pet_id, pet_names, pet_species_name
+           FROM pet_data WHERE pet_id = %s""",
+        (pet_id,),
+    )
     pet_data = cursor.fetchone()
     cursor.execute(
         """SELECT service_id, service_name, service_category

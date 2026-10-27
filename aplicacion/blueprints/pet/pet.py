@@ -1,7 +1,9 @@
 """
 CRUD-MASCOTA
 """
-from flask import (Blueprint,flash,render_template,url_for,redirect,request, session)
+from io import BytesIO
+
+from flask import (Blueprint,flash,jsonify,render_template,url_for,redirect,request, session,send_file)
 from aplicacion.blueprints.pet.pet_model import PetModel
 from aplicacion.db import get_db
 from aplicacion.forms.pet.pet_form import PetForm
@@ -11,6 +13,30 @@ from math import ceil
 from aplicacion.services.utils import sanitizar
 
 bp = Blueprint('pet',__name__,url_prefix='/pet')
+
+MAX_PET_PHOTO_BYTES = 5 * 1024 * 1024
+
+
+def _detect_image_mimetype(image_data):
+    """Acepta formatos rasterizados conocidos y determina el tipo desde sus bytes."""
+    if image_data.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if image_data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if image_data.startswith((b"GIF87a", b"GIF89a")):
+        return "image/gif"
+    if image_data.startswith(b"RIFF") and image_data[8:12] == b"WEBP":
+        return "image/webp"
+    return None
+
+
+def _get_owned_pet(cursor, pet_id, user_id):
+    """Confirma que la mascota pertenece al usuario de la sesión."""
+    cursor.execute(
+        "SELECT pet_id FROM vetki.pet_data WHERE pet_id = %s AND pet_user_id = %s",
+        (pet_id, user_id),
+    )
+    return cursor.fetchone() is not None
 
 @bp.route("/pet_create", methods = ['GET','POST'])
 def pet_create():
@@ -103,7 +129,8 @@ def pet_read():
             SELECT 
                 pet_id, pet_names, pet_species_name, pet_race, pet_datebirth,
                 pet_microchip, pet_gender, pet_color, pet_reproductive_status,
-                pet_tutor_name, pet_tutor_address, pet_tutor_phone
+                pet_tutor_name, pet_tutor_address, pet_tutor_phone,
+                (pet_photo IS NOT NULL) AS has_photo
             FROM pet_data 
             WHERE pet_user_id = %s 
               AND (LOWER(pet_names) LIKE LOWER(%s) OR LOWER(pet_tutor_name) LIKE LOWER(%s))
@@ -116,7 +143,8 @@ def pet_read():
             SELECT 
                 pet_id, pet_names, pet_species_name, pet_race, pet_datebirth,
                 pet_microchip, pet_gender, pet_color, pet_reproductive_status,
-                pet_tutor_name, pet_tutor_address, pet_tutor_phone
+                pet_tutor_name, pet_tutor_address, pet_tutor_phone,
+                (pet_photo IS NOT NULL) AS has_photo
             FROM pet_data 
             WHERE pet_user_id = %s 
             ORDER BY pet_names ASC
@@ -137,6 +165,66 @@ def pet_read():
         total_records=total_records,
         vaccination_form=VaccinationForm()
     )
+
+
+@bp.route("/<int:pet_id>/photo", methods=["POST"])
+def pet_photo_upload(pet_id):
+    """Valida y guarda la foto enviada para una mascota propia."""
+    user_id = session.get("user_id")
+    if user_id is None:
+        return jsonify(error="Inicia sesión para guardar la fotografía."), 401
+
+    photo = request.files.get("photo")
+    if photo is None:
+        return jsonify(error="No se recibió ninguna fotografía."), 400
+
+    image_data = photo.stream.read(MAX_PET_PHOTO_BYTES + 1)
+    if not image_data:
+        return jsonify(error="La fotografía está vacía."), 400
+    if len(image_data) > MAX_PET_PHOTO_BYTES:
+        return jsonify(error="La fotografía debe pesar 5 MB o menos."), 413
+    if not _detect_image_mimetype(image_data):
+        return jsonify(error="El archivo debe ser una imagen JPG, PNG, GIF o WEBP."), 415
+
+    db, cursor = get_db()
+    if not _get_owned_pet(cursor, pet_id, user_id):
+        return jsonify(error="No se encontró el paciente."), 404
+
+    cursor.execute(
+        "UPDATE vetki.pet_data SET pet_photo = %s "
+        "WHERE pet_id = %s AND pet_user_id = %s",
+        (image_data, pet_id, user_id),
+    )
+    db.commit()
+    return jsonify(message="Fotografía guardada."), 200
+
+
+@bp.route("/<int:pet_id>/photo", methods=["GET"])
+def pet_photo(pet_id):
+    """Entrega la fotografía guardada solo al usuario dueño del paciente."""
+    user_id = session.get("user_id")
+    if user_id is None:
+        return jsonify(error="Inicia sesión para ver esta fotografía."), 401
+
+    _, cursor = get_db()
+    cursor.execute(
+        "SELECT pet_photo FROM vetki.pet_data "
+        "WHERE pet_id = %s AND pet_user_id = %s",
+        (pet_id, user_id),
+    )
+    row = cursor.fetchone()
+    if not row or not row["pet_photo"]:
+        return jsonify(error="Fotografía no encontrada."), 404
+
+    image_data = bytes(row["pet_photo"])
+    mimetype = _detect_image_mimetype(image_data)
+    if not mimetype:
+        return jsonify(error="La fotografía guardada no es válida."), 415
+
+    response = send_file(BytesIO(image_data), mimetype=mimetype, max_age=0)
+    response.headers["Cache-Control"] = "private, no-store"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
 
 @bp.route("/pet_search", methods=["GET"])
 def pet_search():
@@ -173,7 +261,8 @@ def pet_search():
     pet_fields = """
         SELECT pet_id, pet_names, pet_species_name, pet_race, pet_datebirth,
                pet_microchip, pet_gender, pet_color, pet_reproductive_status,
-               pet_tutor_name, pet_tutor_address, pet_tutor_phone
+               pet_tutor_name, pet_tutor_address, pet_tutor_phone,
+               (pet_photo IS NOT NULL) AS has_photo
         FROM vetki.pet_data
     """
     if microchip:
@@ -215,7 +304,10 @@ def pet_update_form(pet_id):
 
     # 1. Traer datos actuales de la mascota (sirve para validar existencia y pasar a la plantilla)
     cursor.execute(
-        'SELECT * FROM vetki.pet_data WHERE pet_id = %s AND pet_user_id = %s',
+        """SELECT pet_id, pet_species_name, pet_names, pet_race, pet_datebirth,
+                  pet_microchip, pet_gender, pet_color, pet_reproductive_status,
+                  pet_tutor_name, pet_tutor_address, pet_tutor_phone
+           FROM vetki.pet_data WHERE pet_id = %s AND pet_user_id = %s""",
         (pet_id, session.get('user_id')),
     )
     pet_data = cursor.fetchone()
