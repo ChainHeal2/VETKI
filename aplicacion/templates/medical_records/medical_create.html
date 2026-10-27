@@ -242,7 +242,7 @@
                                             <input class="form-control" type="number" inputmode="decimal"
                                                    id="{{ price_input_id }}"
                                                    name="service_price_{{ service.service_id }}"
-                                                   min="0" max="9999999999.99" step="0.01" placeholder="Precio"
+                                                   min="0" max="9999999999" step="1" placeholder="Precio"
                                                    value="{{ request.form.get('service_price_' ~ service.service_id, '') }}"
                                                    aria-label="Precio de {{ service.service_name }}">
                                         </div>
@@ -259,9 +259,9 @@
 
                 <div class="d-flex justify-content-end align-items-center gap-3 mt-4 pt-3 border-top">
                     <span class="fw-medium">Total de servicios:</span>
-                    <output id="servicePriceTotal" class="h5 text-primary fw-bold mb-0" aria-live="polite">$0.00</output>
+                    <output id="servicePriceTotal" class="h5 text-primary fw-bold mb-0" aria-live="polite">$0</output>
                 </div>
-                <input type="hidden" id="medicalRecordPriceInput" name="medical_record_price" value="0.00">
+                <input type="hidden" id="medicalRecordPriceInput" name="medical_record_price" value="0">
                 {% if service_price_error %}
                 <div class="alert alert-danger mt-3 mb-0" role="alert">{{ service_price_error }}</div>
                 {% endif %}
@@ -293,19 +293,26 @@
         if (!totalLabel) return;
 
         const updateTotal = () => {
-            const totalCents = Array.from(serviceCheckboxes)
+            const total = Array.from(serviceCheckboxes)
                 .filter(checkbox => checkbox.checked)
                 .reduce((sum, checkbox) => {
                 const input = document.querySelector(
                     `input[name="service_price_${checkbox.value}"]`
                 );
                 if (!input) return sum;
-                const value = Number(input.value);
-                return sum + (Number.isFinite(value) && value > 0 ? Math.round(value * 100) : 0);
-            }, 0);
-            const formattedTotal = (totalCents / 100).toFixed(2);
-            totalLabel.textContent = `$${formattedTotal}`;
-            if (totalInput) totalInput.value = formattedTotal;
+                try {
+                    const value = BigInt(input.value || '0');
+                    return sum + (value > 0n ? value : 0n);
+                } catch {
+                    return sum;
+                }
+            }, 0n);
+            totalLabel.textContent = new Intl.NumberFormat('es-CL', {
+                style: 'currency',
+                currency: 'CLP',
+                maximumFractionDigits: 0
+            }).format(total);
+            if (totalInput) totalInput.value = total.toString();
         };
 
         priceInputs.forEach(input => input.addEventListener('input', updateTotal));

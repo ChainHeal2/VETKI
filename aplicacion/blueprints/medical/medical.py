@@ -1,7 +1,6 @@
 """
 CRUD-EXPEDIENTES CLINICOS
 """
-from decimal import Decimal, InvalidOperation
 from flask import (Blueprint, current_app, flash, render_template, url_for, redirect, request, session)
 from aplicacion.db import get_db
 from aplicacion.forms.medical_records.medical_form import MedicalRecordForm
@@ -13,47 +12,38 @@ bp = Blueprint('medical',__name__,url_prefix='/medical')
 
 
 def _parse_service_price(service_id):
-    """Convierte el precio de un servicio a un importe válido con dos decimales."""
+    """Lee el precio de un servicio como una cantidad entera de pesos CLP."""
     raw_price = request.form.get(f"service_price_{service_id}", "").strip()
     if not raw_price:
-        return Decimal("0.00")
+        return 0
 
     try:
-        price = Decimal(raw_price)
-    except InvalidOperation as error:
-        raise ValueError("Ingresa un precio numérico para cada servicio marcado.") from error
+        price = int(raw_price)
+    except ValueError as error:
+        raise ValueError("Ingresa precios enteros en pesos chilenos.") from error
 
-    if not price.is_finite() or price < 0:
+    if price < 0:
         raise ValueError("Los precios deben ser números iguales o mayores que cero.")
 
-    if price > Decimal("9999999999.99"):
+    if price > 9_999_999_999:
         raise ValueError("El precio supera el máximo permitido.")
 
-    try:
-        rounded_price = price.quantize(Decimal("0.01"))
-    except InvalidOperation as error:
-        raise ValueError("El precio ingresado no es válido.") from error
-    if rounded_price != price:
-        raise ValueError("Los precios admiten hasta dos decimales.")
-    return rounded_price
+    return price
 
 
 def _calculate_service_total(service_ids):
     """Suma los precios de los servicios seleccionados en el formulario."""
-    return sum(
-        (_parse_service_price(service_id) for service_id in service_ids),
-        Decimal("0.00"),
-    ).quantize(Decimal("0.01"))
+    return sum(_parse_service_price(service_id) for service_id in service_ids)
 
 
 def _validate_displayed_total(total):
     """Comprueba que el total enviado por el formulario coincide con la suma."""
     try:
-        displayed_total = Decimal(request.form.get("medical_record_price", ""))
-    except InvalidOperation as error:
+        displayed_total = int(request.form.get("medical_record_price", ""))
+    except ValueError as error:
         raise ValueError("No se recibió un total válido para la ficha.") from error
 
-    if not displayed_total.is_finite() or displayed_total != total:
+    if displayed_total != total:
         raise ValueError("El total mostrado no coincide con los precios de los servicios.")
 
 

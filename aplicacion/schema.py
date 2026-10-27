@@ -2,6 +2,7 @@
 
 from sqlalchemy import (
     Boolean,
+    BigInteger,
     Column,
     Date,
     DateTime,
@@ -9,7 +10,6 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     MetaData,
-    Numeric,
     String,
     Table,
     Text,
@@ -101,9 +101,9 @@ medical_records=Table(
     Column("medical_record_treatment", Text),
     Column(
         "medical_record_price",
-        Numeric(14, 2),
+        BigInteger,
         nullable=False,
-        server_default=text("0.00"),
+        server_default=text("0"),
     ),
     Column(
         "medical_record_pet_id",
