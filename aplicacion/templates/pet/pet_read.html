@@ -114,6 +114,19 @@
                                 {% endif %}
                             </div>
                         </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="rounded-3 border bg-body p-3 h-100">
+                                <div class="text-body-secondary mb-1">
+                                    <i class="bi bi-telephone me-1 text-primary"></i>Dirección
+                                </div>
+                                {% if mascota.tiene_telefono %}
+                                <a href="tel:{{ mascota.telefono_limpio }}"
+                                   class="fw-medium text-decoration-none">{{ mascota.tutor_address }}</a>
+                                {% else %}
+                                <span class="text-body-secondary">Sin teléfono</span>
+                                {% endif %}
+                            </div>
+                        </div>
                         <div class="col-12">
                             <div class="rounded-3 border bg-body p-3">
                                 <div class="text-body-secondary mb-1">

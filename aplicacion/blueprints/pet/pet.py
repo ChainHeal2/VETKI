@@ -229,7 +229,7 @@ def pet_update_form(pet_id):
     pet_update = PetForm(data=pet_data)
     # Ajuste manual solo para la variable con nombre distinto (pet_rstatus vs pet_reproductive_status)
     if request.method == 'GET':
-        pet_update.pet_rstatus.data = pet_data.get('pet_reproductive_status')
+        pet_update.pet_reproductive_status.data = pet_data.get('pet_reproductive_status')
 
     # 2. Procesamiento del POST cuando se envía el formulario
     if pet_update.validate_on_submit():
@@ -246,7 +246,7 @@ def pet_update_form(pet_id):
             form.get('pet_microchip'),
             form.get('pet_gender'),
             form.get('pet_color'),
-            form.get('pet_rstatus'),       # Mapeado a pet_reproductive_status en SQL
+            form.get('pet_reproductive_status'),       # Mapeado a pet_reproductive_status en SQL
             form.get('pet_tutor_name'),
             form.get('pet_tutor_address'),
             form.get('pet_tutor_phone'),

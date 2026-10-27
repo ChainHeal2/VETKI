@@ -131,6 +131,23 @@
     white-space: normal !important;
 }
 
+.calendar-event-card {
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.25;
+}
+
+.calendar-event-line {
+    overflow-wrap: anywhere;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.calendar-event-line + .calendar-event-line {
+    margin-top: 2px;
+}
+
 .fc-event-time {
     font-size: 0.72rem !important;
     font-weight: 700 !important;

@@ -49,4 +49,21 @@
         <div id="calendar"></div>
     </div>
 </div>
+
+<div class="modal fade" id="appointmentEditModal" tabindex="-1" aria-labelledby="appointmentEditModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content bg-body-tertiary border-secondary shadow-lg">
+            <div class="modal-header border-secondary">
+                <div>
+                    <h2 class="modal-title fs-5 fw-bold" id="appointmentEditModalTitle">Modificar cita médica</h2>
+                    <p class="small text-body-secondary mb-0" id="appointmentEditPet"></p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="appointmentEditModalBody">
+                <div class="text-center py-4" role="status">Cargando cita…</div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

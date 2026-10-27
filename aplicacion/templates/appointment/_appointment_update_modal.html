@@ -1,0 +1,25 @@
+<form id="appointmentEditForm" action="{{ url_for('appointment.appointment_update', appointment_id=appointment_data.appointment_id) }}" method="POST">
+    {{ appointment_update.hidden_tag() }}
+    <div class="alert alert-danger d-none" id="appointmentEditError" role="alert"></div>
+
+    <div class="mb-3">
+        <label for="reason" class="form-label">Motivo de la cita</label>
+        {{ appointment_update.reason(class="form-control", id="reason", placeholder="Ej. Control, vacunación…") }}
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-6 mb-3">
+            <label for="date" class="form-label">Fecha y hora de inicio</label>
+            {{ appointment_update.date(class="form-control", id="date", type="datetime-local", required=True) }}
+        </div>
+        <div class="col-12 col-md-6 mb-3">
+            <label for="end_date" class="form-label">Término <span class="text-body-secondary">(opcional)</span></label>
+            {{ appointment_update.end_date(class="form-control", id="end_date", type="datetime-local") }}
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar cambios</button>
+    </div>
+</form>

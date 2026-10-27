@@ -18,5 +18,11 @@ class AppointmentForm(FlaskForm):
             '%Y-%m-%d %H:%M',       # Formato PC con espacio
             '%Y-%m-%d %H:%M:%S'     # Formato PC con espacio y segundos
         ])
+    end_date = DateTimeLocalField('Fecha de término', validators=[Optional()], format=[
+            '%Y-%m-%dT%H:%M',
+            '%Y-%m-%dT%H:%M:%S',
+            '%Y-%m-%d %H:%M',
+            '%Y-%m-%d %H:%M:%S'
+        ])
     reason = StringField('Motivo de la cita', validators=[Optional(), solo_letras])
     submit = SubmitField('Guardar Datos')

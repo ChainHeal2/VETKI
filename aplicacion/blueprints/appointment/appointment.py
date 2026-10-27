@@ -80,7 +80,8 @@ def appointments_list():
             appointments.c.appointment_date,
             appointments.c.appointment_end_date,
             pet_data.c.pet_names,
-            pet_data.c.pet_tutor_name
+            pet_data.c.pet_tutor_name,
+            pet_data.c.pet_tutor_address,
         )
         .select_from(
             appointments.join(
@@ -105,12 +106,14 @@ def appointments_list():
             # Las fechas deben ir en formato ISO 8601 string (ej: '2026-10-15T10:30:00')
             "start": row['appointment_date'].isoformat() if row['appointment_date'] else None,
             "end": row['appointment_end_date'].isoformat() if row['appointment_end_date'] else None,
-            # Al hacer clic, redirigimos a la pantalla de edición
+            # URL usada por el modal para cargar el formulario de edición
             "url": f"/appointment_update/{row['appointment_id']}",
             # Propiedades extra por si quieres mostrar más datos en tooltips
             "extendedProps": {
                 "tutor": row['pet_tutor_name'],
-                "reason": reason
+                "reason": reason,
+                "petName": pet_name,
+                "address": row['pet_tutor_address']
             }
         })
 
@@ -175,89 +178,105 @@ def appointment_move(appointment_id):
 @bp.route("/appointment_update/<int:appointment_id>", methods=['GET','POST'])
 def appointment_update(appointment_id):
     """Modifica la cita (appointment) en la BD usando orm_db.session."""
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    user_id = session.get("user_id")
+    if user_id is None:
+        if is_ajax:
+            return jsonify(error="Debes iniciar sesión para editar una cita."), 401
+        return redirect(url_for("auth.user_login"))
+
     form_update = AppointmentForm()
 
-    # 1. BLOQUE PREPARACIÓN / CONSULTA
-    # Consultar la cita médica
+    # Buscar únicamente citas asociadas a mascotas del usuario actual.
     stmt_appointment = select(
         appointments.c.appointment_id,
         appointments.c.pet_id,
         appointments.c.appointment_date,
         appointments.c.appointment_reason,
         appointments.c.appointment_end_date,
-    ).where(appointments.c.appointment_id == appointment_id)
+        pet_data.c.pet_names,
+        pet_data.c.pet_tutor_name,
+    ).select_from(
+        appointments.join(pet_data, appointments.c.pet_id == pet_data.c.pet_id)
+    ).where(
+        appointments.c.appointment_id == appointment_id,
+        pet_data.c.pet_user_id == user_id,
+    )
 
     appointment_data = (
         orm_db.session.execute(stmt_appointment).mappings().fetchone()
     )
 
     if not appointment_data:
+        if is_ajax:
+            return jsonify(error="La cita no existe o no tienes permiso para editarla."), 404
         flash("La cita solicitada no existe.", "warning")
         return redirect(
             url_for('appointment.appointment_read')
         )  # Ajusta según tu vista
 
-    # Consultar los datos de la mascota
-    stmt_pet = select(
-        pet_data.c.pet_id, pet_data.c.pet_names, pet_data.c.pet_tutor_name
-    ).where(pet_data.c.pet_id == appointment_data['pet_id'])
+    pet_info = {
+        "pet_id": appointment_data["pet_id"],
+        "pet_names": appointment_data["pet_names"],
+        "pet_tutor_name": appointment_data["pet_tutor_name"],
+    }
 
-    pet_info = orm_db.session.execute(stmt_pet).mappings().fetchone()
-
-    # 2. BLOQUE POST (Guardar cambios)
     if form_update.validate_on_submit():
-        try:
-            stmt_update = (
-                update(appointments)
-                .where(appointments.c.appointment_id == appointment_id)
-                .values(
-                    appointment_date=form_update.date.data,
-                    appointment_reason=(
-                        form_update.reason.data
-                        if hasattr(form_update, 'reason')
-                        else appointment_data['appointment_reason']
-                    ),
-                    appointment_end_date=(
-                        form_update.end_date.data
-                        if hasattr(form_update, 'end_date')
-                        and form_update.end_date.data
-                        else None
-                    ),
+        if (
+            form_update.end_date.data
+            and form_update.end_date.data <= form_update.date.data
+        ):
+            message = "La fecha de término debe ser posterior al inicio."
+            if is_ajax:
+                return jsonify(error=message), 422
+            flash(message, "warning")
+        else:
+            try:
+                stmt_update = (
+                    update(appointments)
+                    .where(appointments.c.appointment_id == appointment_id)
+                    .values(
+                        appointment_date=form_update.date.data,
+                        appointment_reason=form_update.reason.data,
+                        appointment_end_date=form_update.end_date.data,
+                    )
                 )
-            )
 
-            orm_db.session.execute(stmt_update)
-            orm_db.session.commit()
+                orm_db.session.execute(stmt_update)
+                orm_db.session.commit()
 
-            flash("Cita actualizada correctamente.", "success")
-            return redirect(url_for('appointment.appointment_read'))
+                if is_ajax:
+                    return jsonify(message="Cita actualizada correctamente.")
+                flash("Cita actualizada correctamente.", "success")
+                return redirect(url_for('appointment.appointment_read'))
 
-        except Exception as e:
-            orm_db.session.rollback()
-            flash(f"Error al actualizar la cita: {str(e)}", "danger")
+            except Exception:
+                orm_db.session.rollback()
+                message = "Ocurrió un error al actualizar la cita."
+                if is_ajax:
+                    return jsonify(error=message), 500
+                flash(message, "danger")
+
+    elif request.method == 'POST' and is_ajax:
+        errors = [error for field_errors in form_update.errors.values() for error in field_errors]
+        return jsonify(error=" ".join(errors) or "Revisa los datos ingresados."), 422
 
     elif request.method == 'POST':
-        flash(
-            "Error en el formulario. Por favor verifica los datos.", "warning"
-        )
+        flash("Error en el formulario. Por favor verifica los datos.", "warning")
 
-    # 3. BLOQUE GET / MOSTRAR DATOS (Pre-llenar el formulario)
+    # Precargar datos en el formulario para la edición.
     if request.method == 'GET':
         form_update.date.data = appointment_data['appointment_date']
+        form_update.reason.data = appointment_data['appointment_reason']
+        form_update.end_date.data = appointment_data['appointment_end_date']
 
-        if (
-            hasattr(form_update, 'reason')
-            and appointment_data['appointment_reason']
-        ):
-            form_update.reason.data = appointment_data['appointment_reason']
-
-        if (
-            hasattr(form_update, 'end_date')
-            and appointment_data['appointment_end_date']
-        ):
-            form_update.end_date.data = appointment_data[
-                'appointment_end_date'
-            ]
+    if is_ajax and request.method == "GET":
+        return render_template(
+            "appointment/_appointment_update_modal.html",
+            appointment_update=form_update,
+            appointment_data=appointment_data,
+            pet_data=pet_info,
+        )
 
     return render_template(
         "appointment/appointment_update.html",

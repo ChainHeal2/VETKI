@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!calendarEl) return;
     const calendarContainer = document.getElementById('appointmentCalendar');
     const messageEl = document.getElementById('calendarMessage');
+    const editModalEl = document.getElementById('appointmentEditModal');
+    const editModalBody = document.getElementById('appointmentEditModalBody');
+    const editPetLabel = document.getElementById('appointmentEditPet');
+    const editModal = editModalEl && window.bootstrap
+        ? bootstrap.Modal.getOrCreateInstance(editModalEl)
+        : null;
 
     function showMessage(message, type) {
         if (!messageEl) return;
@@ -21,6 +27,66 @@ document.addEventListener('DOMContentLoaded', function () {
             `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
     }
 
+    async function openEditModal(event) {
+        if (!editModal || !editModalBody || !event.url) {
+            showMessage('No se pudo abrir el formulario de edición.', 'danger');
+            return;
+        }
+
+        editModalBody.innerHTML = '<div class="text-center py-4" role="status">Cargando cita…</div>';
+        editPetLabel.textContent = event.extendedProps.petName
+            ? `Paciente: ${event.extendedProps.petName}`
+            : '';
+        editModal.show();
+
+        try {
+            const response = await fetch(event.url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const html = await response.text();
+            if (!response.ok) {
+                throw new Error('No se pudo cargar el formulario de la cita.');
+            }
+
+            editModalBody.innerHTML = html;
+            const form = editModalBody.querySelector('#appointmentEditForm');
+            form?.addEventListener('submit', async function (submitEvent) {
+                submitEvent.preventDefault();
+                const submitButton = form.querySelector('button[type="submit"]');
+                const errorEl = form.querySelector('#appointmentEditError');
+                submitButton.disabled = true;
+                errorEl.classList.add('d-none');
+
+                try {
+                    const csrfToken = form.querySelector('input[name="csrf_token"]')?.value;
+                    const saveResponse = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': csrfToken || ''
+                        },
+                        body: new FormData(form)
+                    });
+                    const data = await saveResponse.json().catch(() => ({}));
+                    if (!saveResponse.ok) {
+                        throw new Error(data.error || 'No se pudo guardar la cita.');
+                    }
+
+                    editModal.hide();
+                    calendar.refetchEvents();
+                    showMessage(data.message || 'Cita actualizada.', 'success');
+                } catch (error) {
+                    errorEl.textContent = error.message || 'Error al guardar la cita.';
+                    errorEl.classList.remove('d-none');
+                } finally {
+                    submitButton.disabled = false;
+                }
+            });
+        } catch (error) {
+            editModalBody.innerHTML = `<div class="alert alert-danger mb-0" role="alert">${error.message}</div>`;
+        }
+    }
+
     let isMobile = window.innerWidth < 768;
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -29,8 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
         firstDay: 1,
         timeZone: 'local',
         height: 'auto',
-        // Permite mover las citas dentro del calendario; por ahora el cambio
-        // solo vive en la vista y no se guarda en el servidor.
+        // Permite mover las citas dentro del calendario y guardar el horario.
         editable: true,
         eventStartEditable: true,
         eventDurationEditable: false,
@@ -87,9 +152,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
         eventClick: function (info) {
             if (info.event.url) {
-                window.location.href = info.event.url;
                 info.jsEvent.preventDefault();
+                openEditModal(info.event);
             }
+        },
+
+        eventContent: function (info) {
+            const props = info.event.extendedProps;
+            const card = document.createElement('div');
+            card.className = 'calendar-event-card';
+
+            [
+                ['Motivo', props.reason],
+                ['Mascota', props.petName],
+                ['Tutor', props.tutor],
+                ['Dirección', props.address]
+            ].forEach(([label, value]) => {
+                const line = document.createElement('div');
+                line.className = 'calendar-event-line';
+                line.textContent = `${label}: ${value || 'No indicado'}`;
+                card.appendChild(line);
+            });
+
+            return { domNodes: [card] };
         },
 
         eventDidMount: function (info) {
