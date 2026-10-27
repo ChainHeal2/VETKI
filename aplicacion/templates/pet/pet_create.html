@@ -43,8 +43,8 @@
 
         <div class="col-md-4">
             <div class="form-floating">
-                {{ pet_form.pet_gender(class="form-select bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_gender", placeholder="Sexo") }}
-                <label for="pet_gender" class="text-secondary">Sexo</label>
+                {{ pet_form.pet_gender(class="form-select bg-black text-light border-secondary border-opacity-50 shadow-none", id="pet_gender", placeholder="Sexo biologico") }}
+                <label for="pet_gender" class="text-secondary">Sexo biologico</label>
             </div>
         </div>
 
@@ -112,7 +112,7 @@
 
         <div class="col-12 mt-5">
             <div class="d-flex flex-column flex-sm-row justify-content-end align-items-center gap-3">
-                <a href="{{ url_for('index.index') }}" class="btn btn-outline-secondary rounded-pill px-4 w-100 w-sm-auto text-decoration-none">
+                <a href="{{ url_for('index.index') }}" class="btn btn-secondary rounded-pill px-4 w-100 w-sm-auto text-decoration-none">
                     Descartar
                 </a>
                 {{ pet_form.submit(class="btn btn-primary rounded-pill px-5 py-2 fw-medium shadow-sm w-100 w-sm-auto", value="Registrar Paciente") }}

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es" data-bs-theme="dark">
+<html lang="es" data-bs-theme="light">
 
 <head>
     <title>{% block title %}VETKI | Sistema de Gestión Veterinaria{% endblock %}</title>
@@ -14,7 +14,7 @@
     {% block head %}{% endblock %}
 </head>
     
-<body class="d-flex flex-column min-vh-100 bg-body">
+<body class="d-flex flex-column bg-body">
     <!-- HEADER / NAVEGACIÓN -->
     <header>
         <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom border-secondary border-opacity-25 px-3 px-lg-4">
@@ -40,7 +40,7 @@
                             </div>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-outline-danger btn-sm px-3 rounded-pill" href="{{ url_for('auth.user_logout') }}">
+                            <a class="btn btn-danger btn-sm px-3 rounded-pill" href="{{ url_for('auth.user_logout') }}">
                                 <i class="bi bi-power me-1"></i>Cerrar Sesión
                             </a>
                         </li>
@@ -78,11 +78,6 @@
                     <h1 class="h3 fw-bold text-white mb-1">Panel Clínico Central</h1>
                     <p class="small text-muted mb-0">Control de pacientes, agendas médicas y analíticas del sistema.</p>
                 </div>
-                <div class="col-12 col-md-4 text-md-end mt-2 mt-md-0">
-                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill">
-                        <i class="bi bi-shield-check me-1"></i> Sesión Segura Activa
-                    </span>
-                </div>
             </div>
 
             <!-- Módulo de Búsqueda -->
@@ -104,7 +99,7 @@
                                     <button class="btn btn-primary px-4 fw-medium" type="submit">Buscar</button>
                                 </div>
                             </form>
-                            <button class="btn btn-outline-light flex-shrink-0" type="button" data-bs-toggle="modal" data-bs-target="#dashboardQrModal">
+                            <button class="btn btn-outline-primary flex-shrink-0" type="button" data-bs-toggle="modal" data-bs-target="#dashboardQrModal">
                                 <i class="bi bi-qr-code-scan me-2"></i>Escanear QR
                             </button>
                         </div>
@@ -227,10 +222,10 @@
                         VETKI centraliza historias clínicas, agenda de turnos y procesos administrativos en una plataforma segura y moderna.
                     </p>
                     <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
-                        <a href="{{ url_for('auth.user_login') }}" class="btn btn-primary btn-lg px-4 py-3 fw-bold shadow-sm rounded-pill">
-                            Ingresar al Sistema <i class="bi bi-arrow-right ms-2"></i>
+                        <a href="{{ url_for('auth.user_login') }}" class="btn btn-success btn-lg px-4 py-3 fw-bold shadow-sm rounded-pill">
+                            Ingresar al sistema <i class="bi bi-arrow-right ms-2"></i>
                         </a>
-                        <a href="{{ url_for('auth.user_register') }}" class="btn btn-outline-light btn-lg px-4 py-3 fw-medium shadow-sm rounded-pill">
+                        <a href="{{ url_for('auth.user_register') }}" class="btn btn-outline-primary btn-lg px-4 py-3 fw-medium shadow-sm rounded-pill">
                             Crear Cuenta <i class="bi bi-person-plus ms-2"></i>
                         </a>
                     </div>
@@ -306,10 +301,6 @@
                     <a href="{{ url_for('index.terminos') }}" class="text-decoration-none text-muted">Términos</a>
                 </li>
             </ul>
-
-            <div class="small text-success">
-                <i class="bi bi-hdd-network me-1"></i> Servidor Operativo
-            </div>
         </div>
         {% endblock %}
     </footer>

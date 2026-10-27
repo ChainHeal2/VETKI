@@ -1,11 +1,188 @@
 /**
  * VETKI - Estilos Globales y Optimizaciones del Tema
- * Bootstrap 5.3+ Dark Mode
+ * Bootstrap 5.3+ Light Theme
  */
 
+/* Fondo de la página */
+body {
+    background-image: url("../images/fondo.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    isolation: isolate;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: url("../images/logo-solo.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: clamp(180px, 38vw, 420px) auto;
+    opacity: 0.18;
+}
+
+/*Tamaño de la fuente*/
+html {
+    font-size: 18px;
+}
+
+
 :root {
-    --vetki-primary: #0d6efd;
-    --vetki-border-subtle: rgba(255, 255, 255, 0.1);
+    --vetki-primary: #9B2F90;
+    --vetki-violet: #9840A0;
+    --vetki-mauve: #AD5CB5;
+    --vetki-lilac: #DAA5DB;
+    --vetki-cyan: #C6EFFC;
+    --vetki-pink: #F9E0F7;
+    --vetki-ink: #443961;
+    --vetki-warm-white: #FEFEFC;
+    --vetki-border-subtle: rgba(218, 165, 219, 0.16);
+
+    /* Paleta de marca aplicada a los colores semánticos de Bootstrap. */
+    --bs-primary: var(--vetki-primary);
+    --bs-primary-rgb: 155, 47, 144;
+    --bs-secondary: var(--vetki-ink);
+    --bs-secondary-rgb: 68, 57, 97;
+    --bs-info: #28798C;
+    --bs-info-rgb: 40, 121, 140;
+    --bs-light: var(--vetki-warm-white);
+    --bs-light-rgb: 254, 254, 252;
+    --bs-dark: var(--vetki-ink);
+    --bs-dark-rgb: 68, 57, 97;
+    --bs-link-color: var(--vetki-primary);
+    --bs-link-hover-color: #6D1E67;
+}
+
+html[data-bs-theme="light"] {
+    --bs-body-bg: var(--vetki-warm-white);
+    --bs-body-bg-rgb: 254, 254, 252;
+    --bs-body-color: var(--vetki-ink);
+    --bs-body-color-rgb: 68, 57, 97;
+    --bs-emphasis-color: #30243D;
+    --bs-secondary-color: #6E6177;
+    --bs-secondary-color-rgb: 110, 97, 119;
+    --bs-secondary-bg: #E8F8FD;
+    --bs-tertiary-color: #76677D;
+    --bs-tertiary-color-rgb: 118, 103, 125;
+    --bs-tertiary-bg: #F9F0F9;
+    --bs-border-color: #DED1E2;
+    --bs-border-color-translucent: rgba(68, 57, 97, 0.14);
+    --bs-black-rgb: 68, 57, 97;
+
+    --bs-primary-text-emphasis: #6D1E67;
+    --bs-primary-bg-subtle: #F2DFF1;
+    --bs-primary-border-subtle: #D5A3D2;
+    --bs-secondary-text-emphasis: var(--vetki-ink);
+    --bs-secondary-bg-subtle: #E8F8FD;
+    --bs-secondary-border-subtle: #C8B9CC;
+    --bs-info-text-emphasis: #225E6C;
+    --bs-info-bg-subtle: #E8F8FD;
+    --bs-info-border-subtle: #A7DCE9;
+}
+
+html[data-bs-theme="light"] .bg-dark {
+    background-color: #F2EAF3 !important;
+    color: var(--vetki-ink) !important;
+}
+
+html[data-bs-theme="light"] .bg-black {
+    background-color: #F3F8FA !important;
+    color: var(--vetki-ink) !important;
+}
+
+html[data-bs-theme="light"] .text-white,
+html[data-bs-theme="light"] .text-light {
+    color: var(--vetki-ink) !important;
+}
+
+html[data-bs-theme="light"] .bg-primary.text-white,
+html[data-bs-theme="light"] .bg-primary .text-white {
+    color: #FFFFFF !important;
+}
+
+html[data-bs-theme="light"] .modal .btn-close-white,
+html[data-bs-theme="light"] .alert .btn-close-white {
+    filter: none;
+}
+/* Botones primarios */
+html[data-bs-theme="light"] .btn-outline-primary {
+    --bs-btn-color: #FFFFFF;
+    --bs-btn-bg: var(--vetki-primary);
+    --bs-btn-border-color: var(--vetki-primary);
+    --bs-btn-hover-color: #FFFFFF;
+    --bs-btn-hover-bg: #6D1E67;
+    --bs-btn-hover-border-color: #6D1E67;
+}
+
+html[data-bs-theme="light"] .btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--vetki-primary);
+    --bs-btn-border-color: var(--vetki-primary);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #6D1E67;
+    --bs-btn-hover-border-color: #6D1E67;
+    --bs-btn-active-bg: #6D1E67;
+    --bs-btn-active-border-color: #6D1E67;
+    --bs-btn-focus-shadow-rgb: 155, 47, 144;
+}
+
+.medical-record-tabs .nav-item {
+    flex: 1 1 190px;
+}
+
+.medical-record-tabs .nav-link {
+    width: 100%;
+    color: var(--vetki-ink);
+    background-color: var(--bs-info-bg-subtle);
+    border: 1px solid var(--bs-info-border-subtle);
+    font-weight: 600;
+    transition: color 0.18s ease, background-color 0.18s ease,
+        border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.medical-record-tabs .nav-link:hover {
+    color: #6D1E67;
+    background-color: var(--bs-primary-bg-subtle);
+    border-color: var(--bs-primary-border-subtle);
+    transform: translateY(-1px);
+}
+
+.medical-record-tabs .nav-link.active {
+    color: #FFFFFF;
+    background-color: var(--vetki-primary);
+    border-color: var(--vetki-primary);
+    box-shadow: 0 0.25rem 0.75rem rgba(155, 47, 144, 0.2);
+}
+
+.medical-record-tabs .nav-link:focus-visible {
+    outline: 3px solid rgba(155, 47, 144, 0.35);
+    outline-offset: 2px;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+body > header,
+body > footer {
+    flex-shrink: 0;
+}
+
+body > main {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
 }
 
 /* Transiciones suaves en enlaces y botones */
@@ -24,14 +201,14 @@
 }
 
 .hover-link:hover {
-    color: var(--bs-light) !important;
+    color: var(--bs-link-hover-color) !important;
 }
 
-/* Formularios y Inputs Flotantes en Modo Oscuro */
+/* Resaltado de foco para formularios */
 .form-floating > .form-control:focus,
 .form-floating > .form-select:focus {
     border-color: var(--vetki-primary);
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    box-shadow: 0 0 0 0.25rem rgba(155, 47, 144, 0.25);
 }
 
 /* Adaptabilidad para tablas en pantallas móviles */

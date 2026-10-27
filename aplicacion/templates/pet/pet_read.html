@@ -8,12 +8,12 @@
 {% block main %}
 
 <main class="container-fluid px-0">
-    <header class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4 border-bottom pb-4">
+    <header class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-3 border-bottom pb-3">
         <div>
             <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle mb-2">
                 <i class="bi bi-heart-pulse me-1"></i>Expediente clínico
             </span>
-            <h1 class="display-6 fw-normal mb-1">Archivo de Pacientes</h1>
+            <h1 class="display-6 fw-normal mb-1">Archivo de pacientes</h1>
             <p class="mb-0 text-body-secondary">Consulta y administra los expedientes de tus pacientes.</p>
         </div>
         <a href="{{ url_for('pet.pet_create') }}" class="btn btn-primary rounded-pill px-4 py-2 flex-shrink-0">
@@ -24,7 +24,7 @@
     <section class="card bg-body-tertiary border rounded-4 p-3 p-md-4 shadow-sm mb-4"
              aria-label="Buscar pacientes">
         <form method="GET" action="{{ url_for('pet.pet_read') }}" role="search">
-            <label for="petSearch" class="form-label fw-semibold">Buscar en el archivo</label>
+            <label for="petSearch" class="form-label fw-semibold">Buscar en el sistema</label>
             <div class="row g-2">
                 <div class="col-12 col-md">
                     <div class="input-group">
@@ -55,7 +55,7 @@
 
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
         <div>
-            <h2 class="h5 fw-semibold mb-1">Pacientes</h2>
+            <h2 class="h5 fw-semibold mb-">Pacientes</h2>
             {% if search_query %}
             <p class="small text-body-secondary mb-0">
                 Coincidencias para <strong class="text-body">“{{ search_query }}”</strong>
@@ -74,12 +74,12 @@
         <div class="col">
             <article class="card bg-body-tertiary border rounded-4 h-100 shadow-sm overflow-hidden">
                 <div class="card-body p-3 p-md-4">
-                    <div class="d-flex align-items-start gap-3 mb-3">
+                    <div class="d-flex align-items-center gap-3 mb-4">
                         <div class="position-relative flex-shrink-0">
                             <input class="visually-hidden pet-photo-input" type="file"
                                    id="petPhoto{{ mascota.pet_id }}" accept="image/*" capture="environment">
                             <button class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fs-3 border-0 p-0"
-                                    style="width: 56px; height: 56px; overflow: hidden;"
+                                    style="width: 120px; height: 120px; overflow: hidden;"
                                     type="button" data-pet-photo-trigger="petPhoto{{ mascota.pet_id }}"
                                     data-upload-url="{{ url_for('pet.pet_photo_upload', pet_id=mascota.pet_id) }}"
                                     data-pet-name="{{ mascota.names }}"
@@ -94,16 +94,16 @@
                             <button class="btn btn-primary btn-sm rounded-circle position-absolute bottom-0 end-0 p-0"
                                     type="button" data-pet-photo-camera="petPhoto{{ mascota.pet_id }}"
                                     aria-label="Cambiar fotografía de {{ mascota.names }}"
-                                    title="Cambiar fotografía" style="width: 24px; height: 24px;"
+                                    title="Cambiar fotografía" style="width: 30px; height: 30px;"
                                     {% if not mascota.has_photo %}hidden{% endif %}>
                                 <i class="bi bi-camera-fill" aria-hidden="true"></i>
                             </button>
                             <span class="small text-body-secondary d-block pet-photo-status" role="status" hidden></span>
                         </div>
                         <div class="flex-grow-1 min-w-0">
-                            <h3 class="h5 fw-bold mb-1 text-break">{{ mascota.names.title() }}</h3>
+                            <h3 class="h4 fw-bold mb-1 text-break">{{ mascota.names.title() }}</h3>
                             <div class="d-flex flex-wrap align-items-center gap-2">
-                                <span class="text-body-secondary small">
+                                <span class="text-body-secondary">
                                     {{ mascota.species_name.title() if mascota.species_name else 'Especie sin registrar' }}
                                 </span>
                                 <span class="badge rounded-pill bg-primary-subtle text-primary fw-normal">
@@ -116,115 +116,72 @@
                     <div class="row g-2 small mb-3">
                         <div class="col-12 col-sm-6">
                             <div class="rounded-3 border bg-body p-3 h-100">
-                                <div class="text-body-secondary mb-1">
-                                    <i class="bi bi-person me-1 text-primary"></i>Tutor
-                                </div>
-                                <div class="fw-medium text-break">
-                                    {{ mascota.tutor_name.title() if mascota.tutor_name else 'Sin registrar' }}
-                                </div>
+                                <div class="text-body-secondary mb-1"><i class="bi bi-person me-1 text-primary"></i>Tutor</div>
+                                <div class="fw-medium text-break">{{ mascota.tutor_name.title() if mascota.tutor_name else 'Sin registrar' }}</div>
                             </div>
                         </div>
                         <div class="col-12 col-sm-6">
                             <div class="rounded-3 border bg-body p-3 h-100">
-                                <div class="text-body-secondary mb-1">
-                                    <i class="bi bi-telephone me-1 text-primary"></i>Teléfono
-                                </div>
+                                <div class="text-body-secondary mb-1"><i class="bi bi-telephone me-1 text-primary"></i>Teléfono</div>
                                 {% if mascota.tiene_telefono %}
-                                <a href="tel:{{ mascota.telefono_limpio }}"
-                                   class="fw-medium text-decoration-none">{{ mascota.tutor_phone }}</a>
-                                {% else %}
-                                <span class="text-body-secondary">Sin teléfono</span>
-                                {% endif %}
+                                <a href="tel:{{ mascota.telefono_limpio }}" class="fw-medium text-decoration-none">{{ mascota.tutor_phone }}</a>
+                                {% else %}<span class="text-body-secondary">Sin teléfono</span>{% endif %}
                             </div>
                         </div>
                         <div class="col-12 col-sm-6">
                             <div class="rounded-3 border bg-body p-3 h-100">
-                                <div class="text-body-secondary mb-1">
-                                    <i class="bi bi-telephone me-1 text-primary"></i>Dirección
-                                </div>
-                                {% if mascota.tiene_telefono %}
-                                <a href="tel:{{ mascota.telefono_limpio }}"
-                                   class="fw-medium text-decoration-none">{{ mascota.tutor_address }}</a>
-                                {% else %}
-                                <span class="text-body-secondary">Sin teléfono</span>
-                                {% endif %}
+                                <div class="text-body-secondary mb-1"><i class="bi bi-geo-alt me-1 text-primary"></i>Dirección</div>
+                                <div class="fw-medium text-break">{{ mascota.tutor_address or 'Sin dirección' }}</div>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <div class="rounded-3 border bg-body p-3">
-                                <div class="text-body-secondary mb-1">
-                                    <i class="bi bi-cpu me-1 text-primary"></i>Microchip
-                                </div>
-                                <div class="{{ mascota.clase_microchip_css }} fw-medium text-break">
-                                    {{ mascota.alerta_microchip }}
-                                </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="rounded-3 border bg-body p-3 h-100">
+                                <div class="text-body-secondary mb-1"><i class="bi bi-cpu me-1 text-primary"></i>Microchip</div>
+                                <div class="{{ mascota.clase_microchip_css }} fw-medium text-break">{{ mascota.alerta_microchip }}</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="d-flex flex-column flex-sm-row gap-2">
-                        <a href="{{ url_for('medical.medical_create', pet_id=mascota.pet_id) }}"
-                           class="btn btn-primary rounded-pill px-3 flex-grow-1">
-                            <i class="bi bi-plus-circle me-1"></i>Atender paciente
-                        </a>
-                        <button class="btn btn-outline-secondary rounded-pill px-3 flex-grow-1"
-                                type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseData{{ mascota.pet_id }}"
-                                aria-expanded="false" aria-controls="collapseData{{ mascota.pet_id }}">
-                            Más información y acciones
-                            <i class="bi bi-chevron-down ms-1"></i>
-                        </button>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6"><span class="text-body-secondary">Raza:</span> <span class="{{ mascota.clase_raza_css }} fw-medium">{{ mascota.tiene_raza }}</span></div>
+                        <div class="col-6"><span class="text-body-secondary">Edad:</span> <span class="text-body">{{ mascota.age }}</span></div>
+                        <div class="col-6"><span class="text-body-secondary">Sexo Biologico:</span> <span class="text-body">{{ mascota.gender or 'N/D' }}</span></div>
+                        <div class="col-6"><span class="text-body-secondary">Nacimiento:</span> <span class="text-body">{{ mascota.datebirth or 'N/D' }}</span></div>
+                        <div class="col-12"><span class="text-body-secondary">Estado reproductivo:</span> <span class="text-body">{{ mascota.reproductive_status or 'N/D' }}</span></div>
                     </div>
 
-                    <div class="collapse" id="collapseData{{ mascota.pet_id }}">
-                        <div class="border-top mt-3 pt-3">
-                            <h4 class="small text-uppercase text-body-secondary fw-semibold mb-2">Datos del expediente</h4>
-                            <div class="row g-2 small mb-3">
-                                <div class="col-6"><span class="text-body-secondary">Raza:</span>
-                                    <span class="{{ mascota.clase_raza_css }} fw-medium">{{ mascota.tiene_raza }}</span>
-                                </div>
-                                <div class="col-6"><span class="text-body-secondary">Edad:</span>
-                                    <span class="text-body">{{ mascota.age }}</span>
-                                </div>
-                                <div class="col-6"><span class="text-body-secondary">Género:</span>
-                                    <span class="text-body">{{ mascota.gender or 'N/D' }}</span>
-                                </div>
-                                <div class="col-6"><span class="text-body-secondary">Nacimiento:</span>
-                                    <span class="text-body">{{ mascota.datebirth or 'N/D' }}</span>
-                                </div>
-                                <div class="col-12"><span class="text-body-secondary">Estado reproductivo:</span>
-                                    <span class="text-body">{{ mascota.reproductive_status or 'N/D' }}</span>
-                                </div>
-                            </div>
-
-                            <h4 class="small text-uppercase text-body-secondary fw-semibold mb-2">Acciones</h4>
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="{{ url_for('appointment.appointment_create', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                                    <i class="bi bi-calendar-plus me-1"></i>Agendar
-                                </a>
-                                <a href="{{ url_for('medical.pet_history', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-info rounded-pill px-3">
-                                    <i class="bi bi-journal-medical me-1"></i>Ficha clínica
-                                </a>
-                                <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3"
-                                        data-bs-toggle="modal" data-bs-target="#vaccinationModal"
-                                        data-pet-id="{{ mascota.pet_id }}" data-pet-name="{{ mascota.names }}">
-                                    <i class="bi bi-shield-plus me-1"></i>Vacunas
-                                </button>
-                                <a href="{{ url_for('carnet.carnet_read', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                    <i class="bi bi-card-list me-1"></i>Carnet
-                                </a>
-                                <a href="{{ url_for('pet.pet_update_form', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-warning rounded-pill px-3">
-                                    <i class="bi bi-pencil me-1"></i>Modificar
-                                </a>
-                                <a href="{{ url_for('pet.pet_delete', pet_id=mascota.pet_id) }}"
-                                   class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                    <i class="bi bi-trash me-1"></i>Eliminar
+                    <div class="border-top pt-3">
+                        <h4 class="small text-uppercase text-body-secondary fw-semibold mb-2">Acciones</h4>
+                        <div class="row g-2 mb-2">
+                            <div class="col-12 col-sm-6">
+                                <a href="{{ url_for('medical.medical_create', pet_id=mascota.pet_id) }}" class="btn btn-primary w-100">
+                                    <i class="bi bi-plus-circle me-1"></i>Atender paciente
                                 </a>
                             </div>
+                            <div class="col-12 col-sm-6">
+                                <a href="{{ url_for('appointment.appointment_create', pet_id=mascota.pet_id) }}" class="btn btn-outline-primary w-100">
+                                    <i class="bi bi-calendar-plus me-1"></i>Agendar cita
+                                </a>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ url_for('medical.pet_history', pet_id=mascota.pet_id) }}" class="btn btn-sm btn-info flex-grow-1">
+                                <i class="bi bi-journal-medical me-1"></i>Ficha clínica
+                            </a>
+                            <button type="button" class="btn btn-sm btn-success flex-grow-1"
+                                    data-bs-toggle="modal" data-bs-target="#vaccinationModal"
+                                    data-pet-id="{{ mascota.pet_id }}" data-pet-name="{{ mascota.names }}">
+                                <i class="bi bi-shield-plus me-1"></i>Vacunas
+                            </button>
+                            <a href="{{ url_for('carnet.carnet_read', pet_id=mascota.pet_id) }}" class="btn btn-sm btn-outline-primary flex-grow-1">
+                                <i class="bi bi-card-list me-1"></i>Carnet
+                            </a>
+                            <a href="{{ url_for('pet.pet_update_form', pet_id=mascota.pet_id) }}" class="btn btn-sm btn-warning flex-grow-1">
+                                <i class="bi bi-pencil me-1"></i>Modificar
+                            </a>
+                            <a href="{{ url_for('pet.pet_delete', pet_id=mascota.pet_id) }}" class="btn btn-sm btn-outline-danger flex-grow-1">
+                                <i class="bi bi-trash me-1"></i>Eliminar
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -27,9 +27,9 @@ class PetForm(FlaskForm):
     pet_datebirth = DateField('Fecha de Nacimiento',validators=[Optional(),solo_pasado],
                                format='%Y-%m-%d')#esto nos dice en que formato nos traera el HTML.
     pet_microchip = StringField('Microchip',validators=[Optional(),Length(min=0,max=30),solo_numeros_enteros])
-    pet_gender = StringField('Genero',validators=[Optional(),Length(min=0,max=30) ])
+    pet_gender = SelectField('Genero',validators=[Optional(),Length(min=0,max=20)],choices=[('macho','Macho'),('hembra','Hembra')])
     pet_color = StringField('Color', validators=[Optional(),Length(min=3,max=30)])
-    pet_reproductive_status = StringField('Estado reproductivo',validators=[Optional(),Length(min=0,max=30)])
+    pet_reproductive_status = SelectField('Estado reproductivo',validators=[Optional(),Length(min=0,max=30)],choices=[('esterilizada','Esterilizada'),('castrado','Castrado'),('activo','Activo')])
 
     pet_tutor_name = StringField('Nombre del tutor',validators=[DataRequired(),Length(min=3,max=30),solo_letras])
     pet_tutor_address = StringField('Direccion del tutor',validators=[Optional(),Length(min=3,max=30)])
