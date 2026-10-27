@@ -33,11 +33,12 @@ class MedicalRecordModel:
         self.gender = data.get('pet_gender')
         self.reproductive_status = data.get('pet_reproductive_status')
         self.tutor = data.get('pet_tutor_name')
+        self.services = []
         
     @property
     def if_history(self):
         """
         Indica si la historia clínica es muy corta para mostrar un mensaje en la vista
         """
-        if len(self.history) <= 15:
+        if len(self.history or '') <= 15:
             return '⚠️ Historia muy corta'

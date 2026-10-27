@@ -94,6 +94,11 @@
                     🩺 Constantes Fisiológicas
                 </button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill px-4 py-2" id="services-tab" data-bs-toggle="pill" data-bs-target="#services-content" type="button" role="tab" aria-controls="services-content" aria-selected="false">
+                    🧾 Servicios realizados
+                </button>
+            </li>
         </ul>
 
         <!-- CONTENIDO DE LAS PESTAÑAS -->
@@ -200,6 +205,68 @@
                 </div>
             </div>
 
+            <!-- PESTAÑA 3: SERVICIOS REALIZADOS -->
+            <div class="tab-pane fade" id="services-content" role="tabpanel" aria-labelledby="services-tab">
+                <div class="mb-3">
+                    <h2 class="h5 fw-bold text-primary mb-1">Servicios de esta atención</h2>
+                    <p class="small text-body-secondary mb-0">Selecciona todos los servicios realizados durante esta ficha.</p>
+                </div>
+
+                {% if medical_record_form.services.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for error in medical_record_form.services.errors %}<div>{{ error }}</div>{% endfor %}
+                </div>
+                {% endif %}
+
+                {% if service_groups %}
+                    <div class="row g-3">
+                        {% for category, services in service_groups.items() %}
+                        <div class="col-12 col-md-6">
+                            <section class="h-100 border rounded-4 p-3 bg-body-tertiary" aria-labelledby="service-category-{{ loop.index }}">
+                                <h3 class="h6 text-primary fw-bold mb-3" id="service-category-{{ loop.index }}">{{ category }}</h3>
+                                <div class="d-flex flex-column gap-2">
+                                    {% for service in services %}
+                                    {% set service_input_id = 'medical-service-' ~ service.service_id %}
+                                    {% set price_input_id = 'medical-service-price-' ~ service.service_id %}
+                                    <div class="d-flex align-items-center justify-content-between gap-3">
+                                        <div class="form-check flex-grow-1">
+                                            <input class="form-check-input" type="checkbox"
+                                                   name="{{ medical_record_form.services.name }}"
+                                                   id="{{ service_input_id }}"
+                                                   value="{{ service.service_id }}"
+                                                   {% if service.service_id in (medical_record_form.services.data or []) %}checked{% endif %}>
+                                            <label class="form-check-label" for="{{ service_input_id }}">{{ service.service_name }}</label>
+                                        </div>
+                                        <div class="input-group input-group-sm" style="max-width: 150px;">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control" type="number" inputmode="decimal"
+                                                   id="{{ price_input_id }}"
+                                                   name="service_price_{{ service.service_id }}"
+                                                   min="0" max="9999999999.99" step="0.01" placeholder="Precio"
+                                                   value="{{ request.form.get('service_price_' ~ service.service_id, '') }}"
+                                                   aria-label="Precio de {{ service.service_name }}">
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </section>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info mb-0">No hay servicios activos en el catálogo.</div>
+                {% endif %}
+
+                <div class="d-flex justify-content-end align-items-center gap-3 mt-4 pt-3 border-top">
+                    <span class="fw-medium">Total de servicios:</span>
+                    <output id="servicePriceTotal" class="h5 text-primary fw-bold mb-0" aria-live="polite">$0.00</output>
+                </div>
+                <input type="hidden" id="medicalRecordPriceInput" name="medical_record_price" value="0.00">
+                {% if service_price_error %}
+                <div class="alert alert-danger mt-3 mb-0" role="alert">{{ service_price_error }}</div>
+                {% endif %}
+            </div>
+
         </div>
 
         <!-- BOTONES DE ACCIÓN -->
@@ -215,4 +282,35 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/voice-intake.js') }}" defer></script>
+<script>
+    (() => {
+        const priceInputs = document.querySelectorAll('input[name^="service_price_"]');
+        const serviceCheckboxes = document.querySelectorAll(
+            'input[type="checkbox"][name="{{ medical_record_form.services.name }}"]'
+        );
+        const totalLabel = document.getElementById('servicePriceTotal');
+        const totalInput = document.getElementById('medicalRecordPriceInput');
+        if (!totalLabel) return;
+
+        const updateTotal = () => {
+            const totalCents = Array.from(serviceCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .reduce((sum, checkbox) => {
+                const input = document.querySelector(
+                    `input[name="service_price_${checkbox.value}"]`
+                );
+                if (!input) return sum;
+                const value = Number(input.value);
+                return sum + (Number.isFinite(value) && value > 0 ? Math.round(value * 100) : 0);
+            }, 0);
+            const formattedTotal = (totalCents / 100).toFixed(2);
+            totalLabel.textContent = `$${formattedTotal}`;
+            if (totalInput) totalInput.value = formattedTotal;
+        };
+
+        priceInputs.forEach(input => input.addEventListener('input', updateTotal));
+        serviceCheckboxes.forEach(checkbox => checkbox.addEventListener('change', updateTotal));
+        updateTotal();
+    })();
+</script>
 {% endblock %}

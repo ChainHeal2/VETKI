@@ -98,6 +98,21 @@
 
                             </div>
 
+                            <div class="mt-3 pt-3 border-top">
+                                <strong class="small text-body me-2">Servicios realizados:</strong>
+                                {% if expediente.services %}
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        {% for service in expediente.services %}
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-medium">
+                                            {{ service.category }} · {{ service.name }}
+                                        </span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <span class="small text-body-secondary">No se registraron servicios en esta atención.</span>
+                                {% endif %}
+                            </div>
+
                             <!-- EVALUACIÓN Y CONSTANTES FISIOLÓGICAS -->
                             <div class="collapse mt-3" id="detalleFicha{{ outer_index }}_{{ loop.index }}">
                                 <div class="pt-3 border-top bg-body p-3 rounded-3 border">

@@ -1,6 +1,7 @@
 """
 CRUD-EXPEDIENTES CLINICOS
 """
+from decimal import Decimal, InvalidOperation
 from flask import (Blueprint, current_app, flash, render_template, url_for, redirect, request, session)
 from aplicacion.db import get_db
 from aplicacion.forms.medical_records.medical_form import MedicalRecordForm
@@ -9,6 +10,100 @@ from aplicacion.blueprints.pet.pet_model import PetModel
 import math
 
 bp = Blueprint('medical',__name__,url_prefix='/medical')
+
+
+def _parse_service_price(service_id):
+    """Convierte el precio de un servicio a un importe válido con dos decimales."""
+    raw_price = request.form.get(f"service_price_{service_id}", "").strip()
+    if not raw_price:
+        return Decimal("0.00")
+
+    try:
+        price = Decimal(raw_price)
+    except InvalidOperation as error:
+        raise ValueError("Ingresa un precio numérico para cada servicio marcado.") from error
+
+    if not price.is_finite() or price < 0:
+        raise ValueError("Los precios deben ser números iguales o mayores que cero.")
+
+    if price > Decimal("9999999999.99"):
+        raise ValueError("El precio supera el máximo permitido.")
+
+    try:
+        rounded_price = price.quantize(Decimal("0.01"))
+    except InvalidOperation as error:
+        raise ValueError("El precio ingresado no es válido.") from error
+    if rounded_price != price:
+        raise ValueError("Los precios admiten hasta dos decimales.")
+    return rounded_price
+
+
+def _calculate_service_total(service_ids):
+    """Suma los precios de los servicios seleccionados en el formulario."""
+    return sum(
+        (_parse_service_price(service_id) for service_id in service_ids),
+        Decimal("0.00"),
+    ).quantize(Decimal("0.01"))
+
+
+def _validate_displayed_total(total):
+    """Comprueba que el total enviado por el formulario coincide con la suma."""
+    try:
+        displayed_total = Decimal(request.form.get("medical_record_price", ""))
+    except InvalidOperation as error:
+        raise ValueError("No se recibió un total válido para la ficha.") from error
+
+    if not displayed_total.is_finite() or displayed_total != total:
+        raise ValueError("El total mostrado no coincide con los precios de los servicios.")
+
+
+def _save_medical_record(cursor, db, form, pet_id, user_id, service_ids, total):
+    """Guarda la ficha y sus servicios en una misma transacción."""
+    sql = """
+        INSERT INTO medical_records (
+            medical_record_reason, medical_record_weight, medical_record_temperature,
+            medical_record_heart, medical_record_respiratory, medical_record_water,
+            medical_record_capillary, medical_record_arterial, medical_record_date,
+            medical_record_medical_history, medical_record_signals,
+            medical_record_diagnosis, medical_record_treatment,
+            medical_record_pet_id, medical_record_user_id,
+            medical_record_appointment_id, medical_record_price
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING medical_record_id
+    """
+    data = (
+        form.reason.data,
+        form.weigth.data,
+        form.temperature.data,
+        form.heart.data,
+        form.respiratory.data,
+        form.water.data,
+        form.capillary.data,
+        form.arterial.data,
+        form.date.data,
+        form.history.data,
+        form.signals.data,
+        form.diagnosis.data,
+        form.tratment.data,
+        pet_id,
+        user_id,
+        None,
+        total,
+    )
+
+    try:
+        cursor.execute(sql, data)
+        medical_record_id = cursor.fetchone()["medical_record_id"]
+        if service_ids:
+            cursor.executemany(
+                """INSERT INTO medical_record_services (medical_record_id, service_id)
+                   VALUES (%s, %s)""",
+                [(medical_record_id, service_id) for service_id in service_ids],
+            )
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
 
 @bp.route("/medical_create/<int:pet_id>", methods = ['GET','POST'])
 def medical_create(pet_id):
@@ -19,48 +114,54 @@ def medical_create(pet_id):
     db,cursor = get_db()
     cursor.execute('select * from pet_data where pet_id =%s',(pet_id,))
     pet_data = cursor.fetchone()
+    cursor.execute(
+        """SELECT service_id, service_name, service_category
+           FROM services
+           WHERE is_active = TRUE
+           ORDER BY service_category, service_name"""
+    )
+    available_services = cursor.fetchall()
+    medical_record_form.services.choices = [
+        (service["service_id"], service["service_name"])
+        for service in available_services
+    ]
+    service_groups = {}
+    for service in available_services:
+        service_groups.setdefault(service["service_category"], []).append(service)
+
+    service_price_error = None
     if medical_record_form.validate_on_submit():
-        date = medical_record_form.date.data
-        reason = medical_record_form.reason.data
-        weigth = medical_record_form.weigth.data
-        temperature = medical_record_form.temperature.data
-        heart = medical_record_form.heart.data
-        respiratory = medical_record_form.respiratory.data
-        water = medical_record_form.water.data
-        capillary = medical_record_form.capillary.data
-        arterial = medical_record_form.arterial.data
-        history = medical_record_form.history.data
-        signals = medical_record_form.signals.data
-        diagnosis = medical_record_form.diagnosis.data
-        tratment = medical_record_form.tratment.data
-        pet_id = pet_data['pet_id']
-        user_id = session.get('user_id')
-        appointment_id = None
-        
-        data = (reason,weigth,temperature,
-                heart,respiratory,water,
-                capillary,arterial,date,
-                history,signals,diagnosis,tratment,
-                pet_id,user_id,appointment_id)
-        sql = """
-                INSERT INTO medical_records (medical_record_reason,medical_record_weight,medical_record_temperature,
-                medical_record_heart,medical_record_respiratory,medical_record_water,
-                medical_record_capillary,medical_record_arterial,medical_record_date,
-                medical_record_medical_history,medical_record_signals,medical_record_diagnosis,medical_record_treatment,
-                medical_record_pet_id,medical_record_user_id,medical_record_appointment_id)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                """
+        selected_service_ids = medical_record_form.services.data or []
         try:
-            cursor.execute(sql, data)
-            db.commit()
-        except Exception:
-            db.rollback()
-            current_app.logger.exception("No se pudo guardar el expediente clínico")
-            flash("Ocurrió un error al guardar el expediente. Revisa los datos e inténtalo nuevamente.", "error")
+            total = _calculate_service_total(selected_service_ids)
+            _validate_displayed_total(total)
+        except ValueError as error:
+            service_price_error = str(error)
         else:
-            flash("Expediente clínico creado correctamente", "success")
-            return redirect(url_for('medical.medical_read'))
-    return render_template('medical_records/medical_create.html',medical_record_form = medical_record_form,mascota = pet_data)
+            try:
+                _save_medical_record(
+                    cursor,
+                    db,
+                    medical_record_form,
+                    pet_data["pet_id"],
+                    session.get("user_id"),
+                    selected_service_ids,
+                    total,
+                )
+            except Exception:
+                current_app.logger.exception("No se pudo guardar el expediente clínico")
+                flash("Ocurrió un error al guardar el expediente. Revisa los datos e inténtalo nuevamente.", "error")
+            else:
+                flash("Expediente clínico creado correctamente", "success")
+                return redirect(url_for('medical.medical_read'))
+
+    return render_template(
+        'medical_records/medical_create.html',
+        medical_record_form=medical_record_form,
+        mascota=pet_data,
+        service_groups=service_groups,
+        service_price_error=service_price_error,
+    )
 
 @bp.route("/medical_read", methods=['GET'])
 def medical_read():
@@ -146,7 +247,31 @@ def pet_history(pet_id):
     c.execute(sql,(pet_id,))
     datos = c.fetchall()
     medical_model_list = [MedicalRecordModel(ficha) for ficha in datos]
-    return render_template("medical_records/pet_history.html",tabla = medical_model_list,pet_id=pet_id)
+
+    services_by_record = {}
+    record_ids = [ficha["medical_record_id"] for ficha in datos]
+    if record_ids:
+        c.execute(
+            """SELECT mrs.medical_record_id, s.service_name, s.service_category
+               FROM medical_record_services mrs
+               JOIN services s ON s.service_id = mrs.service_id
+               WHERE mrs.medical_record_id = ANY(%s)
+               ORDER BY s.service_category, s.service_name""",
+            (record_ids,),
+        )
+        for service in c.fetchall():
+            services_by_record.setdefault(service["medical_record_id"], []).append(
+                {"name": service["service_name"], "category": service["service_category"]}
+            )
+
+    for record in medical_model_list:
+        record.services = services_by_record.get(record.medical_id, [])
+
+    return render_template(
+        "medical_records/pet_history.html",
+        tabla=medical_model_list,
+        pet_id=pet_id,
+    )
 
 @bp.route("/pet_delete/<int:pet_id>",methods = ['GET','POST'])
 def pet_delete(pet_id):

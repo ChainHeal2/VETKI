@@ -1,6 +1,7 @@
 """Metadatos SQLAlchemy del esquema que controla Flask-Migrate."""
 
 from sqlalchemy import (
+    Boolean,
     Column,
     Date,
     DateTime,
@@ -8,6 +9,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     MetaData,
+    Numeric,
     String,
     Table,
     Text,
@@ -98,6 +100,12 @@ medical_records=Table(
     Column("medical_record_diagnosis", Text),
     Column("medical_record_treatment", Text),
     Column(
+        "medical_record_price",
+        Numeric(14, 2),
+        nullable=False,
+        server_default=text("0.00"),
+    ),
+    Column(
         "medical_record_pet_id",
         Integer,
         ForeignKey(
@@ -125,6 +133,50 @@ medical_records=Table(
         ),
     ),
     Column("created_at", DateTime(timezone=False), server_default=text("CURRENT_TIMESTAMP")),
+)
+
+services = Table(
+    "services",
+    metadata,
+    Column("service_id", Integer, primary_key=True, autoincrement=True),
+    Column("service_name", String(120), nullable=False),
+    Column("service_category", String(60), nullable=False),
+    Column("is_active", Boolean, nullable=False, server_default=text("TRUE")),
+    UniqueConstraint(
+        "service_category", "service_name", name="uq_services_category_name"
+    ),
+)
+
+medical_record_services = Table(
+    "medical_record_services",
+    metadata,
+    Column(
+        "medical_record_id",
+        Integer,
+        ForeignKey(
+            "vetki.medical_records.medical_record_id",
+            name="fk_medical_record_services_record",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    ),
+    Column(
+        "service_id",
+        Integer,
+        ForeignKey(
+            "vetki.services.service_id",
+            name="fk_medical_record_services_service",
+            ondelete="RESTRICT",
+        ),
+        primary_key=True,
+    ),
+    Column("service_notes", Text),
+    Column(
+        "created_at",
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=text("NOW()"),
+    ),
 )
 
 vaccinations=Table(
