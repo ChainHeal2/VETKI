@@ -272,7 +272,7 @@ def appointment_update(appointment_id):
 
     if is_ajax and request.method == "GET":
         return render_template(
-            "appointment/_appointment_update_modal.html",
+            "appointment/appointment_modal.html",
             appointment_update=form_update,
             appointment_data=appointment_data,
             pet_data=pet_info,
