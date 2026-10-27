@@ -185,6 +185,13 @@ body > main {
     overscroll-behavior-y: contain;
 }
 
+.navbar-brand-logo {
+    width: 44px;
+    height: auto;
+    flex: 0 0 auto;
+    object-fit: contain;
+}
+
 /* Transiciones suaves en enlaces y botones */
 .transition-hover {
     transition: transform 0.2s ease, box-shadow 0.2s ease;

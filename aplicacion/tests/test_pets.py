@@ -20,7 +20,7 @@ def test_pet_create(client,case,boolean,motivo):
         Esto fuerza a fallar el TEST
      
     """
-    response = client.post('/pet_create',data = case)
+    response = client.post('/pet/pet_create',data = case)
 
     if boolean and response.status_code != 302:
         #Caso Quedar atrapado en el formulario
@@ -38,8 +38,21 @@ def test_pet_create(client,case,boolean,motivo):
 def test_pet_update(client, db_context, case, boolean, motivo):
     """(conecta_db, inserta_base, extrae_id_llave, envia_post, aserta ->)"""
     db, cursor = db_context
-    insert_sql = "INSERT INTO pet_data (pet_names) VALUES (%s) RETURNING pet_id"
-    cursor.execute(insert_sql, ("Nombre inicial",))
+    cursor.execute(
+        "INSERT INTO user_data (user_names) VALUES (%s) RETURNING user_id",
+        ("Usuario de prueba",),
+    )
+    user_result = cursor.fetchone()
+    try:
+        user_id = user_result["user_id"]
+    except (TypeError, KeyError):
+        user_id = user_result[0]
+
+    insert_sql = (
+        "INSERT INTO vetki.pet_data (pet_user_id, pet_names) "
+        "VALUES (%s, %s) RETURNING pet_id"
+    )
+    cursor.execute(insert_sql, (user_id, "Nombre inicial"))
     resultado = cursor.fetchone()
     if resultado is None:
         pytest.fail("Error: No se generó el registro inicial")
@@ -48,7 +61,10 @@ def test_pet_update(client, db_context, case, boolean, motivo):
     except (TypeError, KeyError):
         id_pet = resultado[0]
     db.commit()
-    url = f"/pet_update_form/{id_pet}"
+    with client.session_transaction() as session:
+        session["user_id"] = user_id
+
+    url = f"/pet/pet_update_form/{id_pet}"
     response = client.post(url, data=case)
     if boolean and response.status_code != 302:
         #Caso Quedar atrapado en el formulario

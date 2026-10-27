@@ -9,7 +9,7 @@
     <!-- Bootstrap 5 y Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='20261027-navbar-logo') }}">
     
     {% block head %}{% endblock %}
 </head>
@@ -20,9 +20,8 @@
         <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom border-secondary border-opacity-25 px-3 px-lg-4">
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold d-flex align-items-center gap-2 m-0" href="{{ url_for('index.index') }}">
-                    <div class="bg-primary text-white rounded-2 d-flex align-items-center justify-content-center shadow-sm" style="width: 36px; height: 36px;">
-                        <i class="bi bi-hospital fs-5"></i>
-                    </div>
+                    <img class="navbar-brand-logo" src="{{ url_for('static', filename='images/logo.png') }}"
+                         alt="Emblema veterinario VETKI" width="584" height="474">
                     <span class="text-white fs-4">VET<span class="text-primary">KI</span></span>
                 </a>
 
@@ -51,7 +50,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-primary btn-sm px-3 rounded-pill w-100 fw-medium shadow-sm" href="{{ url_for('auth.user_register') }}">
+                            <a class="btn btn-info btn-sm px-3 rounded-pill w-100 fw-medium shadow-sm" href="{{ url_for('auth.user_register') }}">
                                 <i class="bi bi-person-plus me-1"></i>Registrarse
                             </a>
                         </li>
@@ -222,7 +221,7 @@
                         VETKI centraliza historias clínicas, agenda de turnos y procesos administrativos en una plataforma segura y moderna.
                     </p>
                     <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
-                        <a href="{{ url_for('auth.user_login') }}" class="btn btn-success btn-lg px-4 py-3 fw-bold shadow-sm rounded-pill">
+                        <a href="{{ url_for('auth.user_login') }}" class="btn btn-secondary btn-lg px-4 py-3 fw-bold shadow-sm rounded-pill">
                             Ingresar al sistema <i class="bi bi-arrow-right ms-2"></i>
                         </a>
                         <a href="{{ url_for('auth.user_register') }}" class="btn btn-outline-primary btn-lg px-4 py-3 fw-medium shadow-sm rounded-pill">

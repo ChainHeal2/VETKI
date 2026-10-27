@@ -60,7 +60,7 @@ def pet_create():
                 form.get('pet_microchip'),
                 form.get('pet_gender'),
                 form.get('pet_color'),
-                form.get('pet_rstatus'),     # Se mapea con pet_reproductive_status en SQL
+                form.get('pet_reproductive_status'),
                 form.get('pet_tutor_name'),
                 form.get('pet_tutor_address'),
                 form.get('pet_tutor_phone')

@@ -13,64 +13,64 @@ def app_context():
 casos_create = [
     ({
         "pet_names": "Ichir",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "Bulldog",
         "pet_datebirth": date.today(),
         "pet_microchip": "123456789",
-        "pet_gender": "Macho",
+        "pet_gender": "macho",
         "pet_color": "Blanco",
-        "pet_rstatus": "Castrado",
+        "pet_reproductive_status": "castrado",
         "pet_tutor_name": "Juan Perez",  # Corregido de pet_tutor_names a pet_tutor_name
         "pet_tutor_email": "juan.perez@example.com",
         "pet_tutor_phone": "1234567890",
     }, True, "Debe crear la mascota correctamente"),
     ({
         "pet_names": "Ma ",
-        "pet_species_name": "1", 
+        "pet_species_name": "canina",
         "pet_race": "Pug",
         "pet_datebirth": date.today(),
         "pet_microchip": "123456789",
-        "pet_gender": "Hembra",
+        "pet_gender": "hembra",
         "pet_color": "Blanco",
-        "pet_rstatus": "Activo",
+        "pet_reproductive_status": "activo",
         "pet_tutor_name": "Juan Perez"
     }, False, "Debe fallar por nombre muy corto"),
     ({
         "pet_names": "KYoMi",
-        "pet_species_name": "2",
+        "pet_species_name": "felina",
         "pet_race": "Bulldog",
         "pet_datebirth": date.today() - timedelta(days=365),
         "pet_microchip": "123456789",
-        "pet_gender": "Macho",
+        "pet_gender": "macho",
         "pet_color": "Blanco",
-        "pet_rstatus": "Castrado",
+        "pet_reproductive_status": "castrado",
         "pet_tutor_name": "Juan Perez"
     }, True, "Puede ser: a year ago"),
     ({
         "pet_names": "SulTan",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "Bulldog",
         "pet_datebirth": date.today(),
         "pet_microchip": "123456789",
         "pet_gender": "",
         "pet_color": "Blanco",
-        "pet_rstatus": "Castrado",
+        "pet_reproductive_status": "castrado",
         "pet_tutor_name": "Juan Perez"
     }, True, "Puede sin genero: vacio"),
     ({
         "pet_names": "Canela",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "Bulldog",
         "pet_datebirth": date.today(),
         "pet_microchip": "123456789",
-        "pet_gender": "Macho",
+        "pet_gender": "macho",
         "pet_color": "Bl",
-        "pet_rstatus": "Castrado",
+        "pet_reproductive_status": "castrado",
         "pet_tutor_name": "Juan Perez"
     }, False, "Color no existe"),
     ({
         "pet_names": "Sirius",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "",
         "pet_datebirth": "",
         "pet_microchip": "",
@@ -81,7 +81,7 @@ casos_create = [
     }, True, "Solo el nombre y tutor"),
     ({
         "pet_names": "Sirius",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "",
         "pet_datebirth": date.today() + timedelta(days=1),
         "pet_microchip": "",
@@ -92,7 +92,7 @@ casos_create = [
     }, False, "No se permite fecha futura"),
     ({
         "pet_names": "GaAur'a",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "",
         "pet_datebirth": date.today(),
         "pet_microchip": "",
@@ -103,7 +103,7 @@ casos_create = [
     }, True, "Limpia los nombres raros"),
     ({
         "pet_names": "Soy Letra",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "",
         "pet_datebirth": date.today(),
         "pet_microchip": "F600",
@@ -117,7 +117,7 @@ casos_create = [
 casos_update = [
     ({
         "pet_names": "Ic",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "",
         "pet_datebirth": date.today(),
         "pet_microchip": "",
@@ -128,51 +128,51 @@ casos_update = [
     }, False, "En caso de:Nombre muy corto"),
     ({
         "pet_names": "Ma ",
-        "pet_species_name": "1", 
+        "pet_species_name": "canina",
         "pet_race": "Pug",
         "pet_datebirth": date.today(),
         "pet_microchip": "123456789",
-        "pet_gender": "Hembra",
+        "pet_gender": "hembra",
         "pet_color": "Blanco",
-        "pet_rstatus": "Activo",
+        "pet_reproductive_status": "activo",
         "pet_tutor_name": "Juan Perez"
     }, False, "Debe fallar por nombre muy corto"),
     ({
         "pet_names": "Kyomi",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "Bulldog",
         "pet_datebirth": date.today() - timedelta(days=365),
         "pet_microchip": "",
-        "pet_gender": "Macho",
+        "pet_gender": "macho",
         "pet_color": "Blanco",
-        "pet_rstatus": "Castrado",
+        "pet_reproductive_status": "castrado",
         "pet_tutor_name": "Juan Perez"
     }, True, "Puede ser: a year ago"),
     ({
         "pet_names": "Sultan",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "Bulldog",
         "pet_datebirth": date.today(),
         "pet_microchip": "",
         "pet_gender": "",
         "pet_color": "Blanco",
-        "pet_rstatus": "Castrado",
+        "pet_reproductive_status": "castrado",
         "pet_tutor_name": "Juan Perez"
     }, True, "Puede sin genero: vacio"),
     ({
         "pet_names": "Canela",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "Bulldog",
         "pet_datebirth": date.today(),
         "pet_microchip": "123456789",
-        "pet_gender": "Macho",
+        "pet_gender": "macho",
         "pet_color": "Bl",
-        "pet_rstatus": "Castrado",
+        "pet_reproductive_status": "castrado",
         "pet_tutor_name": "Juan Perez"
     }, False, "Color no existe"),
     ({
         "pet_names": "Sirius",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "",
         "pet_datebirth": "",
         "pet_microchip": "",
@@ -183,7 +183,7 @@ casos_update = [
     }, True, "Solo el nombre y tutor"),
     ({
         "pet_names": "Sirius",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "",
         "pet_datebirth": date.today() + timedelta(days=1),
         "pet_microchip": "",
@@ -194,7 +194,7 @@ casos_update = [
     }, False, "No se permite fecha futura"),
     ({
         "pet_names": "GaAur'a",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "",
         "pet_datebirth": date.today(),
         "pet_microchip": "",
@@ -205,7 +205,7 @@ casos_update = [
     }, True, "Limpia los nombres raros"),
     ({
         "pet_names": "Soy Letra",
-        "pet_species_name": "1",
+        "pet_species_name": "canina",
         "pet_race": "",
         "pet_datebirth": date.today(),
         "pet_microchip": "F600",
@@ -227,7 +227,7 @@ casos_update = [
     }, False, "Sin datos vacios"),
     ({
     "pet_names": "Ichir",
-    "pet_species_name": "1",
+        "pet_species_name": "canina",
     "pet_datebirth": date.today(),
     "pet_tutor_name": "Juan Perez",
     "pet_tutor_email": "juan@example.com",
@@ -250,8 +250,7 @@ def test_pet_create_form(app_context, datos, resultado_esperado, descripcion):
     mdict = MultiDict(form_data)
     form = PetForm(formdata=mdict)
     
-    # Mocking choices to pass 'coerce=int' internal validations for SelectFields
-    form.pet_species_name.choices = [(1, "Perro"), (2, "Gato"), (3, "Ave")]
+    form.pet_species_name.choices = [("canina", "Canina"), ("felina", "Felina")]
     
     # Assert que el formulario responda lo que esperamos
     assert form.validate() == resultado_esperado, f"Fallo en: {descripcion}. Errores: {form.errors}"
@@ -269,6 +268,6 @@ def test_pet_update_form(app_context, datos, resultado_esperado, descripcion):
     mdict = MultiDict(form_data)
     form = PetForm(formdata=mdict)
     
-    form.pet_species_name.choices = [(1, "Perro"), (2, "Gato"), (3, "Ave")]
+    form.pet_species_name.choices = [("canina", "Canina"), ("felina", "Felina")]
     
     assert form.validate() == resultado_esperado, f"Fallo en Update: {descripcion}. Errores: {form.errors}"
