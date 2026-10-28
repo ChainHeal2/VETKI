@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:8000 "aplicacion:create_app()"
+web: gunicorn "aplicacion:create_app()"
