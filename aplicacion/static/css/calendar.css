@@ -4,7 +4,7 @@
  */
 
 :root {
-    --fc-border-color: rgba(255, 255, 255, 0.08);
+    --fc-border-color: rgba(217, 47, 47, 0.08);
     --fc-today-bg-color: rgba(13, 110, 253, 0.1);
 }
 
@@ -58,14 +58,21 @@
 }
 
 .fc .fc-button-primary:hover {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: #0d6efd !important;
+    background-color: var(--vetki-pink, #F9E0F7) !important;
+    border-color: var(--vetki-mauve, #AD5CB5) !important;
+    color: var(--vetki-primary, #9B2F90) !important;
 }
 
 .fc .fc-button-primary:not(:disabled).fc-button-active, 
 .fc .fc-button-primary:not(:disabled):active {
-    background-color: #0d6efd !important;
-    border-color: #0d6efd !important;
+    background-color: var(--vetki-primary, #9B2F90) !important;
+    border-color: var(--vetki-primary, #9B2F90) !important;
+    color: #ffffff !important;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active:hover {
+    background-color: var(--vetki-violet, #9840A0) !important;
+    border-color: var(--vetki-violet, #9840A0) !important;
     color: #ffffff !important;
 }
 
@@ -116,7 +123,7 @@
 /* Tarjetas de Eventos */
 .fc-event {
     border: none !important;
-    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
+    background: linear-gradient(135deg, #b42ec3 0%, #4f8fef 100%) !important;
     border-radius: 6px !important;
     padding: 2px 5px !important;
     margin: 1px 2px !important;
@@ -127,7 +134,7 @@
 .fc-event-title {
     font-size: 0.78rem !important;
     font-weight: 600 !important;
-    color: #ffffff !important;
+    color: #d40606 !important;
     white-space: normal !important;
 }
 
@@ -139,8 +146,8 @@
 
 .calendar-event-line {
     overflow-wrap: anywhere;
-    font-size: 0.72rem;
-    font-weight: 500;
+    font-size: 0.90rem;
+    font-weight: 800;
     color: #ffffff;
 }
 
@@ -155,6 +162,55 @@
 }
 
 /* Optimizaciones para Vista Lista en Móviles */
+.fc .fc-list-event > td {
+    background-color: var(--bs-body-bg, #FEFEFC) !important;
+    border-top: 1px solid var(--vetki-border-subtle, rgba(218, 165, 219, 0.35)) !important;
+    border-bottom: 1px solid var(--vetki-border-subtle, rgba(218, 165, 219, 0.35)) !important;
+}
+
+.fc .fc-list-event > td:first-child {
+    border-left: 4px solid var(--vetki-primary, #9B2F90) !important;
+    border-radius: 0.75rem 0 0 0.75rem;
+}
+
+.fc .fc-list-event > td:last-child {
+    border-right: 1px solid var(--vetki-border-subtle, rgba(218, 165, 219, 0.35)) !important;
+    border-radius: 0 0.75rem 0.75rem 0;
+}
+
+.fc .fc-list-event:hover > td {
+    background-color: var(--vetki-pink, #F9E0F7) !important;
+}
+
+.fc .fc-list-event-dot {
+    border-color: var(--vetki-primary, #9B2F90) !important;
+}
+
+.fc .fc-list-event-time {
+    color: var(--vetki-ink, #443961) !important;
+    font-weight: 600;
+}
+
+.fc .fc-list-event-title a {
+    color: var(--vetki-ink, #443961) !important;
+    display: block;
+}
+
+.fc .fc-list-event .calendar-event-card {
+    padding: 0.35rem 0.6rem;
+}
+
+.fc .fc-list-event .calendar-event-line {
+    color: var(--vetki-ink, #443961) !important;
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+.fc .fc-list-event .calendar-event-line:first-child {
+    color: var(--vetki-primary, #9B2F90) !important;
+    font-weight: 700;
+}
+
 .fc-list-event-title a {
     text-decoration: none !important;
     font-weight: 600;

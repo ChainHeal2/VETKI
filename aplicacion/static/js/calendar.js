@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let isMobile = window.innerWidth < 768;
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: isMobile ? 'listWeek' : 'dayGridMonth',
+        initialView: 'listWeek',
         locale: 'es',
         firstDay: 1,
         timeZone: 'local',
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } : {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            right: 'listWeek,dayGridMonth,timeGridWeek,timeGridDay'
         },
 
         buttonText: {
